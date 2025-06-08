@@ -14,7 +14,7 @@ export function Header() {
             <Image src="/camera.png" alt="Logo" width={24} height={24} />
           </div>
         </div>
-        <h1 className="text-2xl font-black text-accent-foreground">
+        <h1 className="hidden md:block text-2xl font-black text-accent-foreground">
           Color Palette Generator
         </h1>
       </div>

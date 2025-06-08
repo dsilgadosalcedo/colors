@@ -118,12 +118,17 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
           <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto">
             <ImageIcon className="w-8 h-8 text-gray-300" />
           </div>
-          <div>
+          <div className="hidden md:block">
             <p className="text-lg font-medium text-gray-900 mb-1">
               Drop your image here
             </p>
             <p className="text-gray-500 text-sm">
               or click to browse your files
+            </p>
+          </div>
+          <div className="block md:hidden">
+            <p className="text-lg font-medium text-gray-900 mb-1">
+              Click to browse your files
             </p>
           </div>
         </div>

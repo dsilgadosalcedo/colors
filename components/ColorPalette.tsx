@@ -27,7 +27,7 @@ export function ColorPaletteDisplay() {
   if (!colorPalette) {
     return (
       <ColorPaletteBox>
-        <div className="shadow grid place-content-center place-items-center h-full">
+        <div className="md:shadow grid place-content-center place-items-center h-full">
           <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
             <Palette className="w-8 h-8 text-gray-300" />
           </div>
@@ -153,7 +153,7 @@ export function ColorPaletteDisplay() {
 
 const ColorPaletteBox = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className="animate-in fade-in-0 duration-400 flex flex-col my-6 rounded-3xl rounded-r-none py-0.5 pl-0.5 bg-gradient-to-br from-[#338B8F]/50 via-[#F07D21]/50 to-[#FFDA33]/50 overflow-hidden shadow-md">
+    <div className="border-t lg:border-t-0 animate-in fade-in-0 duration-400 flex flex-col lg:my-6 lg:rounded-3xl lg:rounded-r-none lg:py-0.5 lg:pl-0.5 lg:bg-gradient-to-br from-[#338B8F]/50 via-[#F07D21]/50 to-[#FFDA33]/50 overflow-hidden lg:shadow-md">
       <section className="bg-background rounded-[22px] rounded-r-none flex-1">
         {children}
       </section>
