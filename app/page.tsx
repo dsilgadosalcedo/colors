@@ -1,50 +1,18 @@
 "use client";
 
 import type React from "react";
-
-import { useState, useRef } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { useState } from "react";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
-import {
-  Palette,
-  Sparkles,
-  Copy,
-  Download,
-  Check,
-  ImageIcon,
-  History,
-  Trash2,
-  Share2,
-} from "lucide-react";
-import Image from "next/image";
 import { generateColorPalette } from "./actions";
 import { toast } from "@/components/ui/use-toast";
 import { useLocalStorage } from "@/hooks/use-local-storage";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { cn } from "@/lib/utils";
-import { Label } from "@/components/ui/label";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { ColorInfo, ColorPalette } from "@/lib/types";
 
-interface ColorInfo {
-  hex: string;
-  name: string;
-  description: string;
-}
-
-interface ColorPalette {
-  colors: ColorInfo[];
-  dominantColor: string;
-  mood: string;
-  timestamp?: number;
-  imagePreview?: string;
-}
+// Components
+import { Header } from "@/components/Header";
+import { ImageUpload } from "@/components/ImageUpload";
+import { ColorPaletteDisplay } from "@/components/ColorPalette";
+import { SavedPalettes } from "@/components/SavedPalettes";
 
 export default function ColorPaletteGenerator() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -56,7 +24,6 @@ export default function ColorPaletteGenerator() {
     "saved-palettes",
     []
   );
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const [colorCount, setColorCount] = useState(3);
   const [activeTab, setActiveTab] = useState("generator");
 
@@ -67,32 +34,6 @@ export default function ColorPaletteGenerator() {
       setColorPalette(null);
     };
     reader.readAsDataURL(file);
-  };
-
-  const handleDrag = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (e.type === "dragenter" || e.type === "dragover") {
-      setDragActive(true);
-    } else if (e.type === "dragleave") {
-      setDragActive(false);
-    }
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
-
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      handleImageUpload(e.dataTransfer.files[0]);
-    }
-  };
-
-  const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      handleImageUpload(e.target.files[0]);
-    }
   };
 
   const generatePalette = async () => {
@@ -258,41 +199,7 @@ export default function ColorPaletteGenerator() {
 
   return (
     <>
-      {/* Header */}
-      <header className="flex justify-between p-6 border-b border-foreground/40">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-[#FF2D55] to-[#FF9500] rounded-xl flex items-center justify-center">
-            <Palette className="w-5 h-5 text-white" />
-          </div>
-          <h1 className="text-2xl font-black text-accent-foreground">
-            Color Palette Generator
-          </h1>
-        </div>
-
-        {/* Custom Navigation Buttons in Header */}
-        <nav className="flex items-center">
-          <Button
-            onClick={() => setActiveTab("generator")}
-            variant="link"
-            className={cn(
-              "text-xl font-extralight",
-              activeTab !== "generator" && "opacity-50"
-            )}
-          >
-            Generator
-          </Button>
-          <Button
-            onClick={() => setActiveTab("collection")}
-            variant="link"
-            className={cn(
-              "text-xl font-extralight",
-              activeTab !== "collection" && "opacity-50"
-            )}
-          >
-            My Collection
-          </Button>
-        </nav>
-      </header>
+      <Header activeTab={activeTab} setActiveTab={setActiveTab} />
 
       <main className="flex-1 flex flex-col">
         <Tabs
@@ -303,395 +210,39 @@ export default function ColorPaletteGenerator() {
           <TabsContent value="generator" className="flex-1 flex flex-col">
             <div className="flex-1 grid lg:grid-cols-2">
               {/* Upload Section */}
-              <div
-                className="relative flex flex-col justify-center gap-6  backdrop-blur-md"
-                onDragEnter={handleDrag}
-                onDragLeave={handleDrag}
-                onDragOver={handleDrag}
-                onDrop={handleDrop}
-              >
-                {/* Hero Section */}
-                <div className="text-center mb-8">
-                  <h2 className="text-4xl font-bold text-gray-900 mb-4 leading-tight tracking-tight">
-                    Extract beautiful colors
-                    <br />
-                    <span className="bg-gradient-to-r from-[#FF2D55] to-[#FF9500] bg-clip-text text-transparent">
-                      from any image
-                    </span>
-                  </h2>
-                  <p className="text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed text-balance  ">
-                    Upload an image and let AI extract a beautiful color palette
-                    with intelligent color analysis.
-                  </p>
-                </div>
-
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileInput}
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                />
-
-                <Image
-                  src={selectedImage || "/placeholder.svg"}
-                  alt="Uploaded image"
-                  fill
-                  className={cn(
-                    "absolute top-0 left-0 object-cover -z-10 mask-r-from-30% blur-sm",
-                    selectedImage ? "opacity-40" : "opacity-0"
-                  )}
-                />
-
-                {selectedImage ? (
-                  <div className="grid place-items-center gap-4 z-20">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        setSelectedImage(null);
-                        setColorPalette(null);
-                        if (fileInputRef.current) {
-                          fileInputRef.current.value = "";
-                        }
-                      }}
-                    >
-                      Change Image
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="grid place-items-center gap-4">
-                    <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto">
-                      <ImageIcon className="w-8 h-8 text-gray-400" />
-                    </div>
-                    <div>
-                      <p className="text-lg font-medium text-gray-900 mb-1">
-                        Drop your image here
-                      </p>
-                      <p className="text-gray-500 text-sm">
-                        or click to browse your files
-                      </p>
-                    </div>
-                  </div>
-                )}
-
-                {selectedImage && (
-                  <div className="grid place-items-center mt-4 z-20">
-                    <div className="flex items-center justify-between gap-4">
-                      <Label
-                        htmlFor="color-count"
-                        className="text-sm font-medium text-gray-700"
-                      >
-                        Number of colors
-                      </Label>
-                      <Select
-                        value={colorCount.toString()}
-                        onValueChange={(value) =>
-                          setColorCount(Number.parseInt(value))
-                        }
-                      >
-                        <SelectTrigger id="color-count" className="w-20">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="3">3</SelectItem>
-                          <SelectItem value="4">4</SelectItem>
-                          <SelectItem value="5">5</SelectItem>
-                          <SelectItem value="6">6</SelectItem>
-                          <SelectItem value="8">8</SelectItem>
-                          <SelectItem value="10">10</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                )}
-
-                {selectedImage && (
-                  <div className="mt-6 mx-20 z-20">
-                    <Button
-                      onClick={generatePalette}
-                      disabled={isLoading}
-                      className="w-full bg-gradient-to-r from-[#FF2D55] to-[#FF9500] hover:from-[#FF1D45] hover:to-[#FF8500] text-white font-medium py-3 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg"
-                    >
-                      {isLoading ? (
-                        <div className="flex items-center gap-2">
-                          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                          Analyzing Image...
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-2">
-                          <Sparkles className="w-4 h-4" />
-                          Generate Color Palette
-                        </div>
-                      )}
-                    </Button>
-                  </div>
-                )}
-              </div>
+              <ImageUpload
+                selectedImage={selectedImage}
+                setSelectedImage={setSelectedImage}
+                setColorPalette={setColorPalette}
+                dragActive={dragActive}
+                setDragActive={setDragActive}
+                colorCount={colorCount}
+                setColorCount={setColorCount}
+                isLoading={isLoading}
+                onGeneratePalette={generatePalette}
+                onImageUpload={handleImageUpload}
+              />
 
               {/* Results Section */}
-              <section className="my-6 border-y border-l border-foreground/40 rounded-3xl rounded-r-none">
-                {colorPalette ? (
-                  <div className="p-6 space-y-6">
-                    <div className="flex justify-between items-center">
-                      <h3 className="text-2xl font-bold text-gray-900 mb-0">
-                        Your Color Palette
-                      </h3>
-                      {/* Action Buttons */}
-                      <div className="flex flex-wrap gap-3 justify-center">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={savePalette}
-                        >
-                          <Palette className="w-3.5 h-3.5" />
-                          Save Palette
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={downloadPalette}
-                        >
-                          <Download className="w-3.5 h-3.5" />
-                          Download CSS
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={sharePalette}
-                        >
-                          <Share2 className="w-3.5 h-3.5" />
-                          Share
-                        </Button>
-                      </div>
-                    </div>
-
-                    <Alert>
-                      <AlertTitle>Mood</AlertTitle>
-                      <AlertDescription>{colorPalette.mood}</AlertDescription>
-                    </Alert>
-
-                    {/* Dominant Color */}
-                    <div className="text-center">
-                      <p className="text-sm font-medium text-gray-700 mb-2">
-                        Dominant Color
-                      </p>
-                      <div className="flex flex-col items-center">
-                        <div
-                          className="w-16 h-16 rounded-full shadow-lg cursor-pointer transition-transform hover:scale-105 relative group"
-                          style={{
-                            backgroundColor: colorPalette.dominantColor,
-                          }}
-                          onClick={() =>
-                            copyToClipboard(colorPalette.dominantColor)
-                          }
-                        >
-                          <div className="absolute inset-0 rounded-full flex items-center justify-center bg-black/0 group-hover:bg-black/20 transition-all duration-200">
-                            {copiedColor === colorPalette.dominantColor ? (
-                              <Check className="w-6 h-6 text-white opacity-20 group-hover:opacity-100" />
-                            ) : (
-                              <Copy className="w-5 h-5 text-white opacity-20 group-hover:opacity-100" />
-                            )}
-                          </div>
-                        </div>
-                        <p className="text-sm text-gray-600 mt-2 font-mono">
-                          {colorPalette.dominantColor}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Color Grid */}
-                    <div
-                      className={`grid gap-4 ${
-                        colorPalette.colors.length <= 4
-                          ? "grid-cols-2"
-                          : colorPalette.colors.length <= 6
-                          ? "grid-cols-2"
-                          : "grid-cols-3"
-                      }`}
-                    >
-                      {colorPalette.colors.map((color, index) => (
-                        <div
-                          key={index}
-                          className="group cursor-pointer"
-                          onClick={() => copyToClipboard(color.hex)}
-                        >
-                          <div
-                            className="w-full h-20 rounded-xl shadow-md group-hover:shadow-lg transition-all duration-200 group-hover:scale-102 relative"
-                            style={{ backgroundColor: color.hex }}
-                          >
-                            <div className="absolute inset-0 rounded-xl flex items-center justify-center bg-black/0 group-hover:bg-black/20 transition-all duration-200">
-                              {copiedColor === color.hex ? (
-                                <Check className="w-6 h-6 text-white opacity-20 group-hover:opacity-100" />
-                              ) : (
-                                <Copy className="w-5 h-5 text-white opacity-20 group-hover:opacity-100" />
-                              )}
-                            </div>
-                          </div>
-                          <div className="mt-2 text-center">
-                            <p className="font-medium text-gray-900 text-sm">
-                              {color.name}
-                            </p>
-                            <p className="text-xs text-gray-600 font-mono mt-0.5">
-                              {color.hex}
-                            </p>
-                            <p className="text-xs text-gray-500 mt-1 leading-tight line-clamp-2">
-                              {color.description}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ) : (
-                  <div className="grid place-content-center place-items-center h-full">
-                    <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <Palette className="w-8 h-8 text-gray-300" />
-                    </div>
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">
-                      Ready to extract colors
-                    </h3>
-                    <p className="text-gray-500 text-sm">
-                      Upload an image and generate a palette to see results here
-                    </p>
-                  </div>
-                )}
-              </section>
+              <ColorPaletteDisplay
+                colorPalette={colorPalette}
+                copiedColor={copiedColor}
+                onCopyColor={copyToClipboard}
+                onSavePalette={savePalette}
+                onDownloadPalette={downloadPalette}
+                onSharePalette={sharePalette}
+              />
             </div>
           </TabsContent>
 
-          <TabsContent value="collection" className="p-8 space-y-8">
-            <header className="text-center">
-              <h2 className="text-2xl font-bold text-gray-900 mb-0">
-                Your Saved Palettes
-              </h2>
-              {/* <p className="text-gray-600">
-                Your collection of generated color palettes
-              </p> */}
-            </header>
-
-            {savedPalettes.length > 0 ? (
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {savedPalettes.map((palette, index) => (
-                  <Card key={index}>
-                    <CardContent className="p-6">
-                      <div className="flex gap-4">
-                        {/* Image preview */}
-                        {palette.imagePreview && (
-                          <div className="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0">
-                            <Image
-                              src={palette.imagePreview || "/placeholder.svg"}
-                              alt="Palette source"
-                              width={80}
-                              height={80}
-                              className="object-cover w-full h-full"
-                            />
-                          </div>
-                        )}
-
-                        <div className="flex-1">
-                          <div className="flex justify-between items-start mb-2">
-                            <div>
-                              <h4 className="font-medium text-sm text-gray-900">
-                                {new Date(
-                                  palette.timestamp || Date.now()
-                                ).toLocaleDateString()}
-                              </h4>
-                              <p className="text-xs text-gray-500 line-clamp-1">
-                                {palette.mood}
-                              </p>
-                              <p className="text-xs text-gray-400 mt-1">
-                                {palette.colors.length} colors
-                              </p>
-                            </div>
-                            <div className="flex gap-1">
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-7 w-7"
-                                onClick={() => loadSavedPalette(palette)}
-                                title="Load palette in generator"
-                              >
-                                <Palette className="h-3.5 w-3.5" />
-                                <span className="sr-only">Load palette</span>
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-7 w-7 text-red-500 hover:text-red-600 hover:bg-red-50"
-                                onClick={() => deleteSavedPalette(index)}
-                                title="Delete palette"
-                              >
-                                <Trash2 className="h-3.5 w-3.5" />
-                                <span className="sr-only">Delete palette</span>
-                              </Button>
-                            </div>
-                          </div>
-
-                          {/* Color swatches - clickable to load palette */}
-                          <div
-                            className="flex gap-1 cursor-pointer hover:opacity-80 transition-opacity"
-                            onClick={() => loadSavedPalette(palette)}
-                            title="Click to load this palette"
-                          >
-                            {/* Only show dominant color if it's not already in the palette colors */}
-                            {!isColorInPalette(
-                              palette.colors,
-                              palette.dominantColor
-                            ) && (
-                              <div
-                                className="w-6 h-6 rounded-full ring-1 ring-inset ring-gray-200"
-                                style={{
-                                  backgroundColor: palette.dominantColor,
-                                }}
-                              />
-                            )}
-
-                            {/* Show palette colors */}
-                            {palette.colors.slice(0, 5).map((color, i) => (
-                              <div
-                                key={i}
-                                className="w-6 h-6 rounded-full ring-1 ring-inset ring-gray-200"
-                                style={{ backgroundColor: color.hex }}
-                              />
-                            ))}
-
-                            {/* Show "more" indicator if there are more than 5 colors */}
-                            {palette.colors.length > 5 && (
-                              <div className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-xs text-gray-500 ring-1 ring-inset ring-gray-200">
-                                +{palette.colors.length - 5}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            ) : (
-              <Card className="border-0 shadow-lg rounded-2xl overflow-hidden bg-white">
-                <CardContent className="p-12 text-center">
-                  <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <History className="w-8 h-8 text-gray-300" />
-                  </div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">
-                    No saved palettes yet
-                  </h3>
-                  <p className="text-gray-500 mb-4">
-                    Generate and save color palettes to build your collection
-                  </p>
-                  <Button
-                    variant="outline"
-                    onClick={() => setActiveTab("generator")}
-                  >
-                    Create Your First Palette
-                  </Button>
-                </CardContent>
-              </Card>
-            )}
+          <TabsContent value="collection" className="flex-1">
+            <SavedPalettes
+              savedPalettes={savedPalettes}
+              onLoadPalette={loadSavedPalette}
+              onDeletePalette={deleteSavedPalette}
+              onSwitchToGenerator={() => setActiveTab("generator")}
+              isColorInPalette={isColorInPalette}
+            />
           </TabsContent>
         </Tabs>
       </main>
