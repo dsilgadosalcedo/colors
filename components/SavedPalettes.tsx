@@ -2,23 +2,17 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { History } from "lucide-react";
 import { PaletteCard } from "./PaletteCard";
-import { ColorInfo, ColorPalette } from "@/lib/types";
+import { useColorPaletteStore } from "@/lib/store";
 
-interface SavedPalettesProps {
-  savedPalettes: ColorPalette[];
-  onLoadPalette: (palette: ColorPalette) => void;
-  onDeletePalette: (index: number) => void;
-  onSwitchToGenerator: () => void;
-  isColorInPalette: (colors: ColorInfo[], hexToCheck: string) => boolean;
-}
+export function SavedPalettes() {
+  const {
+    savedPalettes,
+    loadSavedPalette,
+    deleteSavedPalette,
+    setActiveTab,
+    isColorInPalette,
+  } = useColorPaletteStore();
 
-export function SavedPalettes({
-  savedPalettes,
-  onLoadPalette,
-  onDeletePalette,
-  onSwitchToGenerator,
-  isColorInPalette,
-}: SavedPalettesProps) {
   return (
     <div className="p-8 space-y-8">
       <header className="text-center">
@@ -34,8 +28,8 @@ export function SavedPalettes({
               key={index}
               palette={palette}
               index={index}
-              onLoadPalette={onLoadPalette}
-              onDeletePalette={onDeletePalette}
+              onLoadPalette={loadSavedPalette}
+              onDeletePalette={deleteSavedPalette}
               isColorInPalette={isColorInPalette}
             />
           ))}
@@ -52,7 +46,7 @@ export function SavedPalettes({
             <p className="text-gray-500 mb-4">
               Generate and save color palettes to build your collection
             </p>
-            <Button variant="outline" onClick={onSwitchToGenerator}>
+            <Button variant="outline" onClick={() => setActiveTab("generator")}>
               Create Your First Palette
             </Button>
           </CardContent>

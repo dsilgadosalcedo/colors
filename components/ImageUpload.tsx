@@ -11,33 +11,27 @@ import {
 import { ImageIcon, Sparkles } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { useColorPaletteStore } from "@/lib/store";
 
 interface ImageUploadProps {
-  selectedImage: string | null;
-  setSelectedImage: (image: string | null) => void;
-  setColorPalette: (palette: any) => void;
-  dragActive: boolean;
-  setDragActive: (active: boolean) => void;
-  colorCount: number;
-  setColorCount: (count: number) => void;
-  isLoading: boolean;
   onGeneratePalette: () => void;
-  onImageUpload: (file: File) => void;
 }
 
-export function ImageUpload({
-  selectedImage,
-  setSelectedImage,
-  setColorPalette,
-  dragActive,
-  setDragActive,
-  colorCount,
-  setColorCount,
-  isLoading,
-  onGeneratePalette,
-  onImageUpload,
-}: ImageUploadProps) {
+export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const {
+    selectedImage,
+    dragActive,
+    colorCount,
+    isLoading,
+    setSelectedImage,
+    setColorPalette,
+    setDragActive,
+    setColorCount,
+    handleImageUpload,
+    resetImageState,
+  } = useColorPaletteStore();
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
@@ -55,13 +49,22 @@ export function ImageUpload({
     setDragActive(false);
 
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      onImageUpload(e.dataTransfer.files[0]);
+      handleImageUpload(e.dataTransfer.files[0]);
     }
   };
 
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      onImageUpload(e.target.files[0]);
+      handleImageUpload(e.target.files[0]);
+    }
+  };
+
+  const handleChangeImage = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    resetImageState();
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
     }
   };
 
@@ -78,7 +81,7 @@ export function ImageUpload({
         <h2 className="text-4xl font-bold text-gray-900 mb-4 leading-tight tracking-tight">
           Extract beautiful colors
           <br />
-          <span className="bg-gradient-to-r from-[#FF2D55] to-[#FF9500] bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-[#9438D2] via-[#FFB300] to-[#FFA3D1] bg-clip-text text-transparent">
             from any image
           </span>
         </h2>
@@ -108,26 +111,14 @@ export function ImageUpload({
 
       {selectedImage ? (
         <div className="grid place-items-center gap-4 z-20">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setSelectedImage(null);
-              setColorPalette(null);
-              if (fileInputRef.current) {
-                fileInputRef.current.value = "";
-              }
-            }}
-          >
+          <Button variant="outline" size="sm" onClick={handleChangeImage}>
             Change Image
           </Button>
         </div>
       ) : (
         <div className="grid place-items-center gap-4">
           <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto">
-            <ImageIcon className="w-8 h-8 text-gray-400" />
+            <ImageIcon className="w-8 h-8 text-gray-300" />
           </div>
           <div>
             <p className="text-lg font-medium text-gray-900 mb-1">
@@ -174,7 +165,7 @@ export function ImageUpload({
           <Button
             onClick={onGeneratePalette}
             disabled={isLoading}
-            className="w-full bg-gradient-to-r from-[#FF2D55] to-[#FF9500] hover:from-[#FF1D45] hover:to-[#FF8500] text-white font-medium py-3 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg"
+            className="w-full bg-gradient-to-r from-[#9438D2]  to-[#FFA3D1] hover:to-[#FFB300] text-white transition-all duration-200"
           >
             {isLoading ? (
               <div className="flex items-center gap-2">

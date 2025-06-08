@@ -2,25 +2,18 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Copy, Check, Palette, Download, Share2 } from "lucide-react";
 import { ColorCard } from "./ColorCard";
-import { ColorPalette } from "@/lib/types";
+import { useColorPaletteStore } from "@/lib/store";
 
-interface ColorPaletteProps {
-  colorPalette: ColorPalette | null;
-  copiedColor: string | null;
-  onCopyColor: (hex: string) => void;
-  onSavePalette: () => void;
-  onDownloadPalette: () => void;
-  onSharePalette: () => void;
-}
+export function ColorPaletteDisplay() {
+  const {
+    colorPalette,
+    copiedColor,
+    copyToClipboard,
+    savePalette,
+    downloadPalette,
+    sharePalette,
+  } = useColorPaletteStore();
 
-export function ColorPaletteDisplay({
-  colorPalette,
-  copiedColor,
-  onCopyColor,
-  onSavePalette,
-  onDownloadPalette,
-  onSharePalette,
-}: ColorPaletteProps) {
   if (!colorPalette) {
     return (
       <section className="my-6 border-y border-l border-foreground/40 rounded-3xl rounded-r-none">
@@ -48,15 +41,15 @@ export function ColorPaletteDisplay({
           </h3>
           {/* Action Buttons */}
           <div className="flex flex-wrap gap-3 justify-center">
-            <Button variant="outline" size="sm" onClick={onSavePalette}>
+            <Button variant="outline" size="sm" onClick={savePalette}>
               <Palette className="w-3.5 h-3.5" />
               Save Palette
             </Button>
-            <Button variant="outline" size="sm" onClick={onDownloadPalette}>
+            <Button variant="outline" size="sm" onClick={downloadPalette}>
               <Download className="w-3.5 h-3.5" />
               Download CSS
             </Button>
-            <Button variant="outline" size="sm" onClick={onSharePalette}>
+            <Button variant="outline" size="sm" onClick={sharePalette}>
               <Share2 className="w-3.5 h-3.5" />
               Share
             </Button>
@@ -79,7 +72,7 @@ export function ColorPaletteDisplay({
               style={{
                 backgroundColor: colorPalette.dominantColor,
               }}
-              onClick={() => onCopyColor(colorPalette.dominantColor)}
+              onClick={() => copyToClipboard(colorPalette.dominantColor)}
             >
               <div className="absolute inset-0 rounded-full flex items-center justify-center bg-black/0 group-hover:bg-black/20 transition-all duration-200">
                 {copiedColor === colorPalette.dominantColor ? (
@@ -110,7 +103,7 @@ export function ColorPaletteDisplay({
               key={index}
               color={color}
               copiedColor={copiedColor}
-              onCopyColor={onCopyColor}
+              onCopyColor={copyToClipboard}
             />
           ))}
         </div>
