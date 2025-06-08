@@ -1,13 +1,16 @@
-"use server"
+"use server";
 
-import { google } from "@ai-sdk/google"
-import { generateObject } from "ai"
-import { z } from "zod"
+import { google } from "@ai-sdk/google";
+import { generateObject } from "ai";
+import { z } from "zod";
 
-export async function generateColorPalette(imageDataUrl: string, colorCount = 6) {
+export async function generateColorPalette(
+  imageDataUrl: string,
+  colorCount = 3
+) {
   try {
     // Convert data URL to base64
-    const base64Data = imageDataUrl.split(",")[1]
+    const base64Data = imageDataUrl.split(",")[1];
 
     // Create dynamic schema based on color count
     const ColorPaletteSchema = z.object({
@@ -16,13 +19,21 @@ export async function generateColorPalette(imageDataUrl: string, colorCount = 6)
           z.object({
             hex: z.string().describe("Hex color code starting with #"),
             name: z.string().describe("Creative name for the color"),
-            description: z.string().describe("Brief description of the color and its characteristics"),
-          }),
+            description: z
+              .string()
+              .describe(
+                "Brief description of the color and its characteristics"
+              ),
+          })
         )
         .length(colorCount),
-      dominantColor: z.string().describe("The most prominent hex color in the image"),
-      mood: z.string().describe("The overall mood or feeling the color palette conveys"),
-    })
+      dominantColor: z
+        .string()
+        .describe("The most prominent hex color in the image"),
+      mood: z
+        .string()
+        .describe("The overall mood or feeling the color palette conveys"),
+    });
 
     const result = await generateObject({
       model: google("gemini-2.0-flash-exp", {
@@ -44,11 +55,11 @@ export async function generateColorPalette(imageDataUrl: string, colorCount = 6)
           ],
         },
       ],
-    })
+    });
 
-    return result.object
+    return result.object;
   } catch (error) {
-    console.error("Error generating color palette:", error)
-    throw new Error("Failed to generate color palette")
+    console.error("Error generating color palette:", error);
+    throw new Error("Failed to generate color palette");
   }
 }
