@@ -3,6 +3,46 @@ import { persist } from "zustand/middleware";
 import { ColorInfo, ColorPalette } from "./types";
 import { toast } from "@/components/ui/use-toast";
 
+// Helper function to compress image data URL
+const compressImage = (
+  dataUrl: string,
+  quality: number = 0.3
+): Promise<string> => {
+  return new Promise((resolve) => {
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    const img = new Image();
+
+    img.onload = () => {
+      // Calculate new dimensions (max 200px width/height)
+      const maxSize = 200;
+      let { width, height } = img;
+
+      if (width > height) {
+        if (width > maxSize) {
+          height = (height * maxSize) / width;
+          width = maxSize;
+        }
+      } else {
+        if (height > maxSize) {
+          width = (width * maxSize) / height;
+          height = maxSize;
+        }
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+
+      // Draw and compress
+      ctx?.drawImage(img, 0, 0, width, height);
+      const compressedDataUrl = canvas.toDataURL("image/jpeg", quality);
+      resolve(compressedDataUrl);
+    };
+
+    img.src = dataUrl;
+  });
+};
+
 interface ColorPaletteState {
   // UI State
   selectedImage: string | null;
@@ -12,6 +52,8 @@ interface ColorPaletteState {
   copiedColor: string | null;
   colorCount: number;
   activeTab: string;
+  isCurrentPaletteSaved: boolean;
+  downloadBounce: boolean;
 
   // Persisted State
   savedPalettes: ColorPalette[];
@@ -24,21 +66,57 @@ interface ColorPaletteState {
   setCopiedColor: (color: string | null) => void;
   setColorCount: (count: number) => void;
   setActiveTab: (tab: string) => void;
+  setDownloadBounce: (bounce: boolean) => void;
 
   // Business Logic Actions
   handleImageUpload: (file: File) => void;
   copyToClipboard: (hex: string) => void;
-  savePalette: () => void;
+  savePalette: () => Promise<void>;
   deleteSavedPalette: (index: number) => void;
   loadSavedPalette: (palette: ColorPalette) => void;
   downloadPalette: () => void;
   sharePalette: () => Promise<void>;
   isColorInPalette: (colors: ColorInfo[], hexToCheck: string) => boolean;
+  checkIfCurrentPaletteIsSaved: () => void;
 
   // Reset functions
   resetImageState: () => void;
   clearCopiedColor: () => void;
 }
+
+// Helper function to create a palette with compressed image for storage
+const createStorablePalette = async (
+  palette: ColorPalette
+): Promise<ColorPalette> => {
+  if (!palette.imagePreview) {
+    return palette;
+  }
+
+  try {
+    const compressedImage = await compressImage(palette.imagePreview);
+    return {
+      ...palette,
+      imagePreview: compressedImage,
+    };
+  } catch (error) {
+    console.error("Error compressing image:", error);
+    // Return palette without image if compression fails
+    const { imagePreview, ...paletteWithoutImage } = palette;
+    return paletteWithoutImage as ColorPalette;
+  }
+};
+
+// Helper function to check if two palettes are the same (ignoring image data)
+const arePalettesEqual = (
+  palette1: ColorPalette,
+  palette2: ColorPalette
+): boolean => {
+  return (
+    palette1.dominantColor === palette2.dominantColor &&
+    palette1.colors.length === palette2.colors.length &&
+    palette1.colors.every((c, i) => c.hex === palette2.colors[i].hex)
+  );
+};
 
 export const useColorPaletteStore = create<ColorPaletteState>()(
   persist(
@@ -52,15 +130,26 @@ export const useColorPaletteStore = create<ColorPaletteState>()(
       colorCount: 3,
       activeTab: "generator",
       savedPalettes: [],
+      isCurrentPaletteSaved: false,
+      downloadBounce: false,
 
       // Basic Setters
       setSelectedImage: (image) => set({ selectedImage: image }),
-      setColorPalette: (palette) => set({ colorPalette: palette }),
+      setColorPalette: (palette) => {
+        set({ colorPalette: palette });
+        // Check if the new palette is already saved
+        if (palette) {
+          get().checkIfCurrentPaletteIsSaved();
+        } else {
+          set({ isCurrentPaletteSaved: false });
+        }
+      },
       setIsLoading: (loading) => set({ isLoading: loading }),
       setDragActive: (active) => set({ dragActive: active }),
       setCopiedColor: (color) => set({ copiedColor: color }),
       setColorCount: (count) => set({ colorCount: count }),
       setActiveTab: (tab) => set({ activeTab: tab }),
+      setDownloadBounce: (bounce) => set({ downloadBounce: bounce }),
 
       // Business Logic Actions
       handleImageUpload: (file: File) => {
@@ -69,6 +158,7 @@ export const useColorPaletteStore = create<ColorPaletteState>()(
           set({
             selectedImage: e.target?.result as string,
             colorPalette: null,
+            isCurrentPaletteSaved: false,
           });
         };
         reader.readAsDataURL(file);
@@ -77,25 +167,31 @@ export const useColorPaletteStore = create<ColorPaletteState>()(
       copyToClipboard: (hex: string) => {
         navigator.clipboard.writeText(hex);
         set({ copiedColor: hex });
-        toast({
-          title: "Copied!",
-          description: `${hex} copied to clipboard`,
-          duration: 2000,
-        });
         setTimeout(() => {
           set({ copiedColor: null });
         }, 2000);
       },
 
-      savePalette: () => {
+      checkIfCurrentPaletteIsSaved: () => {
+        const { colorPalette, savedPalettes } = get();
+        if (!colorPalette) {
+          set({ isCurrentPaletteSaved: false });
+          return;
+        }
+
+        const exists = savedPalettes.some((p) =>
+          arePalettesEqual(p, colorPalette)
+        );
+        set({ isCurrentPaletteSaved: exists });
+      },
+
+      savePalette: async () => {
         const { colorPalette, savedPalettes } = get();
         if (!colorPalette) return;
 
         // Check if palette already exists to avoid duplicates
-        const exists = savedPalettes.some(
-          (p) =>
-            p.dominantColor === colorPalette.dominantColor &&
-            p.colors.every((c, i) => c.hex === colorPalette.colors[i].hex)
+        const exists = savedPalettes.some((p) =>
+          arePalettesEqual(p, colorPalette)
         );
 
         if (exists) {
@@ -106,13 +202,26 @@ export const useColorPaletteStore = create<ColorPaletteState>()(
           return;
         }
 
-        const newSavedPalettes = [colorPalette, ...savedPalettes].slice(0, 10);
-        set({ savedPalettes: newSavedPalettes });
+        try {
+          // Create a storable version with compressed image
+          const storablePalette = await createStorablePalette(colorPalette);
+          const newSavedPalettes = [storablePalette, ...savedPalettes].slice(
+            0,
+            10
+          );
 
-        toast({
-          title: "Saved!",
-          description: "Color palette added to your collection",
-        });
+          set({
+            savedPalettes: newSavedPalettes,
+            isCurrentPaletteSaved: true,
+          });
+        } catch (error) {
+          console.error("Error saving palette:", error);
+          toast({
+            title: "Storage Error",
+            description: "Unable to save palette. Storage quota exceeded.",
+            variant: "destructive",
+          });
+        }
       },
 
       deleteSavedPalette: (index: number) => {
@@ -120,29 +229,27 @@ export const useColorPaletteStore = create<ColorPaletteState>()(
         const newSavedPalettes = savedPalettes.filter((_, i) => i !== index);
         set({ savedPalettes: newSavedPalettes });
 
-        toast({
-          title: "Deleted",
-          description: "Color palette removed from your collection",
-        });
+        // Check if current palette is still saved after deletion
+        get().checkIfCurrentPaletteIsSaved();
       },
 
       loadSavedPalette: (palette: ColorPalette) => {
         set({
           colorPalette: palette,
-          selectedImage: palette.imagePreview || null,
+          selectedImage: palette.imagePreview || null, // Restore image if available
           colorCount: palette.colors.length,
           activeTab: "generator",
-        });
-
-        toast({
-          title: "Palette loaded!",
-          description: "Switched to generator view with your selected palette",
+          isCurrentPaletteSaved: true, // Loaded palettes are always saved
         });
       },
 
       downloadPalette: () => {
         const { colorPalette } = get();
         if (!colorPalette) return;
+
+        // Trigger bounce animation
+        set({ downloadBounce: true });
+        setTimeout(() => set({ downloadBounce: false }), 600);
 
         // Create CSS variables
         const cssContent = colorPalette.colors
@@ -214,6 +321,7 @@ export const useColorPaletteStore = create<ColorPaletteState>()(
         set({
           selectedImage: null,
           colorPalette: null,
+          isCurrentPaletteSaved: false,
         });
       },
 
@@ -223,8 +331,14 @@ export const useColorPaletteStore = create<ColorPaletteState>()(
     }),
     {
       name: "color-palette-storage",
-      // Only persist savedPalettes, not UI state
+      // Only persist savedPalettes, not UI state or image data
       partialize: (state) => ({ savedPalettes: state.savedPalettes }),
+      // Handle storage errors gracefully
+      onRehydrateStorage: () => (state, error) => {
+        if (error) {
+          console.error("Error rehydrating storage:", error);
+        }
+      },
     }
   )
 );

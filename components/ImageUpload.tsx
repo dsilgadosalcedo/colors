@@ -70,7 +70,7 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
 
   return (
     <div
-      className="relative flex flex-col justify-center gap-6 backdrop-blur-md"
+      className="animate-in fade-in-30 duration-200 relative gap-6 backdrop-blur-md grid place-content-center place-items-center"
       onDragEnter={handleDrag}
       onDragLeave={handleDrag}
       onDragOver={handleDrag}
@@ -81,7 +81,7 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
         <h2 className="text-4xl font-bold text-gray-900 mb-4 leading-tight tracking-tight">
           Extract beautiful colors
           <br />
-          <span className="bg-gradient-to-r from-[#9438D2] via-[#FFB300] to-[#FFA3D1] bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-[#338B8F] via-[#F07D21] to-[#FFDA33] bg-clip-text text-transparent">
             from any image
           </span>
         </h2>
@@ -110,11 +110,9 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
       />
 
       {selectedImage ? (
-        <div className="grid place-items-center gap-4 z-20">
-          <Button variant="outline" size="sm" onClick={handleChangeImage}>
-            Change Image
-          </Button>
-        </div>
+        <Button variant="outline" size="sm" onClick={handleChangeImage}>
+          Change Image
+        </Button>
       ) : (
         <div className="grid place-items-center gap-4">
           <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto">
@@ -165,7 +163,7 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
           <Button
             onClick={onGeneratePalette}
             disabled={isLoading}
-            className="w-full bg-gradient-to-r from-[#9438D2]  to-[#FFA3D1] hover:to-[#FFB300] text-white transition-all duration-200"
+            className="w-full bg-gradient-to-r from-[#338B8F]  to-[#F07D21] hover:to-[#FFDA33] text-white transition-colors duration-200"
           >
             {isLoading ? (
               <div className="flex items-center gap-2">

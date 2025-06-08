@@ -7,11 +7,19 @@ import { useColorPaletteStore } from "@/lib/store";
 export function SavedPalettes() {
   const {
     savedPalettes,
+    setActiveTab,
     loadSavedPalette,
     deleteSavedPalette,
-    setActiveTab,
     isColorInPalette,
   } = useColorPaletteStore();
+
+  const handleLoadPalette = (palette: any) => {
+    loadSavedPalette(palette);
+  };
+
+  const handleDeletePalette = (index: number) => {
+    deleteSavedPalette(index);
+  };
 
   return (
     <div className="p-8 space-y-8">
@@ -28,29 +36,24 @@ export function SavedPalettes() {
               key={index}
               palette={palette}
               index={index}
-              onLoadPalette={loadSavedPalette}
-              onDeletePalette={deleteSavedPalette}
+              onLoadPalette={handleLoadPalette}
+              onDeletePalette={handleDeletePalette}
               isColorInPalette={isColorInPalette}
             />
           ))}
         </div>
       ) : (
-        <Card className="border-0 shadow-lg rounded-2xl overflow-hidden bg-white">
-          <CardContent className="p-12 text-center">
-            <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
-              <History className="w-8 h-8 text-gray-300" />
-            </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              No saved palettes yet
-            </h3>
-            <p className="text-gray-500 mb-4">
-              Generate and save color palettes to build your collection
-            </p>
-            <Button variant="outline" onClick={() => setActiveTab("generator")}>
-              Create Your First Palette
-            </Button>
-          </CardContent>
-        </Card>
+        <section className="grid place-items-center">
+          <h3 className="text-lg font-medium text-gray-900 mb-2">
+            No saved palettes yet
+          </h3>
+          <p className="text-gray-500 mb-4">
+            Generate and save color palettes to build your collection
+          </p>
+          <Button variant="outline" onClick={() => setActiveTab("generator")}>
+            Create Your First Palette
+          </Button>
+        </section>
       )}
     </div>
   );

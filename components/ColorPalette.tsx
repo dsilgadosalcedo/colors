@@ -1,13 +1,23 @@
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Copy, Check, Palette, Download, Share2 } from "lucide-react";
+import {
+  Copy,
+  Check,
+  Palette,
+  Download,
+  Share2,
+  CheckCircle,
+} from "lucide-react";
 import { ColorCard } from "./ColorCard";
 import { useColorPaletteStore } from "@/lib/store";
+import { cn } from "@/lib/utils";
 
 export function ColorPaletteDisplay() {
   const {
     colorPalette,
     copiedColor,
+    isCurrentPaletteSaved,
+    downloadBounce,
     copyToClipboard,
     savePalette,
     downloadPalette,
@@ -16,8 +26,8 @@ export function ColorPaletteDisplay() {
 
   if (!colorPalette) {
     return (
-      <section className="my-6 border-y border-l border-foreground/40 rounded-3xl rounded-r-none">
-        <div className="grid place-content-center place-items-center h-full">
+      <ColorPaletteBox>
+        <div className="shadow grid place-content-center place-items-center h-full">
           <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
             <Palette className="w-8 h-8 text-gray-300" />
           </div>
@@ -28,12 +38,12 @@ export function ColorPaletteDisplay() {
             Upload an image and generate a palette to see results here
           </p>
         </div>
-      </section>
+      </ColorPaletteBox>
     );
   }
 
   return (
-    <section className="my-6 border-y border-l border-foreground/40 rounded-3xl rounded-r-none">
+    <ColorPaletteBox>
       <div className="p-6 space-y-6">
         <div className="flex justify-between items-center">
           <h3 className="text-2xl font-bold text-gray-900 mb-0">
@@ -41,12 +51,41 @@ export function ColorPaletteDisplay() {
           </h3>
           {/* Action Buttons */}
           <div className="flex flex-wrap gap-3 justify-center">
-            <Button variant="outline" size="sm" onClick={savePalette}>
-              <Palette className="w-3.5 h-3.5" />
-              Save Palette
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={savePalette}
+              disabled={isCurrentPaletteSaved}
+              className={cn(
+                "transition-all duration-200",
+                isCurrentPaletteSaved &&
+                  "bg-green-50 border-green-200 text-green-700"
+              )}
+            >
+              {isCurrentPaletteSaved ? (
+                <>
+                  <CheckCircle className="w-3.5 h-3.5" />
+                  Saved
+                </>
+              ) : (
+                <>
+                  <Palette className="w-3.5 h-3.5" />
+                  Save Palette
+                </>
+              )}
             </Button>
-            <Button variant="outline" size="sm" onClick={downloadPalette}>
-              <Download className="w-3.5 h-3.5" />
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={downloadPalette}
+              className="relative"
+            >
+              <Download
+                className={cn(
+                  "w-3.5 h-3.5 transition-transform duration-300",
+                  downloadBounce && "animate-bounce"
+                )}
+              />
               Download CSS
             </Button>
             <Button variant="outline" size="sm" onClick={sharePalette}>
@@ -108,6 +147,16 @@ export function ColorPaletteDisplay() {
           ))}
         </div>
       </div>
-    </section>
+    </ColorPaletteBox>
   );
 }
+
+const ColorPaletteBox = ({ children }: { children: React.ReactNode }) => {
+  return (
+    <div className="animate-in fade-in-0 duration-400 flex flex-col my-6 rounded-3xl rounded-r-none py-0.5 pl-0.5 bg-gradient-to-br from-[#338B8F]/50 via-[#F07D21]/50 to-[#FFDA33]/50 overflow-hidden shadow-md">
+      <section className="bg-background rounded-[22px] rounded-r-none flex-1">
+        {children}
+      </section>
+    </div>
+  );
+};

@@ -20,7 +20,7 @@ export function PaletteCard({
   isColorInPalette,
 }: PaletteCardProps) {
   return (
-    <Card key={index}>
+    <Card key={index} className="animate-in fade-in-0 duration-200">
       <CardContent className="p-6">
         <div className="flex gap-4">
           {/* Image preview */}
@@ -77,7 +77,7 @@ export function PaletteCard({
 
             {/* Color swatches - clickable to load palette */}
             <div
-              className="flex gap-1 cursor-pointer hover:opacity-80 transition-opacity"
+              className="flex w-min gap-1 cursor-pointer hover:opacity-80 transition-opacity"
               onClick={() => onLoadPalette(palette)}
               title="Click to load this palette"
             >

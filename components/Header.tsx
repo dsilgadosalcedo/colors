@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { Palette } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useColorPaletteStore } from "@/lib/store";
 import Image from "next/image";
@@ -10,11 +9,10 @@ export function Header() {
   return (
     <header className="flex justify-between p-6 border-b border-foreground/40">
       <div className="flex items-center gap-3">
-        {/* <div className="w-10 h-10 bg-gradient-to-br from-[#FF2D55] to-[#FF9500] rounded-xl flex items-center justify-center">
-          <Palette className="w-5 h-5 text-white" />
-        </div> */}
-        <div className="w-10 h-10 rounded-xl overflow-hidden">
-          <Image src="/logo.jpg" alt="Logo" width={40} height={40} />
+        <div className="w-10 h-10 p-0.5 bg-gradient-to-br from-[#338B8F] via-[#F07D21] to-[#FFDA33] rounded-lg overflow-hidden">
+          <div className="bg-background w-full h-full grid place-items-center  rounded-md">
+            <Image src="/camera.png" alt="Logo" width={24} height={24} />
+          </div>
         </div>
         <h1 className="text-2xl font-black text-accent-foreground">
           Color Palette Generator
