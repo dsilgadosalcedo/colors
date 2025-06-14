@@ -246,7 +246,7 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
       <section className="bottom-8 absolute left-1/2 -translate-x-1/2 mx-auto px-6">
         <div>
           {/* Example Prompt */}
-          {selectedImage || !userPrompt.trim() ? (
+          {!userPrompt.trim() ? (
             <div className="mb-3 text-center">
               <Button
                 variant="outline"
@@ -260,18 +260,7 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
           ) : null}
 
           {/* Text Input Area */}
-          <div className="backdrop-blur-sm rounded-xl border-[#50b1d8] border-2 relative">
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              onClick={handleUploadClick}
-              disabled={isLoading}
-              className="absolute top-1/2 -translate-y-1/2 left-2 bg-transparent text-[#77d9ab] rounded-full hover:bg-[#FFC857] hover:text-[#133541]"
-            >
-              <Paperclip />
-            </Button>
-
+          <div className="backdrop-blur-sm rounded-3xl bg-[#0a3922] p-3 relative w-140">
             <Textarea
               ref={textareaRef}
               value={userPrompt}
@@ -280,49 +269,66 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
               placeholder={
                 selectedImage ? "Add specifications" : "Describe your palette"
               }
-              className="resize-none focus-visible:ring-0 focus-visible:ring-offset-0 w-124 px-14.5 min-h-[48px] bg-transparent text-background text-lg font-medium border-none placeholder:text-[#77d9ab]"
+              className="resize-none focus-visible:ring-0 focus-visible:ring-offset-0 px-0 min-h-[28px] bg-transparent text-background text-lg font-medium border-none placeholder:text-[#77d9ab]"
               disabled={isLoading}
             />
 
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              onClick={handleGenerate}
-              disabled={isLoading || (!selectedImage && !userPrompt.trim())}
-              className="absolute top-1/2 -translate-y-1/2 right-2 bg-transparent text-[#77d9ab] rounded-full hover:bg-[#FFC857] hover:text-[#133541]"
-            >
-              <Send />
-            </Button>
-          </div>
-
-          {/* Color Count Selector */}
-          <div className="flex items-center justify-between gap-4 mt-2">
-            <Label
-              htmlFor="color-count"
-              className="text-sm font-medium text-background"
-            >
-              Default number of colors
-            </Label>
-            <Select
-              value={colorCount.toString()}
-              onValueChange={(value) => setColorCount(Number.parseInt(value))}
-            >
-              <SelectTrigger
-                id="color-count"
-                className="w-20 h-10 text-xs p-2 bg-transparent text-background"
+            <div className="flex items-center justify-between gap-4 mt-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={handleUploadClick}
+                disabled={isLoading}
+                className="bg-transparent text-[#77d9ab] rounded-full hover:bg-[#FFC857] hover:text-[#133541] border-[#FFC857] hover:border-[#FFC857]"
               >
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="3">3</SelectItem>
-                <SelectItem value="4">4</SelectItem>
-                <SelectItem value="5">5</SelectItem>
-                <SelectItem value="6">6</SelectItem>
-                <SelectItem value="8">8</SelectItem>
-                <SelectItem value="10">10</SelectItem>
-              </SelectContent>
-            </Select>
+                <Paperclip />
+              </Button>
+
+              <div className="flex items-center justify-center gap-2">
+                {/* Color Count Selector */}
+                <div className="flex items-center justify-between gap-2">
+                  <Label
+                    htmlFor="color-count"
+                    className="text-sm font-medium text-[#77d9ab]"
+                  >
+                    Number of colors
+                  </Label>
+                  <Select
+                    value={colorCount.toString()}
+                    onValueChange={(value) =>
+                      setColorCount(Number.parseInt(value))
+                    }
+                  >
+                    <SelectTrigger
+                      id="color-count"
+                      className="w-20 h-10 text-xs p-2 bg-transparent text-background"
+                    >
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="3">3</SelectItem>
+                      <SelectItem value="4">4</SelectItem>
+                      <SelectItem value="5">5</SelectItem>
+                      <SelectItem value="6">6</SelectItem>
+                      <SelectItem value="8">8</SelectItem>
+                      <SelectItem value="10">10</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleGenerate}
+                  disabled={isLoading || (!selectedImage && !userPrompt.trim())}
+                  className="text-[#133541] rounded-full bg-[#FFC857] hover:bg-[#FFC857] hover:text-[#133541] disabled:bg-[#50b1d8] disabled:text-[#133541] disabled:opacity-100"
+                >
+                  <Send />
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
       </section>
