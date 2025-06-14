@@ -1,11 +1,11 @@
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { useColorPaletteStore } from "@/lib/store";
-import Image from "next/image";
-import { Palette } from "lucide-react";
+import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
+import { useColorPaletteStore } from "@/lib/store"
+import Image from "next/image"
+import { Palette } from "lucide-react"
 
 export function Header() {
-  const { activeTab, setActiveTab } = useColorPaletteStore();
+  const { activeTab, setActiveTab } = useColorPaletteStore()
 
   return (
     <header className="flex justify-between p-6">
@@ -45,5 +45,5 @@ export function Header() {
         </Button>
       </nav>
     </header>
-  );
+  )
 }

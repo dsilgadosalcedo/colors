@@ -1,22 +1,23 @@
-import React, { useRef, useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
+import React, { useRef, useState, useEffect } from "react"
+import { Button } from "@/components/ui/button"
+import { Textarea } from "@/components/ui/textarea"
+import { Label } from "@/components/ui/label"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { ImageIcon, Sparkles, Paperclip, Send } from "lucide-react";
-import Image from "next/image";
-import { cn } from "@/lib/utils";
-import { useColorPaletteStore } from "@/lib/store";
-import { Switch } from "./ui/switch";
+} from "@/components/ui/select"
+import { ImageIcon, Sparkles, Paperclip, Send } from "lucide-react"
+import Image from "next/image"
+import { cn } from "@/lib/utils"
+import { useColorPaletteStore } from "@/lib/store"
+import { Switch } from "./ui/switch"
+import { Card } from "./ui/card"
 
 interface ImageUploadProps {
-  onGeneratePalette: (userPrompt?: string) => void;
+  onGeneratePalette: (userPrompt?: string) => void
 }
 
 // Example prompts for when there's no image (text-only palette generation)
@@ -61,7 +62,7 @@ const NO_IMAGE_EXAMPLES = [
   "Generate soft romantic wedding colors",
   "Create a modern apartment color palette",
   "Design colors inspired by precious metals",
-];
+]
 
 // Example prompts for when there's an image (specifications for analysis)
 const WITH_IMAGE_EXAMPLES = [
@@ -95,13 +96,49 @@ const WITH_IMAGE_EXAMPLES = [
   "Ignore any monochrome or grayscale areas",
   "Focus on colors from the bottom third",
   "Extract colors that would work for a brand palette",
-];
+]
+
+// Example prompts for editing existing palettes
+const EDITING_EXAMPLES = [
+  "Add a warm red color to the palette",
+  "Make the third color darker",
+  "Change the primary color to blue",
+  "Replace the green with a forest green",
+  "Add a complementary color to the orange",
+  "Make all colors more vibrant",
+  "Soften the bright colors",
+  "Add a neutral gray color",
+  "Remove the yellow and add purple instead",
+  "Make the palette more pastel",
+  "Increase the saturation of all colors",
+  "Add a color that matches the sky",
+  "Replace the pink with a coral shade",
+  "Make the palette warmer overall",
+  "Add a deep navy blue",
+  "Change the brown to a chocolate brown",
+  "Add a mint green color",
+  "Make the red more burgundy",
+  "Add a color for text readability",
+  "Replace the lightest color with white",
+  "Add a golden yellow accent",
+  "Make the purple more royal",
+  "Add an earthy tone",
+  "Change the primary to a teal color",
+  "Add a soft pink for highlights",
+  "Make the palette more monochromatic",
+  "Add a contrasting accent color",
+  "Replace the orange with a peach",
+  "Add a charcoal color for depth",
+  "Make all colors slightly desaturated",
+]
 
 export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const [userPrompt, setUserPrompt] = useState("");
-  const [currentExample, setCurrentExample] = useState(NO_IMAGE_EXAMPLES[0]);
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const [userPrompt, setUserPrompt] = useState("")
+  const [currentExample, setCurrentExample] = useState(NO_IMAGE_EXAMPLES[0])
+  const [loadingText, setLoadingText] = useState("")
+  const [wasGenerating, setWasGenerating] = useState(false)
 
   const {
     selectedImage,
@@ -116,84 +153,116 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
     handleImageUpload,
     resetImageState,
     exitEditingMode,
-  } = useColorPaletteStore();
+  } = useColorPaletteStore()
 
-  // Rotate examples every 10 seconds based on whether there's an image
+  // Rotate examples every 10 seconds based on current mode
   useEffect(() => {
     const getRandomExample = () => {
-      const examples = selectedImage ? WITH_IMAGE_EXAMPLES : NO_IMAGE_EXAMPLES;
-      const randomIndex = Math.floor(Math.random() * examples.length);
-      return examples[randomIndex];
-    };
+      let examples
+      if (isEditingMode) {
+        examples = EDITING_EXAMPLES
+      } else if (selectedImage) {
+        examples = WITH_IMAGE_EXAMPLES
+      } else {
+        examples = NO_IMAGE_EXAMPLES
+      }
+      const randomIndex = Math.floor(Math.random() * examples.length)
+      return examples[randomIndex]
+    }
 
     // Set initial example based on current state
-    setCurrentExample(getRandomExample());
+    setCurrentExample(getRandomExample())
 
     const interval = setInterval(() => {
-      setCurrentExample(getRandomExample());
-    }, 10000);
+      setCurrentExample(getRandomExample())
+    }, 10000)
 
-    return () => clearInterval(interval);
-  }, [selectedImage]); // Re-run when selectedImage changes
+    return () => clearInterval(interval)
+  }, [selectedImage, isEditingMode]) // Re-run when selectedImage or isEditingMode changes
+
+  // Handle loading animation
+  useEffect(() => {
+    if (isLoading) {
+      const baseText = isEditingMode
+        ? "Editing your palette"
+        : "Generating palette"
+      let dotCount = 0
+
+      const interval = setInterval(() => {
+        dotCount = (dotCount + 1) % 4
+        setLoadingText(baseText + ".".repeat(dotCount))
+      }, 500)
+
+      return () => clearInterval(interval)
+    } else {
+      setLoadingText("")
+      // Clear prompt only if we were generating/editing (not saving)
+      if (wasGenerating) {
+        setUserPrompt("")
+        setWasGenerating(false)
+      }
+    }
+  }, [isLoading, isEditingMode, wasGenerating])
 
   const handleDrag = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+    e.preventDefault()
+    e.stopPropagation()
     if (e.type === "dragenter" || e.type === "dragover") {
-      setDragActive(true);
+      setDragActive(true)
     } else if (e.type === "dragleave") {
-      setDragActive(false);
+      setDragActive(false)
     }
-  };
+  }
 
   const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
+    e.preventDefault()
+    e.stopPropagation()
+    setDragActive(false)
 
     if (e.dataTransfer.files && e.dataTransfer.files[0] && !isEditingMode) {
-      handleImageUpload(e.dataTransfer.files[0]);
+      handleImageUpload(e.dataTransfer.files[0])
     }
-  };
+  }
 
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0] && !isEditingMode) {
-      handleImageUpload(e.target.files[0]);
+      handleImageUpload(e.target.files[0])
     }
-  };
+  }
 
   const handleChangeImage = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    resetImageState();
+    e.preventDefault()
+    e.stopPropagation()
+    resetImageState()
     if (fileInputRef.current) {
-      fileInputRef.current.value = "";
+      fileInputRef.current.value = ""
     }
-  };
+  }
 
   const handleUploadClick = () => {
     if (fileInputRef.current) {
-      fileInputRef.current.click();
+      fileInputRef.current.click()
     }
-  };
+  }
 
   const handleGenerate = () => {
-    onGeneratePalette(userPrompt.trim() || undefined);
-  };
+    setWasGenerating(true) // Mark that we're generating/editing
+    onGeneratePalette(userPrompt.trim() || undefined)
+  }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleGenerate();
+      e.preventDefault()
+      handleGenerate()
     }
-  };
+  }
 
   const handleExampleClick = () => {
-    setUserPrompt(currentExample);
+    setUserPrompt(currentExample)
     if (textareaRef.current) {
-      textareaRef.current.focus();
+      textareaRef.current.focus()
     }
-  };
+  }
 
   return (
     <div
@@ -225,16 +294,20 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
 
       <div
         className={cn(
-          "w-full h-full mx-6 rounded-3xl absolute top-0 left-0 object-cover -z-10 mask-r-from-30% blur-sm transition-all duration-300",
-          selectedImage ? "opacity-20" : "bg-[#50b1d8] opacity-10"
+          "w-full h-full mx-6 rounded-3xl absolute top-0 left-0 object-cover -z-10 transition-all duration-300 overflow-hidden",
+          selectedImage
+            ? "opacity-20 blur-sm"
+            : "bg-gradient-to-r from-[#50b1d8] via-[#77d9ab] to-transparent opacity-10"
         )}
       >
-        <Image
-          src={selectedImage || "/placeholder.svg"}
-          alt="Uploaded image"
-          fill
-          className="object-cover mask-r-from-30%"
-        />
+        {selectedImage && (
+          <Image
+            src={selectedImage || "/placeholder.svg"}
+            alt="Uploaded image"
+            fill
+            className="object-cover mask-r-from-30%"
+          />
+        )}
       </div>
 
       {selectedImage && (
@@ -249,114 +322,115 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
 
       {/* Main Content Area */}
       <section className="bottom-8 absolute left-1/2 -translate-x-1/2 mx-auto px-6">
-        <div>
-          {/* Example Prompt */}
-          {!userPrompt.trim() ? (
-            <div className="mb-3 text-center">
+        {/* Example Prompt */}
+        {!userPrompt.trim() ? (
+          <div className="mb-3 text-center">
+            <Button
+              variant="outline"
+              onClick={handleExampleClick}
+              className="text-[#77d9ab] hover:text-[#77d9ab] text-sm transition-colors cursor-pointer bg-transparent hover:bg-white/10 backdrop-blur-sm px-4 py-2 border border-[#77d9ab]/30 hover:border-[#189258]/50"
+              disabled={isLoading}
+              aria-label="Example prompt"
+            >
+              {currentExample}
+            </Button>
+          </div>
+        ) : null}
+
+        {/* Text Input Area */}
+        <Card className="backdrop-blur-sm bg-[#0a3922] p-3 relative w-140 border-none">
+          <Textarea
+            ref={textareaRef}
+            value={isLoading ? loadingText : userPrompt}
+            onChange={(e) => !isLoading && setUserPrompt(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder={
+              isEditingMode
+                ? "Edit your palette"
+                : selectedImage
+                ? "Add specifications"
+                : "Describe your palette"
+            }
+            className="resize-none focus-visible:ring-0 focus-visible:ring-offset-0 px-0 min-h-[28px] bg-transparent text-background text-lg font-medium border-none placeholder:text-[#77d9ab]"
+            disabled={isLoading}
+            readOnly={isLoading}
+          />
+
+          <div className="flex items-center justify-between gap-4 mt-2">
+            <div className="flex items-center justify-center gap-2">
               <Button
+                type="button"
                 variant="outline"
-                onClick={handleExampleClick}
-                className="text-[#77d9ab] hover:text-[#77d9ab] text-sm transition-colors cursor-pointer bg-transparent hover:bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 border border-[#77d9ab]/30 hover:border-[#189258]/50"
-                disabled={isLoading}
+                size="icon"
+                onClick={handleUploadClick}
+                disabled={isLoading || isEditingMode}
+                className="bg-transparent text-[#77d9ab] hover:bg-[#FFC857] hover:text-[#133541] border-[#FFC857] hover:border-[#FFC857] disabled:border-[#50b1d8] disabled:cursor-not-allowed disabled:opacity-100"
               >
-                {currentExample}
+                <Paperclip />
+              </Button>
+              <Switch
+                id="editing"
+                checked={isEditingMode}
+                onCheckedChange={(checked) => {
+                  if (!checked && isEditingMode) {
+                    exitEditingMode()
+                  }
+                }}
+                disabled={!isEditingMode}
+                className="data-[state=checked]:bg-[#FFC857] data-[state=unchecked]:bg-transparent border border-[#FFC857] w-14 disabled:border-[#50b1d8] disabled:cursor-not-allowed disabled:opacity-100 rounded-md"
+              />
+              <Label htmlFor="editing" className="text-[#77d9ab]">
+                Editing
+              </Label>
+            </div>
+
+            <div className="flex items-center justify-center gap-2">
+              {/* Color Count Selector */}
+              <div className="flex items-center justify-between gap-2">
+                <Label
+                  htmlFor="color-count"
+                  className="text-sm font-medium text-[#77d9ab]"
+                >
+                  Number of colors
+                </Label>
+                <Select
+                  value={colorCount.toString()}
+                  onValueChange={(value) =>
+                    setColorCount(Number.parseInt(value))
+                  }
+                  disabled={isLoading || isEditingMode}
+                >
+                  <SelectTrigger
+                    id="color-count"
+                    className="w-20 h-10 text-xs p-2 bg-transparent text-background rounded-md"
+                  >
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="3">3</SelectItem>
+                    <SelectItem value="4">4</SelectItem>
+                    <SelectItem value="5">5</SelectItem>
+                    <SelectItem value="6">6</SelectItem>
+                    <SelectItem value="8">8</SelectItem>
+                    <SelectItem value="10">10</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={handleGenerate}
+                disabled={isLoading || (!selectedImage && !userPrompt.trim())}
+                className="text-[#133541]  bg-[#FFC857] hover:bg-[#FFC857] hover:text-[#133541] disabled:bg-[#50b1d8] disabled:text-[#133541] disabled:opacity-100"
+              >
+                <Send />
               </Button>
             </div>
-          ) : null}
-
-          {/* Text Input Area */}
-          <div className="backdrop-blur-sm rounded-3xl bg-[#0a3922] p-3 relative w-140">
-            <Textarea
-              ref={textareaRef}
-              value={userPrompt}
-              onChange={(e) => setUserPrompt(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder={
-                isEditingMode
-                  ? "Edit your palette (e.g., 'add a warm red color', 'make the third color darker', 'change primary to blue')"
-                  : selectedImage
-                  ? "Add specifications"
-                  : "Describe your palette"
-              }
-              className="resize-none focus-visible:ring-0 focus-visible:ring-offset-0 px-0 min-h-[28px] bg-transparent text-background text-lg font-medium border-none placeholder:text-[#77d9ab]"
-              disabled={isLoading}
-            />
-
-            <div className="flex items-center justify-between gap-4 mt-2">
-              <div className="flex items-center justify-center gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  onClick={handleUploadClick}
-                  disabled={isLoading || isEditingMode}
-                  className="bg-transparent text-[#77d9ab] rounded-full hover:bg-[#FFC857] hover:text-[#133541] border-[#FFC857] hover:border-[#FFC857] disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <Paperclip />
-                </Button>
-                <Switch
-                  id="editing"
-                  checked={isEditingMode}
-                  onCheckedChange={(checked) => {
-                    if (!checked && isEditingMode) {
-                      exitEditingMode();
-                    }
-                  }}
-                  disabled={!isEditingMode}
-                  className="data-[state=checked]:bg-[#FFC857] data-[state=unchecked]:bg-transparent border border-[#FFC857] w-14"
-                />
-                <Label htmlFor="editing" className="text-[#77d9ab]">
-                  Editing
-                </Label>
-              </div>
-
-              <div className="flex items-center justify-center gap-2">
-                {/* Color Count Selector */}
-                <div className="flex items-center justify-between gap-2">
-                  <Label
-                    htmlFor="color-count"
-                    className="text-sm font-medium text-[#77d9ab]"
-                  >
-                    Number of colors
-                  </Label>
-                  <Select
-                    value={colorCount.toString()}
-                    onValueChange={(value) =>
-                      setColorCount(Number.parseInt(value))
-                    }
-                  >
-                    <SelectTrigger
-                      id="color-count"
-                      className="w-20 h-10 text-xs p-2 bg-transparent text-background"
-                    >
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="3">3</SelectItem>
-                      <SelectItem value="4">4</SelectItem>
-                      <SelectItem value="5">5</SelectItem>
-                      <SelectItem value="6">6</SelectItem>
-                      <SelectItem value="8">8</SelectItem>
-                      <SelectItem value="10">10</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  onClick={handleGenerate}
-                  disabled={isLoading || (!selectedImage && !userPrompt.trim())}
-                  className="text-[#133541] rounded-full bg-[#FFC857] hover:bg-[#FFC857] hover:text-[#133541] disabled:bg-[#50b1d8] disabled:text-[#133541] disabled:opacity-100"
-                >
-                  <Send />
-                </Button>
-              </div>
-            </div>
           </div>
-        </div>
+        </Card>
       </section>
     </div>
-  );
+  )
 }

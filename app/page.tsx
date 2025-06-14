@@ -1,22 +1,22 @@
-"use client";
+"use client"
 
-import type React from "react";
-import { Tabs, TabsContent } from "@/components/ui/tabs";
-import { generateColorPalette } from "./actions";
-import { toast } from "@/components/ui/use-toast";
-import { useColorPaletteStore } from "@/lib/store";
-import { useRef } from "react";
+import type React from "react"
+import { Tabs, TabsContent } from "@/components/ui/tabs"
+import { generateColorPalette } from "./actions"
+import { toast } from "@/components/ui/use-toast"
+import { useColorPaletteStore } from "@/lib/store"
+import { useRef } from "react"
 
 // Components
-import { Header } from "@/components/Header";
-import { ImageUpload } from "@/components/ImageUpload";
-import { ColorPaletteDisplay } from "@/components/ColorPalette";
-import { SavedPalettes } from "@/components/SavedPalettes";
-import { DragOverlay } from "@/components/DragOverlay";
-import { cn } from "@/lib/utils";
+import { Header } from "@/components/Header"
+import { ImageUpload } from "@/components/ImageUpload"
+import { ColorPaletteDisplay } from "@/components/ColorPalette"
+import { SavedPalettes } from "@/components/SavedPalettes"
+import { DragOverlay } from "@/components/DragOverlay"
+import { cn } from "@/lib/utils"
 
 export default function ColorPaletteGenerator() {
-  const dragCounter = useRef(0);
+  const dragCounter = useRef(0)
 
   // Zustand store
   const {
@@ -25,32 +25,37 @@ export default function ColorPaletteGenerator() {
     colorCount,
     activeTab,
     pageDragActive,
+    isEditingMode,
     setColorPalette,
     setIsLoading,
     setActiveTab,
     setPageDragActive,
     handleImageUpload,
-  } = useColorPaletteStore();
+  } = useColorPaletteStore()
 
   const generatePalette = async (userPrompt?: string) => {
-    // Allow generation with either image or text prompt
-    if (!selectedImage && !userPrompt?.trim()) return;
+    // Allow generation with either image or text prompt, or editing existing palette
+    if (!selectedImage && !userPrompt?.trim() && !isEditingMode) return
 
-    setIsLoading(true);
+    // In editing mode, we need a user prompt to know what to edit
+    if (isEditingMode && !userPrompt?.trim()) return
+
+    setIsLoading(true)
     try {
       const result = await generateColorPalette(
-        selectedImage,
+        selectedImage, // Always pass the image if available (for both generation and editing)
         colorCount,
-        userPrompt
-      );
+        userPrompt,
+        isEditingMode ? colorPalette : undefined // Pass current palette for editing
+      )
       const paletteWithTimestamp = {
         ...result,
         timestamp: Date.now(),
         imagePreview: selectedImage || undefined,
-      };
-      setColorPalette(paletteWithTimestamp);
+      }
+      setColorPalette(paletteWithTimestamp)
     } catch (error) {
-      console.error("Error generating palette:", error);
+      console.error("Error generating palette:", error)
 
       if (error instanceof Error && error.message === "INVALID_REQUEST") {
         toast({
@@ -58,77 +63,77 @@ export default function ColorPaletteGenerator() {
           description:
             "Please provide a clear description of the colors you want or upload an image.",
           variant: "destructive",
-        });
+        })
       } else {
         toast({
           title: "Error",
           description: "Failed to generate color palette. Please try again.",
           variant: "destructive",
-        });
+        })
       }
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   // Page-level drag handlers
   const handlePageDragEnter = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+    e.preventDefault()
+    e.stopPropagation()
 
     // Only handle page-level drag when on generator tab
-    if (activeTab !== "generator") return;
+    if (activeTab !== "generator") return
 
-    dragCounter.current++;
+    dragCounter.current++
     if (dragCounter.current === 1) {
-      setPageDragActive(true);
+      setPageDragActive(true)
     }
-  };
+  }
 
   const handlePageDragLeave = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+    e.preventDefault()
+    e.stopPropagation()
 
     // Only handle page-level drag when on generator tab
-    if (activeTab !== "generator") return;
+    if (activeTab !== "generator") return
 
-    dragCounter.current--;
+    dragCounter.current--
     if (dragCounter.current === 0) {
-      setPageDragActive(false);
+      setPageDragActive(false)
     }
-  };
+  }
 
   const handlePageDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+    e.preventDefault()
+    e.stopPropagation()
 
     // Only handle page-level drag when on generator tab
-    if (activeTab !== "generator") return;
-  };
+    if (activeTab !== "generator") return
+  }
 
   const handlePageDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+    e.preventDefault()
+    e.stopPropagation()
 
     // Only handle page-level drag when on generator tab
-    if (activeTab !== "generator") return;
+    if (activeTab !== "generator") return
 
-    dragCounter.current = 0;
-    setPageDragActive(false);
+    dragCounter.current = 0
+    setPageDragActive(false)
 
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      const file = e.dataTransfer.files[0];
+      const file = e.dataTransfer.files[0]
       if (file.type.startsWith("image/")) {
-        handleImageUpload(file);
+        handleImageUpload(file)
       } else {
         toast({
           title: "Invalid file type",
           description: "Please upload an image file.",
           variant: "destructive",
-        });
+        })
       }
     }
-  };
+  }
 
   return (
     <>
@@ -170,5 +175,5 @@ export default function ColorPaletteGenerator() {
         <DragOverlay isVisible={pageDragActive && activeTab === "generator"} />
       </main>
     </>
-  );
+  )
 }

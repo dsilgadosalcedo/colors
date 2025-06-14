@@ -1,7 +1,7 @@
-import { create } from "zustand";
-import { persist } from "zustand/middleware";
-import { ColorInfo, ColorPalette } from "./types";
-import { toast } from "@/components/ui/use-toast";
+import { create } from "zustand"
+import { persist } from "zustand/middleware"
+import { ColorInfo, ColorPalette } from "./types"
+import { toast } from "@/components/ui/use-toast"
 
 // Helper function to compress image data URL
 const compressImage = (
@@ -9,84 +9,95 @@ const compressImage = (
   quality: number = 0.3
 ): Promise<string> => {
   return new Promise((resolve) => {
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-    const img = new Image();
+    const canvas = document.createElement("canvas")
+    const ctx = canvas.getContext("2d")
+    const img = new Image()
 
     img.onload = () => {
       // Calculate new dimensions (max 200px width/height)
-      const maxSize = 200;
-      let { width, height } = img;
+      const maxSize = 200
+      let { width, height } = img
 
       if (width > height) {
         if (width > maxSize) {
-          height = (height * maxSize) / width;
-          width = maxSize;
+          height = (height * maxSize) / width
+          width = maxSize
         }
       } else {
         if (height > maxSize) {
-          width = (width * maxSize) / height;
-          height = maxSize;
+          width = (width * maxSize) / height
+          height = maxSize
         }
       }
 
-      canvas.width = width;
-      canvas.height = height;
+      canvas.width = width
+      canvas.height = height
 
       // Draw and compress
-      ctx?.drawImage(img, 0, 0, width, height);
-      const compressedDataUrl = canvas.toDataURL("image/jpeg", quality);
-      resolve(compressedDataUrl);
-    };
+      ctx?.drawImage(img, 0, 0, width, height)
+      const compressedDataUrl = canvas.toDataURL("image/jpeg", quality)
+      resolve(compressedDataUrl)
+    }
 
-    img.src = dataUrl;
-  });
-};
+    img.src = dataUrl
+  })
+}
 
 interface ColorPaletteState {
   // UI State
-  selectedImage: string | null;
-  colorPalette: ColorPalette | null;
-  isLoading: boolean;
-  dragActive: boolean;
-  pageDragActive: boolean;
-  copiedColor: string | null;
-  colorCount: number;
-  activeTab: string;
-  isCurrentPaletteSaved: boolean;
-  downloadBounce: boolean;
-  isEditingMode: boolean;
+  selectedImage: string | null
+  colorPalette: ColorPalette | null
+  isLoading: boolean
+  dragActive: boolean
+  pageDragActive: boolean
+  copiedColor: string | null
+  colorCount: number
+  activeTab: string
+  isCurrentPaletteSaved: boolean
+  downloadBounce: boolean
+  isEditingMode: boolean
+
+  // Undo/Redo State
+  previousPalette: ColorPalette | null
+  hasUndone: boolean
+  canUndo: boolean
+  canRedo: boolean
 
   // Persisted State
-  savedPalettes: ColorPalette[];
+  savedPalettes: ColorPalette[]
 
   // Actions
-  setSelectedImage: (image: string | null) => void;
-  setColorPalette: (palette: ColorPalette | null) => void;
-  setIsLoading: (loading: boolean) => void;
-  setDragActive: (active: boolean) => void;
-  setPageDragActive: (active: boolean) => void;
-  setCopiedColor: (color: string | null) => void;
-  setColorCount: (count: number) => void;
-  setActiveTab: (tab: string) => void;
-  setDownloadBounce: (bounce: boolean) => void;
-  setIsEditingMode: (editing: boolean) => void;
+  setSelectedImage: (image: string | null) => void
+  setColorPalette: (palette: ColorPalette | null) => void
+  setIsLoading: (loading: boolean) => void
+  setDragActive: (active: boolean) => void
+  setPageDragActive: (active: boolean) => void
+  setCopiedColor: (color: string | null) => void
+  setColorCount: (count: number) => void
+  setActiveTab: (tab: string) => void
+  setDownloadBounce: (bounce: boolean) => void
+  setIsEditingMode: (editing: boolean) => void
+
+  // Undo/Redo Actions
+  undoPalette: () => void
+  redoPalette: () => void
+  updatePaletteWithHistory: (palette: ColorPalette | null) => void
 
   // Business Logic Actions
-  handleImageUpload: (file: File) => void;
-  copyToClipboard: (hex: string) => void;
-  savePalette: () => Promise<void>;
-  deleteSavedPalette: (index: number) => void;
-  loadSavedPalette: (palette: ColorPalette) => void;
-  exitEditingMode: () => void;
-  downloadPalette: () => void;
-  sharePalette: () => Promise<void>;
-  isColorInPalette: (colors: ColorInfo[], hexToCheck: string) => boolean;
-  checkIfCurrentPaletteIsSaved: () => void;
+  handleImageUpload: (file: File) => void
+  copyToClipboard: (hex: string) => void
+  savePalette: () => Promise<void>
+  deleteSavedPalette: (index: number) => void
+  loadSavedPalette: (palette: ColorPalette) => void
+  exitEditingMode: () => void
+  downloadPalette: () => void
+  sharePalette: () => Promise<void>
+  isColorInPalette: (colors: ColorInfo[], hexToCheck: string) => boolean
+  checkIfCurrentPaletteIsSaved: () => void
 
   // Reset functions
-  resetImageState: () => void;
-  clearCopiedColor: () => void;
+  resetImageState: () => void
+  clearCopiedColor: () => void
 }
 
 // Helper function to create a palette with compressed image for storage
@@ -94,22 +105,22 @@ const createStorablePalette = async (
   palette: ColorPalette
 ): Promise<ColorPalette> => {
   if (!palette.imagePreview) {
-    return palette;
+    return palette
   }
 
   try {
-    const compressedImage = await compressImage(palette.imagePreview);
+    const compressedImage = await compressImage(palette.imagePreview)
     return {
       ...palette,
       imagePreview: compressedImage,
-    };
+    }
   } catch (error) {
-    console.error("Error compressing image:", error);
+    console.error("Error compressing image:", error)
     // Return palette without image if compression fails
-    const { imagePreview, ...paletteWithoutImage } = palette;
-    return paletteWithoutImage as ColorPalette;
+    const { imagePreview, ...paletteWithoutImage } = palette
+    return paletteWithoutImage as ColorPalette
   }
-};
+}
 
 // Helper function to check if two palettes are the same (ignoring image data)
 const arePalettesEqual = (
@@ -120,8 +131,8 @@ const arePalettesEqual = (
     palette1.dominantColor === palette2.dominantColor &&
     palette1.colors.length === palette2.colors.length &&
     palette1.colors.every((c, i) => c.hex === palette2.colors[i].hex)
-  );
-};
+  )
+}
 
 export const useColorPaletteStore = create<ColorPaletteState>()(
   persist(
@@ -140,20 +151,35 @@ export const useColorPaletteStore = create<ColorPaletteState>()(
       downloadBounce: false,
       isEditingMode: false,
 
+      // Undo/Redo State
+      previousPalette: null,
+      hasUndone: false,
+      canUndo: false,
+      canRedo: false,
+
       // Basic Setters
       setSelectedImage: (image) => set({ selectedImage: image }),
       setColorPalette: (palette) => {
-        set({
-          colorPalette: palette,
-          // Always exit editing mode when setting a new palette
-          // loadSavedPalette will override this when loading from collection
-          isEditingMode: false,
-        });
-        // Check if the new palette is already saved
-        if (palette) {
-          get().checkIfCurrentPaletteIsSaved();
+        const { isEditingMode } = get()
+        if (isEditingMode && palette) {
+          // Use history tracking when editing
+          get().updatePaletteWithHistory(palette)
         } else {
-          set({ isCurrentPaletteSaved: false });
+          // Regular update when not editing
+          set({
+            colorPalette: palette,
+            isEditingMode: isEditingMode,
+            previousPalette: null,
+            hasUndone: false,
+            canUndo: false,
+            canRedo: false,
+          })
+          // Check if the new palette is already saved
+          if (palette) {
+            get().checkIfCurrentPaletteIsSaved()
+          } else {
+            set({ isCurrentPaletteSaved: false })
+          }
         }
       },
       setIsLoading: (loading) => set({ isLoading: loading }),
@@ -165,87 +191,149 @@ export const useColorPaletteStore = create<ColorPaletteState>()(
       setDownloadBounce: (bounce) => set({ downloadBounce: bounce }),
       setIsEditingMode: (editing) => set({ isEditingMode: editing }),
 
+      // Undo/Redo Actions
+      undoPalette: () => {
+        const { colorPalette, previousPalette } = get()
+        if (previousPalette) {
+          set({
+            colorPalette: previousPalette,
+            previousPalette: colorPalette,
+            hasUndone: true,
+            canUndo: false,
+            canRedo: true,
+          })
+          // Check if the undone palette is saved
+          get().checkIfCurrentPaletteIsSaved()
+        }
+      },
+      redoPalette: () => {
+        const { colorPalette, previousPalette } = get()
+        if (previousPalette && get().hasUndone) {
+          set({
+            colorPalette: previousPalette,
+            previousPalette: colorPalette,
+            hasUndone: false,
+            canUndo: true,
+            canRedo: false,
+          })
+          // Check if the redone palette is saved
+          get().checkIfCurrentPaletteIsSaved()
+        }
+      },
+      updatePaletteWithHistory: (palette: ColorPalette | null) => {
+        const { colorPalette } = get()
+        if (palette && colorPalette) {
+          // Store current palette as previous before updating
+          set({
+            previousPalette: colorPalette,
+            colorPalette: palette,
+            hasUndone: false,
+            canUndo: true,
+            canRedo: false,
+          })
+          // Check if the new palette is saved
+          get().checkIfCurrentPaletteIsSaved()
+        } else {
+          // Regular palette update without history
+          set({
+            colorPalette: palette,
+            previousPalette: null,
+            hasUndone: false,
+            canUndo: false,
+            canRedo: false,
+          })
+          if (palette) {
+            get().checkIfCurrentPaletteIsSaved()
+          }
+        }
+      },
+
       // Business Logic Actions
       handleImageUpload: (file: File) => {
-        const reader = new FileReader();
+        const reader = new FileReader()
         reader.onload = (e) => {
           set({
             selectedImage: e.target?.result as string,
             colorPalette: null,
             isCurrentPaletteSaved: false,
             isEditingMode: false, // Exit editing mode when uploading new image
-          });
-        };
-        reader.readAsDataURL(file);
+            previousPalette: null,
+            hasUndone: false,
+            canUndo: false,
+            canRedo: false,
+          })
+        }
+        reader.readAsDataURL(file)
       },
 
       copyToClipboard: (hex: string) => {
-        navigator.clipboard.writeText(hex);
-        set({ copiedColor: hex });
+        navigator.clipboard.writeText(hex)
+        set({ copiedColor: hex })
         setTimeout(() => {
-          set({ copiedColor: null });
-        }, 2000);
+          set({ copiedColor: null })
+        }, 2000)
       },
 
       checkIfCurrentPaletteIsSaved: () => {
-        const { colorPalette, savedPalettes } = get();
+        const { colorPalette, savedPalettes } = get()
         if (!colorPalette) {
-          set({ isCurrentPaletteSaved: false });
-          return;
+          set({ isCurrentPaletteSaved: false })
+          return
         }
 
         const exists = savedPalettes.some((p) =>
           arePalettesEqual(p, colorPalette)
-        );
-        set({ isCurrentPaletteSaved: exists });
+        )
+        set({ isCurrentPaletteSaved: exists })
       },
 
       savePalette: async () => {
-        const { colorPalette, savedPalettes } = get();
-        if (!colorPalette) return;
+        const { colorPalette, savedPalettes } = get()
+        if (!colorPalette) return
 
         // Check if palette already exists to avoid duplicates
         const exists = savedPalettes.some((p) =>
           arePalettesEqual(p, colorPalette)
-        );
+        )
 
         if (exists) {
           toast({
             title: "Already saved",
             description: "This color palette is already in your collection",
-          });
-          return;
+          })
+          return
         }
 
         try {
           // Create a storable version with compressed image
-          const storablePalette = await createStorablePalette(colorPalette);
+          const storablePalette = await createStorablePalette(colorPalette)
           const newSavedPalettes = [storablePalette, ...savedPalettes].slice(
             0,
             10
-          );
+          )
 
           set({
             savedPalettes: newSavedPalettes,
             isCurrentPaletteSaved: true,
-          });
+            isEditingMode: true, // Enter editing mode after saving a palette
+          })
         } catch (error) {
-          console.error("Error saving palette:", error);
+          console.error("Error saving palette:", error)
           toast({
             title: "Storage Error",
             description: "Unable to save palette. Storage quota exceeded.",
             variant: "destructive",
-          });
+          })
         }
       },
 
       deleteSavedPalette: (index: number) => {
-        const { savedPalettes } = get();
-        const newSavedPalettes = savedPalettes.filter((_, i) => i !== index);
-        set({ savedPalettes: newSavedPalettes });
+        const { savedPalettes } = get()
+        const newSavedPalettes = savedPalettes.filter((_, i) => i !== index)
+        set({ savedPalettes: newSavedPalettes })
 
         // Check if current palette is still saved after deletion
-        get().checkIfCurrentPaletteIsSaved();
+        get().checkIfCurrentPaletteIsSaved()
       },
 
       loadSavedPalette: (palette: ColorPalette) => {
@@ -256,7 +344,11 @@ export const useColorPaletteStore = create<ColorPaletteState>()(
           activeTab: "generator",
           isCurrentPaletteSaved: true, // Loaded palettes are always saved
           isEditingMode: true, // Enter editing mode when loading a saved palette
-        });
+          previousPalette: null,
+          hasUndone: false,
+          canUndo: false,
+          canRedo: false,
+        })
       },
 
       exitEditingMode: () => {
@@ -265,80 +357,84 @@ export const useColorPaletteStore = create<ColorPaletteState>()(
           colorPalette: null,
           selectedImage: null,
           isCurrentPaletteSaved: false,
-        });
+          previousPalette: null,
+          hasUndone: false,
+          canUndo: false,
+          canRedo: false,
+        })
       },
 
       downloadPalette: () => {
-        const { colorPalette } = get();
-        if (!colorPalette) return;
+        const { colorPalette } = get()
+        if (!colorPalette) return
 
         // Trigger bounce animation
-        set({ downloadBounce: true });
-        setTimeout(() => set({ downloadBounce: false }), 600);
+        set({ downloadBounce: true })
+        setTimeout(() => set({ downloadBounce: false }), 600)
 
         // Create CSS variables
         const cssContent = colorPalette.colors
           .map((color) => {
             return `--color-${color.name.toLowerCase().replace(/\s+/g, "-")}: ${
               color.hex
-            };`;
+            };`
           })
-          .join("\n");
+          .join("\n")
 
         // Create download link
-        const element = document.createElement("a");
+        const element = document.createElement("a")
         const file = new Blob([`:root {\n${cssContent}\n}`], {
           type: "text/css",
-        });
-        element.href = URL.createObjectURL(file);
-        element.download = "color-palette.css";
-        document.body.appendChild(element);
-        element.click();
-        document.body.removeChild(element);
+        })
+        element.href = URL.createObjectURL(file)
+        element.download = "color-palette.css"
+        document.body.appendChild(element)
+        element.click()
+        document.body.removeChild(element)
 
         toast({
           title: "Downloaded!",
           description: "Color palette CSS variables downloaded",
-        });
+        })
       },
 
       sharePalette: async () => {
-        const { colorPalette } = get();
-        if (!colorPalette) return;
+        const { colorPalette } = get()
+        if (!colorPalette) return
 
         const shareText = `Check out this color palette:\n${colorPalette.colors
           .map((c) => `${c.name}: ${c.hex}`)
-          .join("\n")}`;
+          .join("\n")}`
 
         if (navigator.share) {
           try {
             await navigator.share({
               title: "Color Palette",
               text: shareText,
-            });
+            })
           } catch (error) {
-            console.error("Error sharing:", error);
+            console.error("Error sharing:", error)
             // Fallback to clipboard
-            navigator.clipboard.writeText(shareText);
+            navigator.clipboard.writeText(shareText)
             toast({
               title: "Copied to clipboard",
               description: "Share text copied to clipboard",
-            });
+            })
           }
         } else {
           // Fallback to clipboard
-          navigator.clipboard.writeText(shareText);
+          navigator.clipboard.writeText(shareText)
           toast({
             title: "Copied to clipboard",
             description: "Share text copied to clipboard",
-          });
+          })
         }
       },
 
       isColorInPalette: (colors: ColorInfo[], hexToCheck: string): boolean => {
         return colors.some(
           (color) => color.hex.toLowerCase() === hexToCheck.toLowerCase()
-        );
+        )
       },
 
       // Reset functions
@@ -348,11 +444,15 @@ export const useColorPaletteStore = create<ColorPaletteState>()(
           colorPalette: null,
           isCurrentPaletteSaved: false,
           isEditingMode: false,
-        });
+          previousPalette: null,
+          hasUndone: false,
+          canUndo: false,
+          canRedo: false,
+        })
       },
 
       clearCopiedColor: () => {
-        set({ copiedColor: null });
+        set({ copiedColor: null })
       },
     }),
     {
@@ -362,9 +462,9 @@ export const useColorPaletteStore = create<ColorPaletteState>()(
       // Handle storage errors gracefully
       onRehydrateStorage: () => (state, error) => {
         if (error) {
-          console.error("Error rehydrating storage:", error);
+          console.error("Error rehydrating storage:", error)
         }
       },
     }
   )
-);
+)

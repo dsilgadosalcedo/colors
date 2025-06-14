@@ -1,5 +1,5 @@
-import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import {
   Copy,
   Check,
@@ -7,10 +7,12 @@ import {
   Download,
   Share2,
   CheckCircle,
-} from "lucide-react";
-import { ColorCard } from "./ColorCard";
-import { useColorPaletteStore } from "@/lib/store";
-import { cn } from "@/lib/utils";
+  Undo,
+  Redo,
+} from "lucide-react"
+import { ColorCard } from "./ColorCard"
+import { useColorPaletteStore } from "@/lib/store"
+import { cn } from "@/lib/utils"
 
 export function ColorPaletteDisplay() {
   const {
@@ -18,13 +20,18 @@ export function ColorPaletteDisplay() {
     copiedColor,
     isCurrentPaletteSaved,
     downloadBounce,
+    canUndo,
+    canRedo,
+    hasUndone,
     copyToClipboard,
     savePalette,
     downloadPalette,
     sharePalette,
-  } = useColorPaletteStore();
+    undoPalette,
+    redoPalette,
+  } = useColorPaletteStore()
 
-  const backgroundColor = "black";
+  const backgroundColor = "black"
 
   // if (!colorPalette) {
   //   return (
@@ -47,9 +54,30 @@ export function ColorPaletteDisplay() {
   return (
     <ColorPaletteBox>
       <div className="px-4 py-3 grid md:flex gap-4 justify-between items-center border-b bg-sidebar">
-        <h3 className="text-gray-900 mb-0">Your Color Palette</h3>
+        <div className="flex items-center gap-2">
+          <h3 className="text-gray-900 mb-0">Color Palette</h3>
+          {(canUndo || canRedo) && (
+            <Button
+              size="sm"
+              onClick={canUndo ? undoPalette : redoPalette}
+              variant="outline"
+            >
+              {canUndo ? (
+                <>
+                  <Undo size={12} />
+                  Undo
+                </>
+              ) : (
+                <>
+                  <Redo size={12} />
+                  Redo
+                </>
+              )}
+            </Button>
+          )}
+        </div>
         {/* Action Buttons */}
-        <div className="flex flex-wrap gap-3 justify-center">
+        <div className="flex flex-wrap gap-2 justify-center">
           <Button
             variant="outline"
             size="sm"
@@ -63,12 +91,12 @@ export function ColorPaletteDisplay() {
           >
             {isCurrentPaletteSaved ? (
               <>
-                <CheckCircle className="w-3.5 h-3.5" />
+                <CheckCircle size={8} />
                 Saved
               </>
             ) : (
               <>
-                <Palette className="w-3.5 h-3.5" />
+                <Palette size={8} />
                 Save Palette
               </>
             )}
@@ -79,16 +107,11 @@ export function ColorPaletteDisplay() {
             onClick={downloadPalette}
             className="relative"
           >
-            <Download
-              className={cn(
-                "w-3.5 h-3.5 transition-transform duration-300",
-                downloadBounce && "animate-bounce"
-              )}
-            />
+            <Download />
             Download CSS
           </Button>
           <Button variant="outline" size="sm" onClick={sharePalette}>
-            <Share2 className="w-3.5 h-3.5" />
+            <Share2 size={8} />
             Share
           </Button>
         </div>
@@ -116,19 +139,19 @@ export function ColorPaletteDisplay() {
               .sort((a, b) => {
                 const aIsDominant =
                   a.hex.toLowerCase() ===
-                  colorPalette.dominantColor.toLowerCase();
+                  colorPalette.dominantColor.toLowerCase()
                 const bIsDominant =
                   b.hex.toLowerCase() ===
-                  colorPalette.dominantColor.toLowerCase();
+                  colorPalette.dominantColor.toLowerCase()
 
-                if (aIsDominant && !bIsDominant) return -1; // a comes first
-                if (!aIsDominant && bIsDominant) return 1; // b comes first
-                return 0; // maintain original order for non-dominant colors
+                if (aIsDominant && !bIsDominant) return -1 // a comes first
+                if (!aIsDominant && bIsDominant) return 1 // b comes first
+                return 0 // maintain original order for non-dominant colors
               })
               .map((color, index) => {
                 const isDominantColor =
                   color.hex.toLowerCase() ===
-                  colorPalette.dominantColor.toLowerCase();
+                  colorPalette.dominantColor.toLowerCase()
                 return (
                   <ColorCard
                     key={`${color.hex}-${index}`} // Use hex + index to ensure unique keys after sorting
@@ -137,13 +160,13 @@ export function ColorPaletteDisplay() {
                     onCopyColor={copyToClipboard}
                     isPrimary={isDominantColor}
                   />
-                );
+                )
               })}
           </div>
         </div>
       )}
     </ColorPaletteBox>
-  );
+  )
 }
 
 const ColorPaletteBox = ({ children }: { children: React.ReactNode }) => {
@@ -154,5 +177,5 @@ const ColorPaletteBox = ({ children }: { children: React.ReactNode }) => {
       </section>
       <div className="w-full h-[calc(100%-24px)] -z-10 absolute top-2 left-6 bg-[#50b1d8]/50 rounded-3xl rounded-r-none blur-xs"></div>
     </div>
-  );
-};
+  )
+}
