@@ -46,7 +46,7 @@ export function ColorPaletteDisplay() {
 
   return (
     <ColorPaletteBox>
-      <div className="px-4 py-3 grid md:flex gap-4 justify-between items-center border-b bg-sidebar rounded-tl-3xl">
+      <div className="px-4 py-3 grid md:flex gap-4 justify-between items-center border-b bg-sidebar">
         <h3 className="text-gray-900 mb-0">Your Color Palette</h3>
         {/* Action Buttons */}
         <div className="flex flex-wrap gap-3 justify-center">
@@ -153,11 +153,11 @@ export function ColorPaletteDisplay() {
 
 const ColorPaletteBox = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className="relative flex-1 pb-3 flex flex-col md:m-6 lg:m-0 lg:mb-4 rounded-4xl rounded-r-none">
-      <section className="bg-background md:rounded-3xl lg:rounded-r-none flex-1">
+    <div className="relative flex-1 flex flex-col rounded-3xl rounded-r-none overflow-hidden">
+      <section className="bg-background md:rounded-3xl lg:rounded-r-none h-[calc(100%-28px)]">
         {children}
       </section>
-      <div className="w-full h-[calc(100%-24px)] -z-10 absolute top-6 left-6 bg-[#50b1d8]/50 rounded-3xl rounded-r-none blur-xs"></div>
+      <div className="w-full h-[calc(100%-24px)] -z-10 absolute top-2 left-6 bg-[#50b1d8]/50 rounded-3xl rounded-r-none blur-xs"></div>
     </div>
   );
 };
