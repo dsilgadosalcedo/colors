@@ -351,7 +351,7 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
                 ? "Add specifications"
                 : "Describe your palette"
             }
-            className="resize-none focus-visible:ring-0 focus-visible:ring-offset-0 px-0 min-h-[28px] bg-transparent text-background text-lg font-medium border-none placeholder:text-[#77d9ab]"
+            className="resize-none focus-visible:ring-0 focus-visible:ring-offset-0 px-0 min-h-[28px] bg-transparent text-background text-lg font-medium border-none placeholder:text-[#77d9ab] rounded-none"
             disabled={isLoading}
             readOnly={isLoading}
           />

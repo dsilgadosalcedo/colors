@@ -59,6 +59,7 @@ interface ColorPaletteState {
 
   // Undo/Redo State
   previousPalette: ColorPalette | null
+  previousPaletteWasSaved: boolean
   hasUndone: boolean
   canUndo: boolean
   canRedo: boolean
@@ -153,6 +154,7 @@ export const useColorPaletteStore = create<ColorPaletteState>()(
 
       // Undo/Redo State
       previousPalette: null,
+      previousPaletteWasSaved: false,
       hasUndone: false,
       canUndo: false,
       canRedo: false,
@@ -170,6 +172,7 @@ export const useColorPaletteStore = create<ColorPaletteState>()(
             colorPalette: palette,
             isEditingMode: isEditingMode,
             previousPalette: null,
+            previousPaletteWasSaved: false,
             hasUndone: false,
             canUndo: false,
             canRedo: false,
@@ -193,39 +196,50 @@ export const useColorPaletteStore = create<ColorPaletteState>()(
 
       // Undo/Redo Actions
       undoPalette: () => {
-        const { colorPalette, previousPalette } = get()
+        const {
+          colorPalette,
+          previousPalette,
+          previousPaletteWasSaved,
+          isCurrentPaletteSaved,
+        } = get()
         if (previousPalette) {
           set({
             colorPalette: previousPalette,
             previousPalette: colorPalette,
+            previousPaletteWasSaved: isCurrentPaletteSaved,
+            isCurrentPaletteSaved: previousPaletteWasSaved,
             hasUndone: true,
             canUndo: false,
             canRedo: true,
           })
-          // Check if the undone palette is saved
-          get().checkIfCurrentPaletteIsSaved()
         }
       },
       redoPalette: () => {
-        const { colorPalette, previousPalette } = get()
+        const {
+          colorPalette,
+          previousPalette,
+          previousPaletteWasSaved,
+          isCurrentPaletteSaved,
+        } = get()
         if (previousPalette && get().hasUndone) {
           set({
             colorPalette: previousPalette,
             previousPalette: colorPalette,
+            previousPaletteWasSaved: isCurrentPaletteSaved,
+            isCurrentPaletteSaved: previousPaletteWasSaved,
             hasUndone: false,
             canUndo: true,
             canRedo: false,
           })
-          // Check if the redone palette is saved
-          get().checkIfCurrentPaletteIsSaved()
         }
       },
       updatePaletteWithHistory: (palette: ColorPalette | null) => {
-        const { colorPalette } = get()
+        const { colorPalette, isCurrentPaletteSaved } = get()
         if (palette && colorPalette) {
           // Store current palette as previous before updating
           set({
             previousPalette: colorPalette,
+            previousPaletteWasSaved: isCurrentPaletteSaved,
             colorPalette: palette,
             hasUndone: false,
             canUndo: true,
@@ -238,6 +252,7 @@ export const useColorPaletteStore = create<ColorPaletteState>()(
           set({
             colorPalette: palette,
             previousPalette: null,
+            previousPaletteWasSaved: false,
             hasUndone: false,
             canUndo: false,
             canRedo: false,
@@ -258,6 +273,7 @@ export const useColorPaletteStore = create<ColorPaletteState>()(
             isCurrentPaletteSaved: false,
             isEditingMode: false, // Exit editing mode when uploading new image
             previousPalette: null,
+            previousPaletteWasSaved: false,
             hasUndone: false,
             canUndo: false,
             canRedo: false,
@@ -345,6 +361,7 @@ export const useColorPaletteStore = create<ColorPaletteState>()(
           isCurrentPaletteSaved: true, // Loaded palettes are always saved
           isEditingMode: true, // Enter editing mode when loading a saved palette
           previousPalette: null,
+          previousPaletteWasSaved: false,
           hasUndone: false,
           canUndo: false,
           canRedo: false,
@@ -358,6 +375,7 @@ export const useColorPaletteStore = create<ColorPaletteState>()(
           selectedImage: null,
           isCurrentPaletteSaved: false,
           previousPalette: null,
+          previousPaletteWasSaved: false,
           hasUndone: false,
           canUndo: false,
           canRedo: false,
@@ -445,6 +463,7 @@ export const useColorPaletteStore = create<ColorPaletteState>()(
           isCurrentPaletteSaved: false,
           isEditingMode: false,
           previousPalette: null,
+          previousPaletteWasSaved: false,
           hasUndone: false,
           canUndo: false,
           canRedo: false,
