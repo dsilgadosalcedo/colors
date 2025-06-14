@@ -56,6 +56,7 @@ interface ColorPaletteState {
   isCurrentPaletteSaved: boolean
   downloadBounce: boolean
   isEditingMode: boolean
+  editingPaletteIndex: number | null // Track which palette is being edited
 
   // Color text preview state
   colorTextPreview: string
@@ -108,6 +109,9 @@ interface ColorPaletteState {
   // Reset functions
   resetImageState: () => void
   clearCopiedColor: () => void
+
+  // Auto-save function
+  autoSavePalette: (palette: ColorPalette) => Promise<void>
 }
 
 // Helper function to create a palette with compressed image for storage
@@ -160,6 +164,7 @@ export const useColorPaletteStore = create<ColorPaletteState>()(
       isCurrentPaletteSaved: false,
       downloadBounce: false,
       isEditingMode: false,
+      editingPaletteIndex: null,
 
       // Color text preview state
       colorTextPreview: "",
@@ -233,6 +238,7 @@ export const useColorPaletteStore = create<ColorPaletteState>()(
           previousPalette,
           previousPaletteWasSaved,
           isCurrentPaletteSaved,
+          isEditingMode,
         } = get()
         if (previousPalette) {
           set({
@@ -244,6 +250,11 @@ export const useColorPaletteStore = create<ColorPaletteState>()(
             canUndo: false,
             canRedo: true,
           })
+
+          // Auto-save if in editing mode
+          if (isEditingMode) {
+            get().autoSavePalette(previousPalette)
+          }
         }
       },
       redoPalette: () => {
@@ -252,6 +263,7 @@ export const useColorPaletteStore = create<ColorPaletteState>()(
           previousPalette,
           previousPaletteWasSaved,
           isCurrentPaletteSaved,
+          isEditingMode,
         } = get()
         if (previousPalette && get().hasUndone) {
           set({
@@ -263,10 +275,15 @@ export const useColorPaletteStore = create<ColorPaletteState>()(
             canUndo: true,
             canRedo: false,
           })
+
+          // Auto-save if in editing mode
+          if (isEditingMode) {
+            get().autoSavePalette(previousPalette)
+          }
         }
       },
       updatePaletteWithHistory: (palette: ColorPalette | null) => {
-        const { colorPalette, isCurrentPaletteSaved } = get()
+        const { colorPalette, isCurrentPaletteSaved, isEditingMode } = get()
         if (palette && colorPalette) {
           // Store current palette as previous before updating
           set({
@@ -277,8 +294,13 @@ export const useColorPaletteStore = create<ColorPaletteState>()(
             canUndo: true,
             canRedo: false,
           })
-          // Check if the new palette is saved
-          get().checkIfCurrentPaletteIsSaved()
+
+          // Auto-save if in editing mode, otherwise check save status
+          if (isEditingMode) {
+            get().autoSavePalette(palette)
+          } else {
+            get().checkIfCurrentPaletteIsSaved()
+          }
         } else {
           // Regular palette update without history
           set({
@@ -289,7 +311,9 @@ export const useColorPaletteStore = create<ColorPaletteState>()(
             canUndo: false,
             canRedo: false,
           })
-          if (palette) {
+          if (palette && isEditingMode) {
+            get().autoSavePalette(palette)
+          } else if (palette) {
             get().checkIfCurrentPaletteIsSaved()
           }
         }
@@ -304,6 +328,7 @@ export const useColorPaletteStore = create<ColorPaletteState>()(
             colorPalette: null,
             isCurrentPaletteSaved: false,
             isEditingMode: false, // Exit editing mode when uploading new image
+            editingPaletteIndex: null, // Reset editing index
             previousPalette: null,
             previousPaletteWasSaved: false,
             hasUndone: false,
@@ -364,6 +389,7 @@ export const useColorPaletteStore = create<ColorPaletteState>()(
             savedPalettes: newSavedPalettes,
             isCurrentPaletteSaved: true,
             isEditingMode: true, // Enter editing mode after saving a palette
+            editingPaletteIndex: 0, // The new palette is at index 0
           })
         } catch (error) {
           console.error("Error saving palette:", error)
@@ -376,15 +402,38 @@ export const useColorPaletteStore = create<ColorPaletteState>()(
       },
 
       deleteSavedPalette: (index: number) => {
-        const { savedPalettes } = get()
+        const { savedPalettes, editingPaletteIndex } = get()
         const newSavedPalettes = savedPalettes.filter((_, i) => i !== index)
-        set({ savedPalettes: newSavedPalettes })
+
+        // Update editing index if affected by deletion
+        let newEditingPaletteIndex = editingPaletteIndex
+        if (editingPaletteIndex !== null) {
+          if (editingPaletteIndex === index) {
+            // If the palette being edited was deleted, exit editing mode
+            newEditingPaletteIndex = null
+          } else if (editingPaletteIndex > index) {
+            // If the deleted palette was before the editing one, shift index down
+            newEditingPaletteIndex = editingPaletteIndex - 1
+          }
+        }
+
+        set({
+          savedPalettes: newSavedPalettes,
+          editingPaletteIndex: newEditingPaletteIndex,
+          isEditingMode: newEditingPaletteIndex !== null,
+        })
 
         // Check if current palette is still saved after deletion
         get().checkIfCurrentPaletteIsSaved()
       },
 
       loadSavedPalette: (palette: ColorPalette) => {
+        const { savedPalettes } = get()
+        // Find the index of the palette being loaded
+        const paletteIndex = savedPalettes.findIndex((p) =>
+          arePalettesEqual(p, palette)
+        )
+
         set({
           colorPalette: palette,
           selectedImage: palette.imagePreview || null, // Restore image if available
@@ -392,6 +441,7 @@ export const useColorPaletteStore = create<ColorPaletteState>()(
           activeTab: "generator",
           isCurrentPaletteSaved: true, // Loaded palettes are always saved
           isEditingMode: true, // Enter editing mode when loading a saved palette
+          editingPaletteIndex: paletteIndex >= 0 ? paletteIndex : null, // Track which palette is being edited
           previousPalette: null,
           previousPaletteWasSaved: false,
           hasUndone: false,
@@ -403,6 +453,7 @@ export const useColorPaletteStore = create<ColorPaletteState>()(
       exitEditingMode: () => {
         set({
           isEditingMode: false,
+          editingPaletteIndex: null,
           colorPalette: null,
           selectedImage: null,
           isCurrentPaletteSaved: false,
@@ -494,6 +545,7 @@ export const useColorPaletteStore = create<ColorPaletteState>()(
           colorPalette: null,
           isCurrentPaletteSaved: false,
           isEditingMode: false,
+          editingPaletteIndex: null,
           previousPalette: null,
           previousPaletteWasSaved: false,
           hasUndone: false,
@@ -504,6 +556,43 @@ export const useColorPaletteStore = create<ColorPaletteState>()(
 
       clearCopiedColor: () => {
         set({ copiedColor: null })
+      },
+
+      // Auto-save function for editing mode
+      autoSavePalette: async (palette: ColorPalette) => {
+        const { savedPalettes, isEditingMode, editingPaletteIndex } = get()
+        if (!isEditingMode) return
+
+        try {
+          // Create a storable version with compressed image
+          const storablePalette = await createStorablePalette(palette)
+
+          // Update the existing palette in place
+          let newSavedPalettes = [...savedPalettes]
+
+          if (
+            editingPaletteIndex !== null &&
+            editingPaletteIndex >= 0 &&
+            editingPaletteIndex < newSavedPalettes.length
+          ) {
+            // Replace the specific palette being edited
+            newSavedPalettes[editingPaletteIndex] = storablePalette
+          } else {
+            // Fallback: add as new palette if index is invalid
+            newSavedPalettes = [storablePalette, ...newSavedPalettes].slice(
+              0,
+              10
+            )
+          }
+
+          set({
+            savedPalettes: newSavedPalettes,
+            isCurrentPaletteSaved: true,
+          })
+        } catch (error) {
+          console.error("Error auto-saving palette:", error)
+          // Don't show error toast for auto-save failures
+        }
       },
     }),
     {
