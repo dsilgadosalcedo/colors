@@ -100,33 +100,6 @@ export function ColorPaletteDisplay() {
           <AlertDescription>{colorPalette.mood}</AlertDescription>
         </Alert>
 
-        {/* Dominant Color */}
-        <div className="text-center">
-          <p className="text-sm font-medium text-gray-700 mb-2">
-            Dominant Color
-          </p>
-          <div className="flex flex-col items-center">
-            <div
-              className="w-16 h-16 rounded-full shadow-lg cursor-pointer transition-transform hover:scale-105 relative group"
-              style={{
-                backgroundColor: colorPalette.dominantColor,
-              }}
-              onClick={() => copyToClipboard(colorPalette.dominantColor)}
-            >
-              <div className="absolute inset-0 rounded-full flex items-center justify-center bg-black/0 group-hover:bg-black/20 transition-all duration-200">
-                {copiedColor === colorPalette.dominantColor ? (
-                  <Check className="w-6 h-6 text-white opacity-20 group-hover:opacity-100" />
-                ) : (
-                  <Copy className="w-5 h-5 text-white opacity-20 group-hover:opacity-100" />
-                )}
-              </div>
-            </div>
-            <p className="text-sm text-gray-600 mt-2 font-mono">
-              {colorPalette.dominantColor}
-            </p>
-          </div>
-        </div>
-
         {/* Color Grid */}
         <div
           className={`grid gap-4 ${
@@ -137,14 +110,34 @@ export function ColorPaletteDisplay() {
               : "grid-cols-3"
           }`}
         >
-          {colorPalette.colors.map((color, index) => (
-            <ColorCard
-              key={index}
-              color={color}
-              copiedColor={copiedColor}
-              onCopyColor={copyToClipboard}
-            />
-          ))}
+          {colorPalette.colors
+            .slice() // Create a copy to avoid mutating the original array
+            .sort((a, b) => {
+              const aIsDominant =
+                a.hex.toLowerCase() ===
+                colorPalette.dominantColor.toLowerCase();
+              const bIsDominant =
+                b.hex.toLowerCase() ===
+                colorPalette.dominantColor.toLowerCase();
+
+              if (aIsDominant && !bIsDominant) return -1; // a comes first
+              if (!aIsDominant && bIsDominant) return 1; // b comes first
+              return 0; // maintain original order for non-dominant colors
+            })
+            .map((color, index) => {
+              const isDominantColor =
+                color.hex.toLowerCase() ===
+                colorPalette.dominantColor.toLowerCase();
+              return (
+                <ColorCard
+                  key={`${color.hex}-${index}`} // Use hex + index to ensure unique keys after sorting
+                  color={color}
+                  copiedColor={copiedColor}
+                  onCopyColor={copyToClipboard}
+                  isPrimary={isDominantColor}
+                />
+              );
+            })}
         </div>
       </div>
     </ColorPaletteBox>

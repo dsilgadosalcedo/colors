@@ -6,9 +6,15 @@ interface ColorCardProps {
   color: ColorInfo;
   copiedColor: string | null;
   onCopyColor: (hex: string) => void;
+  isPrimary?: boolean;
 }
 
-export function ColorCard({ color, copiedColor, onCopyColor }: ColorCardProps) {
+export function ColorCard({
+  color,
+  copiedColor,
+  onCopyColor,
+  isPrimary = false,
+}: ColorCardProps) {
   return (
     <div
       className="group cursor-pointer rounded-3xl relative"
@@ -27,6 +33,11 @@ export function ColorCard({ color, copiedColor, onCopyColor }: ColorCardProps) {
           <Copy className="w-5 h-5 text-white opacity-40 group-hover:opacity-100 group-hover:scale-105 animate-in fade-in-0 duration-200" />
         )}
       </div>
+      {isPrimary ? (
+        <Badge variant="secondary" className="text-xs absolute top-2 left-2">
+          Primary
+        </Badge>
+      ) : null}
       <Badge className="text-xs absolute top-2 right-2">{color.name}</Badge>
       <div className="m-2 text-center">
         <p className="text-xs text-gray-600 font-mono mt-0.5">{color.hex}</p>

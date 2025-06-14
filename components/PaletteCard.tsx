@@ -84,24 +84,27 @@ export function PaletteCard({
               onClick={() => onLoadPalette(palette)}
               title="Click to load this palette"
             >
-              {/* Only show dominant color if it's not already in the palette colors */}
-              {!isColorInPalette(palette.colors, palette.dominantColor) && (
-                <div
-                  className="w-6 h-6 rounded-full ring-1 ring-inset ring-gray-200"
-                  style={{
-                    backgroundColor: palette.dominantColor,
-                  }}
-                />
-              )}
+              {/* Show palette colors with dominant color first */}
+              {palette.colors
+                .slice() // Create a copy to avoid mutating the original array
+                .sort((a, b) => {
+                  const aIsDominant =
+                    a.hex.toLowerCase() === palette.dominantColor.toLowerCase();
+                  const bIsDominant =
+                    b.hex.toLowerCase() === palette.dominantColor.toLowerCase();
 
-              {/* Show palette colors */}
-              {palette.colors.slice(0, 5).map((color, i) => (
-                <div
-                  key={i}
-                  className="w-6 h-6 rounded-full ring-1 ring-inset ring-gray-200"
-                  style={{ backgroundColor: color.hex }}
-                />
-              ))}
+                  if (aIsDominant && !bIsDominant) return -1; // a comes first
+                  if (!aIsDominant && bIsDominant) return 1; // b comes first
+                  return 0; // maintain original order for non-dominant colors
+                })
+                .slice(0, 5)
+                .map((color, i) => (
+                  <div
+                    key={`${color.hex}-${i}`}
+                    className="w-6 h-6 rounded-full ring-1 ring-inset ring-gray-200"
+                    style={{ backgroundColor: color.hex }}
+                  />
+                ))}
 
               {/* Show "more" indicator if there are more than 5 colors */}
               {palette.colors.length > 5 && (
