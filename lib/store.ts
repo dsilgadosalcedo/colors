@@ -49,6 +49,7 @@ interface ColorPaletteState {
   colorPalette: ColorPalette | null;
   isLoading: boolean;
   dragActive: boolean;
+  pageDragActive: boolean;
   copiedColor: string | null;
   colorCount: number;
   activeTab: string;
@@ -63,6 +64,7 @@ interface ColorPaletteState {
   setColorPalette: (palette: ColorPalette | null) => void;
   setIsLoading: (loading: boolean) => void;
   setDragActive: (active: boolean) => void;
+  setPageDragActive: (active: boolean) => void;
   setCopiedColor: (color: string | null) => void;
   setColorCount: (count: number) => void;
   setActiveTab: (tab: string) => void;
@@ -126,6 +128,7 @@ export const useColorPaletteStore = create<ColorPaletteState>()(
       colorPalette: null,
       isLoading: false,
       dragActive: false,
+      pageDragActive: false,
       copiedColor: null,
       colorCount: 3,
       activeTab: "generator",
@@ -146,6 +149,7 @@ export const useColorPaletteStore = create<ColorPaletteState>()(
       },
       setIsLoading: (loading) => set({ isLoading: loading }),
       setDragActive: (active) => set({ dragActive: active }),
+      setPageDragActive: (active) => set({ pageDragActive: active }),
       setCopiedColor: (color) => set({ copiedColor: color }),
       setColorCount: (count) => set({ colorCount: count }),
       setActiveTab: (tab) => set({ activeTab: tab }),
