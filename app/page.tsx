@@ -162,7 +162,7 @@ export default function ColorPaletteGenerator() {
               <ImageUpload onGeneratePalette={generatePalette} />
 
               {/* Results Section */}
-              {colorPalette && <ColorPaletteDisplay />}
+              <ColorPaletteDisplay state={colorPalette ? "show" : "hide"} />
             </div>
           </TabsContent>
 

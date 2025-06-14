@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { ImageIcon, Sparkles, Paperclip, Send, Plus } from "lucide-react"
+import { Paperclip, Send, Plus } from "lucide-react"
 import Image from "next/image"
 import { cn } from "@/lib/utils"
 import { useColorPaletteStore } from "@/lib/store"
@@ -18,9 +18,6 @@ import { Card } from "./ui/card"
 
 interface ImageUploadProps {
   onGeneratePalette: (userPrompt?: string) => void
-  onColorPreview?: (colorName: string) => void
-  onColorPreviewEnd?: () => void
-  onAddColorText?: (colorName: string) => void
 }
 
 // Example prompts for when there's no image (text-only palette generation)
@@ -135,12 +132,7 @@ const EDITING_EXAMPLES = [
   "Make all colors slightly desaturated",
 ]
 
-export function ImageUpload({
-  onGeneratePalette,
-  onColorPreview,
-  onColorPreviewEnd,
-  onAddColorText,
-}: ImageUploadProps) {
+export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const [userPrompt, setUserPrompt] = useState("")
@@ -242,15 +234,6 @@ export function ImageUpload({
     }
   }
 
-  const handleChangeImage = (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    resetImageState()
-    if (fileInputRef.current) {
-      fileInputRef.current.value = ""
-    }
-  }
-
   const handleUploadClick = () => {
     if (fileInputRef.current) {
       fileInputRef.current.click()
@@ -274,14 +257,6 @@ export function ImageUpload({
     if (textareaRef.current) {
       textareaRef.current.focus()
     }
-  }
-
-  const handleColorPreview = (colorName: string) => {
-    // This will be handled by the store
-  }
-
-  const handleColorPreviewEnd = () => {
-    // This will be handled by the store
   }
 
   const handleAddColorText = (colorName: string) => {
@@ -367,44 +342,42 @@ export function ImageUpload({
 
       <div
         className={cn(
-          "w-full h-full mx-6 rounded-3xl absolute top-0 left-0 object-cover -z-10 transition-all duration-300 overflow-hidden",
+          "w-full h-full mx-6 rounded-3xl absolute top-0 left-0 object-cover -z-10 duration-200 overflow-hidden",
           selectedImage
             ? "opacity-20 blur-sm"
             : "bg-gradient-to-r from-[#50b1d8] via-[#77d9ab] to-transparent opacity-10"
         )}
       >
-        {selectedImage && (
-          <Image
-            src={selectedImage || "/placeholder.svg"}
-            alt="Uploaded image"
-            fill
-            className="object-cover mask-r-from-30%"
-          />
-        )}
+        <Image
+          src={selectedImage || "/placeholder.svg"}
+          alt="Uploaded image"
+          fill
+          className="object-cover mask-r-from-30% data-[state=show]:animate-in data-[state=hide]:animate-out fade-in  fade-out duration-300 data-[state=show]:blur-none data-[state=hide]:blur-lg data-[state=hide]:opacity-0"
+          data-state={selectedImage ? "show" : "hide"}
+        />
       </div>
 
-      {selectedImage && (
-        <div className="hidden md:block absolute top-4 left-10 animate-in fade-in-30 duration-200">
-          <div className="flex gap-2 relative group">
-            <Image
-              src={selectedImage || "/placeholder.svg"}
-              alt="Uploaded image"
-              width={100}
-              height={100}
-              className="object-cover rounded-lg shadow-md"
-            />
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleRemoveImage}
-              disabled={isLoading}
-              className="bg-transparent hover:bg-red-200/10 text-red-200 hover:text-red-200 border-red-400 hover:border-red-400 backdrop-blur-sm"
-            >
-              Remove
-            </Button>
-          </div>
-        </div>
-      )}
+      <div
+        className="hidden md:flex gap-2 group absolute top-4 left-10 data-[state=show]:animate-in data-[state=hide]:animate-out fade-in fade-out duration-200 data-[state=show]:blur-none data-[state=hide]:blur-lg data-[state=hide]:opacity-0"
+        data-state={selectedImage ? "show" : "hide"}
+      >
+        <Image
+          src={selectedImage || "/placeholder.svg"}
+          alt="Uploaded image"
+          width={100}
+          height={100}
+          className="object-cover rounded-lg shadow-md"
+        />
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleRemoveImage}
+          disabled={isLoading}
+          className="bg-transparent hover:bg-red-200/10 text-red-200 hover:text-red-200 border-red-400 hover:border-red-400 "
+        >
+          Remove
+        </Button>
+      </div>
 
       {isEditingMode && (
         <Button

@@ -243,6 +243,7 @@ export const useColorPaletteStore = create<ColorPaletteState>()(
         if (previousPalette) {
           set({
             colorPalette: previousPalette,
+            selectedImage: previousPalette.imagePreview || null, // Restore the image
             previousPalette: colorPalette,
             previousPaletteWasSaved: isCurrentPaletteSaved,
             isCurrentPaletteSaved: previousPaletteWasSaved,
@@ -268,6 +269,7 @@ export const useColorPaletteStore = create<ColorPaletteState>()(
         if (previousPalette && get().hasUndone) {
           set({
             colorPalette: previousPalette,
+            selectedImage: previousPalette.imagePreview || null, // Restore the image
             previousPalette: colorPalette,
             previousPaletteWasSaved: isCurrentPaletteSaved,
             isCurrentPaletteSaved: previousPaletteWasSaved,

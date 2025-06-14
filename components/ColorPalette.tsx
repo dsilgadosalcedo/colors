@@ -1,8 +1,6 @@
 import { Button } from "@/components/ui/button"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import {
-  Copy,
-  Check,
   Palette,
   Download,
   Share2,
@@ -14,7 +12,7 @@ import { ColorCard } from "./ColorCard"
 import { useColorPaletteStore } from "@/lib/store"
 import { cn } from "@/lib/utils"
 
-export function ColorPaletteDisplay() {
+export function ColorPaletteDisplay({ state }: { state: "show" | "hide" }) {
   const {
     colorPalette,
     copiedColor,
@@ -31,29 +29,9 @@ export function ColorPaletteDisplay() {
     redoPalette,
   } = useColorPaletteStore()
 
-  const backgroundColor = "black"
-
-  // if (!colorPalette) {
-  //   return (
-  //     <ColorPaletteBox>
-  //       <div className="grid place-content-center place-items-center h-full bg-[#3a829f]">
-  //         <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
-  //           <Palette className="w-8 h-8 text-gray-300" />
-  //         </div>
-  //         <h3 className="text-lg font-medium text-gray-900 mb-2">
-  //           Ready to display your palette
-  //         </h3>
-  //         <p className="text-gray-500 text-sm">
-  //           Upload an image and generate a palette to see results here.
-  //         </p>
-  //       </div>
-  //     </ColorPaletteBox>
-  //   );
-  // }
-
   return (
-    <ColorPaletteBox>
-      <div className="px-4 py-3 grid md:flex gap-4 justify-between items-center border-b bg-sidebar">
+    <ColorPaletteBox state={state}>
+      <div className="px-4 py-3 grid @xl:flex gap-4 justify-between items-center border-b bg-sidebar">
         <div className="flex items-center gap-2">
           <h3 className="text-gray-900 mb-0">Color Palette</h3>
           {(canUndo || canRedo) && (
@@ -73,7 +51,7 @@ export function ColorPaletteDisplay() {
           )}
         </div>
         {/* Action Buttons */}
-        <div className="flex flex-wrap gap-2 justify-center">
+        <div className="flex flex-wrap gap-2 @xl:justify-center">
           <Button
             variant="outline"
             size="sm"
@@ -121,15 +99,7 @@ export function ColorPaletteDisplay() {
           </Alert>
 
           {/* Color Grid */}
-          <div
-            className={`grid gap-4 ${
-              colorPalette.colors.length <= 4
-                ? "grid-cols-2"
-                : colorPalette.colors.length <= 6
-                ? "grid-cols-2"
-                : "grid-cols-3"
-            }`}
-          >
+          <div className="grid @lg:grid-cols-2 gap-4">
             {colorPalette.colors
               .slice() // Create a copy to avoid mutating the original array
               .sort((a, b) => {
@@ -165,9 +135,18 @@ export function ColorPaletteDisplay() {
   )
 }
 
-const ColorPaletteBox = ({ children }: { children: React.ReactNode }) => {
+const ColorPaletteBox = ({
+  children,
+  state,
+}: {
+  children: React.ReactNode
+  state: "show" | "hide"
+}) => {
   return (
-    <div className="relative flex-1 flex flex-col">
+    <div
+      className="relative flex-1 flex flex-col @container data-[state=show]:animate-in data-[state=hide]:animate-out fade-in slide-in-from-right-20 fade-out slide-out-to-right-10 duration-300"
+      data-state={state}
+    >
       <section className="bg-background md:rounded-3xl lg:rounded-r-none h-[calc(100%-28px)] overflow-hidden">
         {children}
       </section>
