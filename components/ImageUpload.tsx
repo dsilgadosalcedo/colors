@@ -13,6 +13,7 @@ import { ImageIcon, Sparkles, Paperclip, Send } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { useColorPaletteStore } from "@/lib/store";
+import { Switch } from "./ui/switch";
 
 interface ImageUploadProps {
   onGeneratePalette: (userPrompt?: string) => void;
@@ -107,12 +108,14 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
     dragActive,
     colorCount,
     isLoading,
+    isEditingMode,
     setSelectedImage,
     setColorPalette,
     setDragActive,
     setColorCount,
     handleImageUpload,
     resetImageState,
+    exitEditingMode,
   } = useColorPaletteStore();
 
   // Rotate examples every 10 seconds based on whether there's an image
@@ -148,13 +151,13 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
     e.stopPropagation();
     setDragActive(false);
 
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+    if (e.dataTransfer.files && e.dataTransfer.files[0] && !isEditingMode) {
       handleImageUpload(e.dataTransfer.files[0]);
     }
   };
 
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
+    if (e.target.files && e.target.files[0] && !isEditingMode) {
       handleImageUpload(e.target.files[0]);
     }
   };
@@ -195,18 +198,20 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
   return (
     <div
       className="animate-in fade-in-30 duration-200 relative gap-6 backdrop-blur-md grid place-content-center place-items-center py-10 lg:py-0 lg:mb-7"
-      onDragEnter={handleDrag}
-      onDragLeave={handleDrag}
-      onDragOver={handleDrag}
-      onDrop={handleDrop}
+      onDragEnter={!isEditingMode ? handleDrag : undefined}
+      onDragLeave={!isEditingMode ? handleDrag : undefined}
+      onDragOver={!isEditingMode ? handleDrag : undefined}
+      onDrop={!isEditingMode ? handleDrop : undefined}
     >
       {/* Hero Section */}
       <div className="text-center">
         <h2 className="text-4xl font-bold text-background leading-tight tracking-tight">
-          Create beautiful colors
+          {isEditingMode ? "Edit your palette" : "Create beautiful colors"}
         </h2>
         <p className="text-lg text-[#77d9ab] max-w-2xl mx-auto leading-relaxed text-balance">
-          Upload an image or describe what you want
+          {isEditingMode
+            ? "Describe changes you want to make to your palette"
+            : "Upload an image or describe what you want"}
         </p>
       </div>
 
@@ -267,23 +272,43 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
               onChange={(e) => setUserPrompt(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={
-                selectedImage ? "Add specifications" : "Describe your palette"
+                isEditingMode
+                  ? "Edit your palette (e.g., 'add a warm red color', 'make the third color darker', 'change primary to blue')"
+                  : selectedImage
+                  ? "Add specifications"
+                  : "Describe your palette"
               }
               className="resize-none focus-visible:ring-0 focus-visible:ring-offset-0 px-0 min-h-[28px] bg-transparent text-background text-lg font-medium border-none placeholder:text-[#77d9ab]"
               disabled={isLoading}
             />
 
             <div className="flex items-center justify-between gap-4 mt-2">
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                onClick={handleUploadClick}
-                disabled={isLoading}
-                className="bg-transparent text-[#77d9ab] rounded-full hover:bg-[#FFC857] hover:text-[#133541] border-[#FFC857] hover:border-[#FFC857]"
-              >
-                <Paperclip />
-              </Button>
+              <div className="flex items-center justify-center gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  onClick={handleUploadClick}
+                  disabled={isLoading || isEditingMode}
+                  className="bg-transparent text-[#77d9ab] rounded-full hover:bg-[#FFC857] hover:text-[#133541] border-[#FFC857] hover:border-[#FFC857] disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Paperclip />
+                </Button>
+                <Switch
+                  id="editing"
+                  checked={isEditingMode}
+                  onCheckedChange={(checked) => {
+                    if (!checked && isEditingMode) {
+                      exitEditingMode();
+                    }
+                  }}
+                  disabled={!isEditingMode}
+                  className="data-[state=checked]:bg-[#FFC857] data-[state=unchecked]:bg-transparent border border-[#FFC857] w-14"
+                />
+                <Label htmlFor="editing" className="text-[#77d9ab]">
+                  Editing
+                </Label>
+              </div>
 
               <div className="flex items-center justify-center gap-2">
                 {/* Color Count Selector */}

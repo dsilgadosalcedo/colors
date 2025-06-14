@@ -55,6 +55,7 @@ interface ColorPaletteState {
   activeTab: string;
   isCurrentPaletteSaved: boolean;
   downloadBounce: boolean;
+  isEditingMode: boolean;
 
   // Persisted State
   savedPalettes: ColorPalette[];
@@ -69,6 +70,7 @@ interface ColorPaletteState {
   setColorCount: (count: number) => void;
   setActiveTab: (tab: string) => void;
   setDownloadBounce: (bounce: boolean) => void;
+  setIsEditingMode: (editing: boolean) => void;
 
   // Business Logic Actions
   handleImageUpload: (file: File) => void;
@@ -76,6 +78,7 @@ interface ColorPaletteState {
   savePalette: () => Promise<void>;
   deleteSavedPalette: (index: number) => void;
   loadSavedPalette: (palette: ColorPalette) => void;
+  exitEditingMode: () => void;
   downloadPalette: () => void;
   sharePalette: () => Promise<void>;
   isColorInPalette: (colors: ColorInfo[], hexToCheck: string) => boolean;
@@ -135,11 +138,17 @@ export const useColorPaletteStore = create<ColorPaletteState>()(
       savedPalettes: [],
       isCurrentPaletteSaved: false,
       downloadBounce: false,
+      isEditingMode: false,
 
       // Basic Setters
       setSelectedImage: (image) => set({ selectedImage: image }),
       setColorPalette: (palette) => {
-        set({ colorPalette: palette });
+        set({
+          colorPalette: palette,
+          // Always exit editing mode when setting a new palette
+          // loadSavedPalette will override this when loading from collection
+          isEditingMode: false,
+        });
         // Check if the new palette is already saved
         if (palette) {
           get().checkIfCurrentPaletteIsSaved();
@@ -154,6 +163,7 @@ export const useColorPaletteStore = create<ColorPaletteState>()(
       setColorCount: (count) => set({ colorCount: count }),
       setActiveTab: (tab) => set({ activeTab: tab }),
       setDownloadBounce: (bounce) => set({ downloadBounce: bounce }),
+      setIsEditingMode: (editing) => set({ isEditingMode: editing }),
 
       // Business Logic Actions
       handleImageUpload: (file: File) => {
@@ -163,6 +173,7 @@ export const useColorPaletteStore = create<ColorPaletteState>()(
             selectedImage: e.target?.result as string,
             colorPalette: null,
             isCurrentPaletteSaved: false,
+            isEditingMode: false, // Exit editing mode when uploading new image
           });
         };
         reader.readAsDataURL(file);
@@ -244,6 +255,16 @@ export const useColorPaletteStore = create<ColorPaletteState>()(
           colorCount: palette.colors.length,
           activeTab: "generator",
           isCurrentPaletteSaved: true, // Loaded palettes are always saved
+          isEditingMode: true, // Enter editing mode when loading a saved palette
+        });
+      },
+
+      exitEditingMode: () => {
+        set({
+          isEditingMode: false,
+          colorPalette: null,
+          selectedImage: null,
+          isCurrentPaletteSaved: false,
         });
       },
 
@@ -326,6 +347,7 @@ export const useColorPaletteStore = create<ColorPaletteState>()(
           selectedImage: null,
           colorPalette: null,
           isCurrentPaletteSaved: false,
+          isEditingMode: false,
         });
       },
 

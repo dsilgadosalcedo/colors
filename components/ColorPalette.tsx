@@ -24,25 +24,25 @@ export function ColorPaletteDisplay() {
     sharePalette,
   } = useColorPaletteStore();
 
-  const backgroundColor = "#FFFFFF";
+  const backgroundColor = "black";
 
-  if (!colorPalette) {
-    return (
-      <ColorPaletteBox>
-        <div className="grid place-content-center place-items-center h-full">
-          <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Palette className="w-8 h-8 text-gray-300" />
-          </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
-            Ready to extract colors
-          </h3>
-          <p className="text-gray-500 text-sm">
-            Upload an image and generate a palette to see results here
-          </p>
-        </div>
-      </ColorPaletteBox>
-    );
-  }
+  // if (!colorPalette) {
+  //   return (
+  //     <ColorPaletteBox>
+  //       <div className="grid place-content-center place-items-center h-full bg-[#3a829f]">
+  //         <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
+  //           <Palette className="w-8 h-8 text-gray-300" />
+  //         </div>
+  //         <h3 className="text-lg font-medium text-gray-900 mb-2">
+  //           Ready to display your palette
+  //         </h3>
+  //         <p className="text-gray-500 text-sm">
+  //           Upload an image and generate a palette to see results here.
+  //         </p>
+  //       </div>
+  //     </ColorPaletteBox>
+  //   );
+  // }
 
   return (
     <ColorPaletteBox>
@@ -94,60 +94,62 @@ export function ColorPaletteDisplay() {
         </div>
       </div>
 
-      <div className="p-4 space-y-6">
-        <Alert>
-          <AlertTitle>Mood</AlertTitle>
-          <AlertDescription>{colorPalette.mood}</AlertDescription>
-        </Alert>
+      {colorPalette && (
+        <div className="p-4 space-y-6">
+          <Alert>
+            <AlertTitle>Mood</AlertTitle>
+            <AlertDescription>{colorPalette.mood}</AlertDescription>
+          </Alert>
 
-        {/* Color Grid */}
-        <div
-          className={`grid gap-4 ${
-            colorPalette.colors.length <= 4
-              ? "grid-cols-2"
-              : colorPalette.colors.length <= 6
-              ? "grid-cols-2"
-              : "grid-cols-3"
-          }`}
-        >
-          {colorPalette.colors
-            .slice() // Create a copy to avoid mutating the original array
-            .sort((a, b) => {
-              const aIsDominant =
-                a.hex.toLowerCase() ===
-                colorPalette.dominantColor.toLowerCase();
-              const bIsDominant =
-                b.hex.toLowerCase() ===
-                colorPalette.dominantColor.toLowerCase();
+          {/* Color Grid */}
+          <div
+            className={`grid gap-4 ${
+              colorPalette.colors.length <= 4
+                ? "grid-cols-2"
+                : colorPalette.colors.length <= 6
+                ? "grid-cols-2"
+                : "grid-cols-3"
+            }`}
+          >
+            {colorPalette.colors
+              .slice() // Create a copy to avoid mutating the original array
+              .sort((a, b) => {
+                const aIsDominant =
+                  a.hex.toLowerCase() ===
+                  colorPalette.dominantColor.toLowerCase();
+                const bIsDominant =
+                  b.hex.toLowerCase() ===
+                  colorPalette.dominantColor.toLowerCase();
 
-              if (aIsDominant && !bIsDominant) return -1; // a comes first
-              if (!aIsDominant && bIsDominant) return 1; // b comes first
-              return 0; // maintain original order for non-dominant colors
-            })
-            .map((color, index) => {
-              const isDominantColor =
-                color.hex.toLowerCase() ===
-                colorPalette.dominantColor.toLowerCase();
-              return (
-                <ColorCard
-                  key={`${color.hex}-${index}`} // Use hex + index to ensure unique keys after sorting
-                  color={color}
-                  copiedColor={copiedColor}
-                  onCopyColor={copyToClipboard}
-                  isPrimary={isDominantColor}
-                />
-              );
-            })}
+                if (aIsDominant && !bIsDominant) return -1; // a comes first
+                if (!aIsDominant && bIsDominant) return 1; // b comes first
+                return 0; // maintain original order for non-dominant colors
+              })
+              .map((color, index) => {
+                const isDominantColor =
+                  color.hex.toLowerCase() ===
+                  colorPalette.dominantColor.toLowerCase();
+                return (
+                  <ColorCard
+                    key={`${color.hex}-${index}`} // Use hex + index to ensure unique keys after sorting
+                    color={color}
+                    copiedColor={copiedColor}
+                    onCopyColor={copyToClipboard}
+                    isPrimary={isDominantColor}
+                  />
+                );
+              })}
+          </div>
         </div>
-      </div>
+      )}
     </ColorPaletteBox>
   );
 }
 
 const ColorPaletteBox = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className="relative flex-1 flex flex-col rounded-3xl rounded-r-none overflow-hidden">
-      <section className="bg-background md:rounded-3xl lg:rounded-r-none h-[calc(100%-28px)]">
+    <div className="relative flex-1 flex flex-col">
+      <section className="bg-background md:rounded-3xl lg:rounded-r-none h-[calc(100%-28px)] overflow-hidden">
         {children}
       </section>
       <div className="w-full h-[calc(100%-24px)] -z-10 absolute top-2 left-6 bg-[#50b1d8]/50 rounded-3xl rounded-r-none blur-xs"></div>

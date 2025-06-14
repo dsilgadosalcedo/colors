@@ -13,12 +13,14 @@ import { ImageUpload } from "@/components/ImageUpload";
 import { ColorPaletteDisplay } from "@/components/ColorPalette";
 import { SavedPalettes } from "@/components/SavedPalettes";
 import { DragOverlay } from "@/components/DragOverlay";
+import { cn } from "@/lib/utils";
 
 export default function ColorPaletteGenerator() {
   const dragCounter = useRef(0);
 
   // Zustand store
   const {
+    colorPalette,
     selectedImage,
     colorCount,
     activeTab,
@@ -145,12 +147,17 @@ export default function ColorPaletteGenerator() {
           className="flex-1 flex flex-col"
         >
           <TabsContent value="generator" className="flex-1 flex flex-col">
-            <div className="flex-1 grid lg:grid-cols-[5fr_4fr]">
+            <div
+              className={cn(
+                "flex-1 grid lg:grid-cols-[5fr_0fr] transition-all duration-300",
+                colorPalette && "lg:grid-cols-[5fr_4fr]"
+              )}
+            >
               {/* Upload Section */}
               <ImageUpload onGeneratePalette={generatePalette} />
 
               {/* Results Section */}
-              <ColorPaletteDisplay />
+              {colorPalette && <ColorPaletteDisplay />}
             </div>
           </TabsContent>
 
