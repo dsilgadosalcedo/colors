@@ -72,8 +72,8 @@ export async function generateColorPalette(
   currentPalette?: any // For editing existing palettes
 ) {
   try {
-    // Handle text-only requests
-    if (!imageDataUrl && userPrompt) {
+    // Handle text-only requests (only validate for new palette creation, not editing)
+    if (!imageDataUrl && userPrompt && !currentPalette) {
       if (!isPaletteRequest(userPrompt)) {
         throw new Error("INVALID_REQUEST")
       }
