@@ -57,19 +57,15 @@ export function ColorPaletteDisplay() {
         <div className="flex items-center gap-2">
           <h3 className="text-gray-900 mb-0">Color Palette</h3>
           {(canUndo || canRedo) && (
-            <Button
-              size="sm"
-              onClick={canUndo ? undoPalette : redoPalette}
-              variant="outline"
-            >
+            <Button size="sm" onClick={canUndo ? undoPalette : redoPalette}>
               {canUndo ? (
                 <>
-                  <Undo size={12} />
+                  <Undo size={8} />
                   Undo
                 </>
               ) : (
                 <>
-                  <Redo size={12} />
+                  <Redo size={8} />
                   Redo
                 </>
               )}
