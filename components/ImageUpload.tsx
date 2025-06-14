@@ -385,7 +385,7 @@ export function ImageUpload({
 
       {selectedImage && (
         <div className="hidden md:block absolute top-4 left-10 animate-in fade-in-30 duration-200">
-          <div className="relative group">
+          <div className="flex gap-2 relative group">
             <Image
               src={selectedImage || "/placeholder.svg"}
               alt="Uploaded image"
@@ -397,8 +397,8 @@ export function ImageUpload({
               variant="outline"
               size="sm"
               onClick={handleRemoveImage}
-              className="absolute -top-2 -right-2 h-6 px-2 text-xs bg-red-500 hover:bg-red-600 text-white border-red-500 hover:border-red-600 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
               disabled={isLoading}
+              className="bg-transparent hover:bg-red-200/10 text-red-200 hover:text-red-200 border-red-400 hover:border-red-400 backdrop-blur-sm"
             >
               Remove
             </Button>
