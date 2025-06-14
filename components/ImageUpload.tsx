@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { ImageIcon, Sparkles, Paperclip, Send } from "lucide-react"
+import { ImageIcon, Sparkles, Paperclip, Send, Plus } from "lucide-react"
 import Image from "next/image"
 import { cn } from "@/lib/utils"
 import { useColorPaletteStore } from "@/lib/store"
@@ -156,6 +156,7 @@ export function ImageUpload({
     isEditingMode,
     colorTextPreview,
     isColorTextPreviewMode,
+    colorPalette,
     setSelectedImage,
     setColorPalette,
     setDragActive,
@@ -163,6 +164,7 @@ export function ImageUpload({
     handleImageUpload,
     resetImageState,
     exitEditingMode,
+    autoSavePalette,
   } = useColorPaletteStore()
 
   // Rotate examples every 10 seconds based on current mode
@@ -293,6 +295,28 @@ export function ImageUpload({
     }
   }
 
+  const handleRemoveImage = async () => {
+    if (isEditingMode && colorPalette) {
+      // In editing mode: remove image from palette and auto-save
+      const updatedPalette = {
+        ...colorPalette,
+        imagePreview: undefined,
+      }
+      setColorPalette(updatedPalette)
+      setSelectedImage(null)
+      // Auto-save the palette without the image
+      await autoSavePalette(updatedPalette)
+    } else {
+      // In creation mode: just remove the image from input
+      setSelectedImage(null)
+    }
+
+    // Reset file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""
+    }
+  }
+
   // Listen for custom events from ColorCard components
   useEffect(() => {
     const handleAddColorTextEvent = (event: CustomEvent) => {
@@ -360,13 +384,37 @@ export function ImageUpload({
       </div>
 
       {selectedImage && (
-        <Image
-          src={selectedImage || "/placeholder.svg"}
-          alt="Uploaded image"
-          width={100}
-          height={100}
-          className="hidden md:block absolute top-4 left-10 object-cover rounded-lg shadow-md animate-in fade-in-30 duration-200"
-        />
+        <div className="hidden md:block absolute top-4 left-10 animate-in fade-in-30 duration-200">
+          <div className="relative group">
+            <Image
+              src={selectedImage || "/placeholder.svg"}
+              alt="Uploaded image"
+              width={100}
+              height={100}
+              className="object-cover rounded-lg shadow-md"
+            />
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleRemoveImage}
+              className="absolute -top-2 -right-2 h-6 px-2 text-xs bg-red-500 hover:bg-red-600 text-white border-red-500 hover:border-red-600 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+              disabled={isLoading}
+            >
+              Remove
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {isEditingMode && (
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={exitEditingMode}
+          className="absolute top-4 right-10 bg-transparent text-[#77d9ab] hover:bg-[#FFC857] hover:text-[#133541] border-[#FFC857] hover:border-[#FFC857] disabled:border-[#50b1d8] disabled:cursor-not-allowed disabled:opacity-100"
+        >
+          <Plus />
+        </Button>
       )}
 
       {/* Main Content Area */}
