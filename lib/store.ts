@@ -57,6 +57,10 @@ interface ColorPaletteState {
   downloadBounce: boolean
   isEditingMode: boolean
 
+  // Color text preview state
+  colorTextPreview: string
+  isColorTextPreviewMode: boolean
+
   // Undo/Redo State
   previousPalette: ColorPalette | null
   previousPaletteWasSaved: boolean
@@ -78,6 +82,11 @@ interface ColorPaletteState {
   setActiveTab: (tab: string) => void
   setDownloadBounce: (bounce: boolean) => void
   setIsEditingMode: (editing: boolean) => void
+
+  // Color text preview actions
+  setColorTextPreview: (colorName: string) => void
+  clearColorTextPreview: () => void
+  addColorTextToPrompt: (colorName: string) => void
 
   // Undo/Redo Actions
   undoPalette: () => void
@@ -152,6 +161,10 @@ export const useColorPaletteStore = create<ColorPaletteState>()(
       downloadBounce: false,
       isEditingMode: false,
 
+      // Color text preview state
+      colorTextPreview: "",
+      isColorTextPreviewMode: false,
+
       // Undo/Redo State
       previousPalette: null,
       previousPaletteWasSaved: false,
@@ -193,6 +206,25 @@ export const useColorPaletteStore = create<ColorPaletteState>()(
       setActiveTab: (tab) => set({ activeTab: tab }),
       setDownloadBounce: (bounce) => set({ downloadBounce: bounce }),
       setIsEditingMode: (editing) => set({ isEditingMode: editing }),
+
+      // Color text preview actions
+      setColorTextPreview: (colorName) =>
+        set({
+          colorTextPreview: `"${colorName}" color`,
+          isColorTextPreviewMode: true,
+        }),
+      clearColorTextPreview: () =>
+        set({
+          colorTextPreview: "",
+          isColorTextPreviewMode: false,
+        }),
+      addColorTextToPrompt: (colorName) => {
+        // This will be handled by the ImageUpload component
+        set({
+          colorTextPreview: "",
+          isColorTextPreviewMode: false,
+        })
+      },
 
       // Undo/Redo Actions
       undoPalette: () => {

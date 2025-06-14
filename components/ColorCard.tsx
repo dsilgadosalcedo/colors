@@ -2,6 +2,7 @@ import { Copy, Check, Edit, Edit2Icon } from "lucide-react"
 import { ColorInfo } from "@/lib/types"
 import { Badge } from "./ui/badge"
 import { Button } from "./ui/button"
+import { useColorPaletteStore } from "@/lib/store"
 
 interface ColorCardProps {
   color: ColorInfo
@@ -16,6 +17,25 @@ export function ColorCard({
   onCopyColor,
   isPrimary = false,
 }: ColorCardProps) {
+  const { setColorTextPreview, clearColorTextPreview, addColorTextToPrompt } =
+    useColorPaletteStore()
+
+  const handleEditMouseEnter = () => {
+    setColorTextPreview(color.name)
+  }
+
+  const handleEditMouseLeave = () => {
+    clearColorTextPreview()
+  }
+
+  const handleEditClick = () => {
+    // For now, we'll modify the handleAddColorText in ImageUpload to handle this
+    // We need to pass the color name to add it to the prompt
+    const event = new CustomEvent("addColorText", {
+      detail: { colorName: color.name },
+    })
+    window.dispatchEvent(event)
+  }
   return (
     <div
       className="group rounded-3xl relative"
@@ -50,7 +70,13 @@ export function ColorCard({
               {color.description}
             </p>
           </div>
-          <Button variant="outline" size="sm">
+          <Button
+            variant="outline"
+            size="sm"
+            onMouseEnter={handleEditMouseEnter}
+            onMouseLeave={handleEditMouseLeave}
+            onClick={handleEditClick}
+          >
             <Edit2Icon size={8} />
           </Button>
         </div>

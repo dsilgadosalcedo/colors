@@ -18,6 +18,9 @@ import { Card } from "./ui/card"
 
 interface ImageUploadProps {
   onGeneratePalette: (userPrompt?: string) => void
+  onColorPreview?: (colorName: string) => void
+  onColorPreviewEnd?: () => void
+  onAddColorText?: (colorName: string) => void
 }
 
 // Example prompts for when there's no image (text-only palette generation)
@@ -132,7 +135,12 @@ const EDITING_EXAMPLES = [
   "Make all colors slightly desaturated",
 ]
 
-export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
+export function ImageUpload({
+  onGeneratePalette,
+  onColorPreview,
+  onColorPreviewEnd,
+  onAddColorText,
+}: ImageUploadProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const [userPrompt, setUserPrompt] = useState("")
@@ -146,6 +154,8 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
     colorCount,
     isLoading,
     isEditingMode,
+    colorTextPreview,
+    isColorTextPreviewMode,
     setSelectedImage,
     setColorPalette,
     setDragActive,
@@ -264,6 +274,45 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
     }
   }
 
+  const handleColorPreview = (colorName: string) => {
+    // This will be handled by the store
+  }
+
+  const handleColorPreviewEnd = () => {
+    // This will be handled by the store
+  }
+
+  const handleAddColorText = (colorName: string) => {
+    const textToAdd = `"${colorName}" color`
+    const newPrompt = userPrompt.trim()
+      ? `${userPrompt} ${textToAdd}`
+      : textToAdd
+    setUserPrompt(newPrompt)
+    if (textareaRef.current) {
+      textareaRef.current.focus()
+    }
+  }
+
+  // Listen for custom events from ColorCard components
+  useEffect(() => {
+    const handleAddColorTextEvent = (event: CustomEvent) => {
+      const { colorName } = event.detail
+      handleAddColorText(colorName)
+    }
+
+    window.addEventListener(
+      "addColorText",
+      handleAddColorTextEvent as EventListener
+    )
+
+    return () => {
+      window.removeEventListener(
+        "addColorText",
+        handleAddColorTextEvent as EventListener
+      )
+    }
+  }, [userPrompt])
+
   return (
     <div
       className="animate-in fade-in-30 duration-200 relative gap-6 backdrop-blur-md grid place-content-center place-items-center py-10 lg:py-0 lg:mb-7"
@@ -341,8 +390,20 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
         <Card className="backdrop-blur-sm bg-[#0a3922] p-3 relative w-140 border-none">
           <Textarea
             ref={textareaRef}
-            value={isLoading ? loadingText : userPrompt}
-            onChange={(e) => !isLoading && setUserPrompt(e.target.value)}
+            value={
+              isLoading
+                ? loadingText
+                : isColorTextPreviewMode
+                ? `${userPrompt}${
+                    userPrompt.trim() ? " " : ""
+                  }${colorTextPreview}`
+                : userPrompt
+            }
+            onChange={(e) =>
+              !isLoading &&
+              !isColorTextPreviewMode &&
+              setUserPrompt(e.target.value)
+            }
             onKeyDown={handleKeyDown}
             placeholder={
               isEditingMode
@@ -351,9 +412,11 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
                 ? "Add specifications"
                 : "Describe your palette"
             }
-            className="resize-none focus-visible:ring-0 focus-visible:ring-offset-0 px-0 min-h-[28px] bg-transparent text-background text-lg font-medium border-none placeholder:text-[#77d9ab] rounded-none"
+            className={`resize-none focus-visible:ring-0 focus-visible:ring-offset-0 px-0 min-h-[28px] bg-transparent text-lg font-medium border-none placeholder:text-[#77d9ab] rounded-none ${
+              isColorTextPreviewMode ? "text-[#77d9ab]" : "text-background"
+            }`}
             disabled={isLoading}
-            readOnly={isLoading}
+            readOnly={isLoading || isColorTextPreviewMode}
           />
 
           <div className="flex items-center justify-between gap-4 mt-2">
