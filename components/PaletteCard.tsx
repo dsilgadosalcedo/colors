@@ -20,7 +20,10 @@ export function PaletteCard({
   isColorInPalette,
 }: PaletteCardProps) {
   return (
-    <Card key={index} className="animate-in fade-in-0 duration-200">
+    <Card
+      key={index}
+      className="animate-in fade-in-0 duration-200 bg-[#f9f9fb] rounded-xl"
+    >
       <CardContent className="p-6">
         <div className="flex gap-4">
           {/* Image preview */}
@@ -47,9 +50,9 @@ export function PaletteCard({
                 <p className="text-xs text-gray-500 line-clamp-1">
                   {palette.mood}
                 </p>
-                <p className="text-xs text-gray-400 mt-1">
+                {/* <p className="text-xs text-gray-400 mt-1">
                   {palette.colors.length} colors
-                </p>
+                </p> */}
               </div>
               <div className="flex gap-1">
                 <Button

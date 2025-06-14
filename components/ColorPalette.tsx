@@ -24,10 +24,12 @@ export function ColorPaletteDisplay() {
     sharePalette,
   } = useColorPaletteStore();
 
+  const backgroundColor = "#FFFFFF";
+
   if (!colorPalette) {
     return (
       <ColorPaletteBox>
-        <div className="md:shadow grid place-content-center place-items-center h-full">
+        <div className="grid place-content-center place-items-center h-full">
           <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
             <Palette className="w-8 h-8 text-gray-300" />
           </div>
@@ -44,57 +46,55 @@ export function ColorPaletteDisplay() {
 
   return (
     <ColorPaletteBox>
-      <div className="p-6 space-y-6">
-        <div className="flex justify-between items-center">
-          <h3 className="text-2xl font-bold text-gray-900 mb-0">
-            Your Color Palette
-          </h3>
-          {/* Action Buttons */}
-          <div className="flex flex-wrap gap-3 justify-center">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={savePalette}
-              disabled={isCurrentPaletteSaved}
+      <div className="px-4 py-3 grid md:flex gap-4 justify-between items-center border-b bg-sidebar rounded-tl-3xl">
+        <h3 className="text-gray-900 mb-0">Your Color Palette</h3>
+        {/* Action Buttons */}
+        <div className="flex flex-wrap gap-3 justify-center">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={savePalette}
+            disabled={isCurrentPaletteSaved}
+            className={cn(
+              "transition-all duration-200",
+              isCurrentPaletteSaved &&
+                "bg-green-50 border-green-200 text-green-700"
+            )}
+          >
+            {isCurrentPaletteSaved ? (
+              <>
+                <CheckCircle className="w-3.5 h-3.5" />
+                Saved
+              </>
+            ) : (
+              <>
+                <Palette className="w-3.5 h-3.5" />
+                Save Palette
+              </>
+            )}
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={downloadPalette}
+            className="relative"
+          >
+            <Download
               className={cn(
-                "transition-all duration-200",
-                isCurrentPaletteSaved &&
-                  "bg-green-50 border-green-200 text-green-700"
+                "w-3.5 h-3.5 transition-transform duration-300",
+                downloadBounce && "animate-bounce"
               )}
-            >
-              {isCurrentPaletteSaved ? (
-                <>
-                  <CheckCircle className="w-3.5 h-3.5" />
-                  Saved
-                </>
-              ) : (
-                <>
-                  <Palette className="w-3.5 h-3.5" />
-                  Save Palette
-                </>
-              )}
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={downloadPalette}
-              className="relative"
-            >
-              <Download
-                className={cn(
-                  "w-3.5 h-3.5 transition-transform duration-300",
-                  downloadBounce && "animate-bounce"
-                )}
-              />
-              Download CSS
-            </Button>
-            <Button variant="outline" size="sm" onClick={sharePalette}>
-              <Share2 className="w-3.5 h-3.5" />
-              Share
-            </Button>
-          </div>
+            />
+            Download CSS
+          </Button>
+          <Button variant="outline" size="sm" onClick={sharePalette}>
+            <Share2 className="w-3.5 h-3.5" />
+            Share
+          </Button>
         </div>
+      </div>
 
+      <div className="p-4 space-y-6">
         <Alert>
           <AlertTitle>Mood</AlertTitle>
           <AlertDescription>{colorPalette.mood}</AlertDescription>
@@ -153,10 +153,11 @@ export function ColorPaletteDisplay() {
 
 const ColorPaletteBox = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className="border-t lg:border-t-0 animate-in fade-in-0 duration-400 flex flex-col lg:my-6 lg:rounded-3xl lg:rounded-r-none lg:py-0.5 lg:pl-0.5 lg:bg-gradient-to-br from-[#338B8F]/50 via-[#F07D21]/50 to-[#FFDA33]/50 overflow-hidden lg:shadow-md">
-      <section className="bg-background rounded-[22px] rounded-r-none flex-1">
+    <div className="relative flex-1 pb-3 flex flex-col md:m-6 lg:m-0 lg:mb-4 rounded-4xl rounded-r-none">
+      <section className="bg-background md:rounded-3xl lg:rounded-r-none flex-1">
         {children}
       </section>
+      <div className="w-full h-[calc(100%-24px)] -z-10 absolute top-6 left-6 bg-[#50b1d8]/50 rounded-3xl rounded-r-none blur-xs"></div>
     </div>
   );
 };

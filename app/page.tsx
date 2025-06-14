@@ -58,7 +58,7 @@ export default function ColorPaletteGenerator() {
           className="flex-1 flex flex-col"
         >
           <TabsContent value="generator" className="flex-1 flex flex-col">
-            <div className="flex-1 grid lg:grid-cols-2">
+            <div className="flex-1 grid lg:grid-cols-[5fr_4fr]">
               {/* Upload Section */}
               <ImageUpload onGeneratePalette={generatePalette} />
 

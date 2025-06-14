@@ -70,7 +70,7 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
 
   return (
     <div
-      className="animate-in fade-in-30 duration-200 relative gap-6 backdrop-blur-md grid place-content-center place-items-center"
+      className="animate-in fade-in-30 duration-200 relative gap-6 backdrop-blur-md grid place-content-center place-items-center py-10 lg:py-0 lg:mb-7"
       onDragEnter={handleDrag}
       onDragLeave={handleDrag}
       onDragOver={handleDrag}
@@ -78,16 +78,11 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
     >
       {/* Hero Section */}
       <div className="text-center mb-8">
-        <h2 className="text-4xl font-bold text-gray-900 mb-4 leading-tight tracking-tight">
-          Extract beautiful colors
-          <br />
-          <span className="bg-gradient-to-r from-[#338B8F] via-[#F07D21] to-[#FFDA33] bg-clip-text text-transparent">
-            from any image
-          </span>
+        <h2 className="text-4xl font-bold text-background leading-tight tracking-tight">
+          Create beautiful colors
         </h2>
-        <p className="text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed text-balance">
-          Upload an image and let AI extract a beautiful color palette with
-          intelligent color analysis.
+        <p className="text-lg text-[#77d9ab] max-w-2xl mx-auto leading-relaxed text-balance">
+          Upload an image or simply type what you want
         </p>
       </div>
 
@@ -99,15 +94,29 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
       />
 
-      <Image
-        src={selectedImage || "/placeholder.svg"}
-        alt="Uploaded image"
-        fill
+      <div
         className={cn(
-          "absolute top-0 left-0 object-cover -z-10 mask-r-from-30% blur-sm",
-          selectedImage ? "opacity-40" : "opacity-0"
+          "w-full h-full mx-6 rounded-3xl absolute top-0 left-0 object-cover -z-10 mask-r-from-30% blur-xs transition-all duration-300",
+          selectedImage ? "opacity-20" : "opacity-0"
         )}
-      />
+      >
+        <Image
+          src={selectedImage || "/placeholder.svg"}
+          alt="Uploaded image"
+          fill
+          className="object-cover mask-r-from-30%"
+        />
+      </div>
+
+      {selectedImage && (
+        <Image
+          src={selectedImage || "/placeholder.svg"}
+          alt="Uploaded image"
+          width={100}
+          height={100}
+          className="hidden md:block absolute top-4 left-10 object-cover rounded-lg shadow-md animate-in fade-in-30 duration-200"
+        />
+      )}
 
       {selectedImage ? (
         <Button variant="outline" size="sm" onClick={handleChangeImage}>
@@ -139,7 +148,7 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
           <div className="flex items-center justify-between gap-4">
             <Label
               htmlFor="color-count"
-              className="text-sm font-medium text-gray-700"
+              className="text-sm font-medium text-background"
             >
               Number of colors
             </Label>
@@ -165,11 +174,7 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
 
       {selectedImage && (
         <div className="mt-6 mx-20 z-20">
-          <Button
-            onClick={onGeneratePalette}
-            disabled={isLoading}
-            className="w-full bg-gradient-to-r from-[#338B8F]  to-[#F07D21] hover:to-[#FFDA33] text-white transition-colors duration-200"
-          >
+          <Button onClick={onGeneratePalette} disabled={isLoading}>
             {isLoading ? (
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />

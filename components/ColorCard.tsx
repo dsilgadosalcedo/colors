@@ -1,5 +1,6 @@
 import { Copy, Check } from "lucide-react";
 import { ColorInfo } from "@/lib/types";
+import { Badge } from "./ui/badge";
 
 interface ColorCardProps {
   color: ColorInfo;
@@ -10,23 +11,24 @@ interface ColorCardProps {
 export function ColorCard({ color, copiedColor, onCopyColor }: ColorCardProps) {
   return (
     <div
-      className="group cursor-pointer"
+      className="group cursor-pointer rounded-3xl relative"
       onClick={() => onCopyColor(color.hex)}
+      style={{
+        border: `2px solid ${color.hex}`,
+      }}
     >
       <div
-        className="w-full h-20 rounded-xl shadow-md group-hover:shadow-lg transition-all duration-200 group-hover:scale-102 relative"
+        className="w-[calc(100%-4px)] h-20 -translate-y-1 group-hover:translate-y-0 grid place-items-center rounded-3xl transition-all duration-300 group-hover:rounded-b-4xl group-hover:rounded-t-[20px] m-0.5"
         style={{ backgroundColor: color.hex }}
       >
-        <div className="absolute inset-0 rounded-xl flex items-center justify-center bg-black/0 group-hover:bg-black/20 transition-all duration-200">
-          {copiedColor === color.hex ? (
-            <Check className="w-6 h-6 text-white opacity-20 group-hover:opacity-100" />
-          ) : (
-            <Copy className="w-5 h-5 text-white opacity-20 group-hover:opacity-100" />
-          )}
-        </div>
+        {copiedColor === color.hex ? (
+          <Check className="w-6 h-6 text-white opacity-40 group-hover:opacity-100 group-hover:scale-105 animate-in fade-in-0 duration-200" />
+        ) : (
+          <Copy className="w-5 h-5 text-white opacity-40 group-hover:opacity-100 group-hover:scale-105 animate-in fade-in-0 duration-200" />
+        )}
       </div>
-      <div className="mt-2 text-center">
-        <p className="font-medium text-gray-900 text-sm">{color.name}</p>
+      <Badge className="text-xs absolute top-2 right-2">{color.name}</Badge>
+      <div className="m-2 text-center">
         <p className="text-xs text-gray-600 font-mono mt-0.5">{color.hex}</p>
         <p className="text-xs text-gray-500 mt-1 leading-tight line-clamp-2">
           {color.description}
