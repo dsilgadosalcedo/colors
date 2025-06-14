@@ -30,25 +30,40 @@ export default function ColorPaletteGenerator() {
     handleImageUpload,
   } = useColorPaletteStore();
 
-  const generatePalette = async () => {
-    if (!selectedImage) return;
+  const generatePalette = async (userPrompt?: string) => {
+    // Allow generation with either image or text prompt
+    if (!selectedImage && !userPrompt?.trim()) return;
 
     setIsLoading(true);
     try {
-      const result = await generateColorPalette(selectedImage, colorCount);
+      const result = await generateColorPalette(
+        selectedImage,
+        colorCount,
+        userPrompt
+      );
       const paletteWithTimestamp = {
         ...result,
         timestamp: Date.now(),
-        imagePreview: selectedImage,
+        imagePreview: selectedImage || undefined,
       };
       setColorPalette(paletteWithTimestamp);
     } catch (error) {
       console.error("Error generating palette:", error);
-      toast({
-        title: "Error",
-        description: "Failed to generate color palette. Please try again.",
-        variant: "destructive",
-      });
+
+      if (error instanceof Error && error.message === "INVALID_REQUEST") {
+        toast({
+          title: "No palette generated",
+          description:
+            "Please provide a clear description of the colors you want or upload an image.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to generate color palette. Please try again.",
+          variant: "destructive",
+        });
+      }
     } finally {
       setIsLoading(false);
     }

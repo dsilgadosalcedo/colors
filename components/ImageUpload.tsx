@@ -1,5 +1,6 @@
-import React, { useRef } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -8,17 +9,98 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ImageIcon, Sparkles } from "lucide-react";
+import { ImageIcon, Sparkles, Paperclip, Send } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { useColorPaletteStore } from "@/lib/store";
 
 interface ImageUploadProps {
-  onGeneratePalette: () => void;
+  onGeneratePalette: (userPrompt?: string) => void;
 }
+
+// Example prompts for when there's no image (text-only palette generation)
+const NO_IMAGE_EXAMPLES = [
+  "Create a warm autumn palette with golden and crimson tones",
+  "Generate ocean blues with seafoam and coral accents",
+  "Design a vintage 1970s color scheme",
+  "Make a minimalist palette with soft pastels",
+  "Create a bold neon cyberpunk color combination",
+  "Generate earthy forest colors for a nature brand",
+  "Design a luxury gold and black palette",
+  "Create sunset colors with pink and orange gradients",
+  "Make a calming spa palette with greens and whites",
+  "Generate 5 colors inspired by cherry blossoms",
+  "Create a desert landscape color scheme",
+  "Design a modern tech brand palette",
+  "Make a cozy winter cabin color combination",
+  "Generate vibrant tropical fruit colors",
+  "Create a sophisticated wine bar palette",
+  "Design colors for a children's playroom",
+  "Make a vintage denim and leather palette",
+  "Generate arctic tundra inspired colors",
+  "Create a bohemian festival color scheme",
+  "Design a corporate professional palette",
+  "Make a retro 80s neon color combination",
+  "Generate soft morning mist colors",
+  "Create a spicy Mexican cuisine palette",
+  "Design colors inspired by gemstones",
+  "Make a peaceful zen garden color scheme",
+  "Generate colors from a lavender field",
+  "Create a dramatic gothic color palette",
+  "Design bright carnival celebration colors",
+  "Make a subtle French countryside palette",
+  "Generate colors inspired by Japanese art",
+  "Create a fresh spring garden color scheme",
+  "Design a warm coffee shop palette",
+  "Make colors inspired by Northern Lights",
+  "Generate a beachy coastal color combination",
+  "Create a sophisticated art gallery palette",
+  "Design colors for a wellness brand",
+  "Make a bold street art color scheme",
+  "Generate soft romantic wedding colors",
+  "Create a modern apartment color palette",
+  "Design colors inspired by precious metals",
+];
+
+// Example prompts for when there's an image (specifications for analysis)
+const WITH_IMAGE_EXAMPLES = [
+  "Don't include background colors",
+  "Focus on warm tones only",
+  "Ignore the text and focus on objects",
+  "Extract only the most vibrant colors",
+  "Prioritize colors from the center of the image",
+  "Skip any white or black areas",
+  "Focus on the main subject, ignore the background",
+  "Extract muted and subtle tones",
+  "Only include colors that appear prominently",
+  "Avoid any gray or neutral colors",
+  "Focus on the lighting and shadow colors",
+  "Extract colors from clothing or fabric only",
+  "Prioritize natural colors over artificial ones",
+  "Focus on the sky colors in the image",
+  "Extract colors from plants or nature elements",
+  "Ignore any metallic or reflective surfaces",
+  "Focus on skin tones and human elements",
+  "Extract colors from the foreground only",
+  "Prioritize colors that complement each other",
+  "Focus on the emotional mood of the colors",
+  "Extract colors from architectural elements",
+  "Ignore any branding or logo colors",
+  "Focus on the most saturated colors",
+  "Extract colors from water or liquid elements",
+  "Prioritize colors from the left side of the image",
+  "Focus on colors that create contrast",
+  "Extract colors from food or organic elements",
+  "Ignore any monochrome or grayscale areas",
+  "Focus on colors from the bottom third",
+  "Extract colors that would work for a brand palette",
+];
 
 export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [userPrompt, setUserPrompt] = useState("");
+  const [currentExample, setCurrentExample] = useState(NO_IMAGE_EXAMPLES[0]);
 
   const {
     selectedImage,
@@ -32,6 +114,24 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
     handleImageUpload,
     resetImageState,
   } = useColorPaletteStore();
+
+  // Rotate examples every 10 seconds based on whether there's an image
+  useEffect(() => {
+    const getRandomExample = () => {
+      const examples = selectedImage ? WITH_IMAGE_EXAMPLES : NO_IMAGE_EXAMPLES;
+      const randomIndex = Math.floor(Math.random() * examples.length);
+      return examples[randomIndex];
+    };
+
+    // Set initial example based on current state
+    setCurrentExample(getRandomExample());
+
+    const interval = setInterval(() => {
+      setCurrentExample(getRandomExample());
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, [selectedImage]); // Re-run when selectedImage changes
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
@@ -68,6 +168,30 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
     }
   };
 
+  const handleUploadClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  const handleGenerate = () => {
+    onGeneratePalette(userPrompt.trim() || undefined);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleGenerate();
+    }
+  };
+
+  const handleExampleClick = () => {
+    setUserPrompt(currentExample);
+    if (textareaRef.current) {
+      textareaRef.current.focus();
+    }
+  };
+
   return (
     <div
       className="animate-in fade-in-30 duration-200 relative gap-6 backdrop-blur-md grid place-content-center place-items-center py-10 lg:py-0 lg:mb-7"
@@ -77,12 +201,12 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
       onDrop={handleDrop}
     >
       {/* Hero Section */}
-      <div className="text-center mb-8">
+      <div className="text-center">
         <h2 className="text-4xl font-bold text-background leading-tight tracking-tight">
           Create beautiful colors
         </h2>
         <p className="text-lg text-[#77d9ab] max-w-2xl mx-auto leading-relaxed text-balance">
-          Upload an image or simply type what you want
+          Upload an image or describe what you want
         </p>
       </div>
 
@@ -91,13 +215,13 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
         type="file"
         accept="image/*"
         onChange={handleFileInput}
-        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+        className="hidden"
       />
 
       <div
         className={cn(
-          "w-full h-full mx-6 rounded-3xl absolute top-0 left-0 object-cover -z-10 mask-r-from-30% blur-xs transition-all duration-300",
-          selectedImage ? "opacity-20" : "opacity-0"
+          "w-full h-full mx-6 rounded-3xl absolute top-0 left-0 object-cover -z-10 mask-r-from-30% blur-sm transition-all duration-300",
+          selectedImage ? "opacity-20" : "bg-[#50b1d8] opacity-10"
         )}
       >
         <Image
@@ -118,45 +242,76 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
         />
       )}
 
-      {selectedImage ? (
-        <Button variant="outline" size="sm" onClick={handleChangeImage}>
-          Change Image
-        </Button>
-      ) : (
-        <div className="grid place-items-center gap-4">
-          <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto">
-            <ImageIcon className="w-8 h-8 text-gray-300" />
-          </div>
-          <div className="hidden md:block">
-            <p className="text-lg font-medium text-gray-900 mb-1">
-              Drop your image here
-            </p>
-            <p className="text-gray-500 text-sm">
-              or click to browse your files
-            </p>
-          </div>
-          <div className="block md:hidden">
-            <p className="text-lg font-medium text-gray-900 mb-1">
-              Click to browse your files
-            </p>
-          </div>
-        </div>
-      )}
+      {/* Main Content Area */}
+      <section className="bottom-8 absolute left-1/2 -translate-x-1/2 mx-auto px-6">
+        <div>
+          {/* Example Prompt */}
+          {selectedImage || !userPrompt.trim() ? (
+            <div className="mb-3 text-center">
+              <Button
+                variant="outline"
+                onClick={handleExampleClick}
+                className="text-[#77d9ab] hover:text-[#77d9ab] text-sm transition-colors cursor-pointer bg-transparent hover:bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 border border-[#77d9ab]/30 hover:border-[#189258]/50"
+                disabled={isLoading}
+              >
+                {currentExample}
+              </Button>
+            </div>
+          ) : null}
 
-      {selectedImage && (
-        <div className="grid place-items-center mt-4 z-20">
-          <div className="flex items-center justify-between gap-4">
+          {/* Text Input Area */}
+          <div className="backdrop-blur-sm rounded-xl border-[#50b1d8] border-2 relative">
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              onClick={handleUploadClick}
+              disabled={isLoading}
+              className="absolute top-1/2 -translate-y-1/2 left-2 bg-transparent text-[#77d9ab] rounded-full hover:bg-[#FFC857] hover:text-[#133541]"
+            >
+              <Paperclip />
+            </Button>
+
+            <Textarea
+              ref={textareaRef}
+              value={userPrompt}
+              onChange={(e) => setUserPrompt(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder={
+                selectedImage ? "Add specifications" : "Describe your palette"
+              }
+              className="resize-none focus-visible:ring-0 focus-visible:ring-offset-0 w-124 px-14.5 min-h-[48px] bg-transparent text-background text-lg font-medium border-none placeholder:text-[#77d9ab]"
+              disabled={isLoading}
+            />
+
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              onClick={handleGenerate}
+              disabled={isLoading || (!selectedImage && !userPrompt.trim())}
+              className="absolute top-1/2 -translate-y-1/2 right-2 bg-transparent text-[#77d9ab] rounded-full hover:bg-[#FFC857] hover:text-[#133541]"
+            >
+              <Send />
+            </Button>
+          </div>
+
+          {/* Color Count Selector */}
+          <div className="flex items-center justify-between gap-4 mt-2">
             <Label
               htmlFor="color-count"
               className="text-sm font-medium text-background"
             >
-              Number of colors
+              Default number of colors
             </Label>
             <Select
               value={colorCount.toString()}
               onValueChange={(value) => setColorCount(Number.parseInt(value))}
             >
-              <SelectTrigger id="color-count" className="w-20">
+              <SelectTrigger
+                id="color-count"
+                className="w-20 h-10 text-xs p-2 bg-transparent text-background"
+              >
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -170,25 +325,7 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
             </Select>
           </div>
         </div>
-      )}
-
-      {selectedImage && (
-        <div className="mt-6 mx-20 z-20">
-          <Button onClick={onGeneratePalette} disabled={isLoading}>
-            {isLoading ? (
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                Analyzing Image...
-              </div>
-            ) : (
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4" />
-                Generate Color Palette
-              </div>
-            )}
-          </Button>
-        </div>
-      )}
+      </section>
     </div>
   );
 }
