@@ -314,7 +314,7 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
 
   return (
     <div
-      className="animate-in fade-in-30 duration-200 relative gap-6 backdrop-blur-md grid place-content-center place-items-center py-10 lg:py-0 lg:mb-7"
+      className="animate-in fade-in-30 duration-200 relative gap-6 backdrop-blur-md grid md:place-content-center place-items-center py-10 lg:py-0 h-[calc(70vh)] lg:h-auto lg:max-h-[calc(100vh-88px-28px)]"
       onDragEnter={!isEditingMode ? handleDrag : undefined}
       onDragLeave={!isEditingMode ? handleDrag : undefined}
       onDragOver={!isEditingMode ? handleDrag : undefined}
@@ -325,7 +325,12 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
         <h2 className="text-4xl font-bold text-background leading-tight tracking-tight">
           {isEditingMode ? "Edit your palette" : "Create beautiful colors"}
         </h2>
-        <p className="text-lg text-[#77d9ab] max-w-2xl mx-auto leading-relaxed text-balance">
+        <p
+          className={cn(
+            "text-lg text-[#77d9ab] md:max-w-2xl mx-auto leading-relaxed text-balance mt-6 md:mt-0",
+            isEditingMode ? "max-w-sm" : "max-w-xs"
+          )}
+        >
           {isEditingMode
             ? "Describe changes you want to make to your palette"
             : "Upload an image or describe what you want"}
@@ -342,23 +347,23 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
 
       <div
         className={cn(
-          "w-full h-full mx-6 rounded-3xl absolute top-0 left-0 object-cover -z-10 duration-200 overflow-hidden",
+          "w-full h-[calc(100%+24px)] md:h-full md:mx-6 md:rounded-3xl absolute top-0 left-0 object-cover -z-10 duration-200 overflow-hidden",
           selectedImage
             ? "opacity-20 blur-sm"
-            : "bg-gradient-to-r from-[#50b1d8] via-[#77d9ab] to-transparent opacity-10"
+            : "bg-gradient-to-b lg:bg-gradient-to-r from-[#50b1d8] via-[#77d9ab] to-transparent opacity-10"
         )}
       >
         <Image
           src={selectedImage || "/placeholder.svg"}
           alt="Uploaded image"
           fill
-          className="object-cover mask-r-from-30% data-[state=show]:animate-in data-[state=hide]:animate-out fade-in  fade-out duration-300 data-[state=show]:blur-none data-[state=hide]:blur-lg data-[state=hide]:opacity-0"
+          className="object-cover mask-b-from-30% lg:mask-b-from-100% lg:mask-r-from-30% data-[state=show]:animate-in data-[state=hide]:animate-out fade-in  fade-out duration-300 data-[state=show]:blur-none data-[state=hide]:blur-lg data-[state=hide]:opacity-0"
           data-state={selectedImage ? "show" : "hide"}
         />
       </div>
 
       <div
-        className="hidden md:flex gap-2 group absolute top-4 left-10 data-[state=show]:animate-in data-[state=hide]:animate-out fade-in fade-out duration-200 data-[state=show]:blur-none data-[state=hide]:blur-lg data-[state=hide]:opacity-0"
+        className="flex gap-2 group absolute top-4 left-4 md:left-10 data-[state=show]:animate-in data-[state=hide]:animate-out fade-in fade-out duration-200 data-[state=show]:blur-none data-[state=hide]:blur-lg data-[state=hide]:opacity-0"
         data-state={selectedImage ? "show" : "hide"}
       >
         <Image
@@ -366,7 +371,7 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
           alt="Uploaded image"
           width={100}
           height={100}
-          className="object-cover rounded-lg shadow-md"
+          className="object-cover rounded-lg shadow-md hidden md:block"
         />
         <Button
           variant="outline"
@@ -375,30 +380,31 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
           disabled={isLoading}
           className="bg-transparent hover:bg-red-200/10 text-red-200 hover:text-red-200 border-red-400 hover:border-red-400 "
         >
-          Remove
+          <span className="hidden md:block">Remove</span>
+          <span className="block md:hidden">Remove image</span>
         </Button>
       </div>
 
-      {isEditingMode && (
+      {!!colorPalette && (
         <Button
           variant="outline"
           size="icon"
           onClick={exitEditingMode}
-          className="absolute top-4 right-10 bg-transparent text-[#77d9ab] hover:bg-[#FFC857] hover:text-[#133541] border-[#FFC857] hover:border-[#FFC857] disabled:border-[#50b1d8] disabled:cursor-not-allowed disabled:opacity-100"
+          className="absolute top-4 md:right-10 right-4 bg-transparent text-[#77d9ab] hover:bg-[#FFC857] hover:text-[#133541] border-[#FFC857] hover:border-[#FFC857] disabled:border-[#50b1d8] disabled:cursor-not-allowed disabled:opacity-100"
         >
           <Plus />
         </Button>
       )}
 
       {/* Main Content Area */}
-      <section className="bottom-8 absolute left-1/2 -translate-x-1/2 mx-auto px-6">
+      <section className="-bottom-14 md:bottom-8 relative md:absolute md:left-1/2 md:-translate-x-1/2 md:px-6 w-[calc(100%-32px)] md:w-auto">
         {/* Example Prompt */}
         {!userPrompt.trim() ? (
-          <div className="mb-3 text-center">
+          <div className="mb-3 text-center overflow-hidden max-w-[calc(100vw-32px)]">
             <Button
               variant="outline"
               onClick={handleExampleClick}
-              className="text-[#77d9ab] hover:text-[#77d9ab] text-sm transition-colors cursor-pointer bg-transparent hover:bg-white/10 backdrop-blur-sm px-4 py-2 border border-[#77d9ab]/30 hover:border-[#189258]/50"
+              className=" text-[#77d9ab] max-w-full hover:text-[#77d9ab] text-sm transition-colors cursor-pointer bg-transparent hover:bg-white/10 backdrop-blur-sm px-4 py-2 border border-[#77d9ab]/30 hover:border-[#189258]/50"
               disabled={isLoading}
               aria-label="Example prompt"
             >
@@ -408,7 +414,7 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
         ) : null}
 
         {/* Text Input Area */}
-        <Card className="backdrop-blur-sm bg-[#0a3922] p-3 relative w-140 border-none">
+        <Card className="backdrop-blur-sm bg-[#0a3922] p-3 relative md:w-140 border-none">
           <Textarea
             ref={textareaRef}
             value={
@@ -475,7 +481,8 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
                   htmlFor="color-count"
                   className="text-sm font-medium text-[#77d9ab]"
                 >
-                  Number of colors
+                  <span className="hidden md:block">Number of colors</span>
+                  <span className="block md:hidden">Colors</span>
                 </Label>
                 <Select
                   value={colorCount.toString()}

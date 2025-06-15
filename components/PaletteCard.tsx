@@ -54,22 +54,10 @@ export function PaletteCard({
                   {palette.colors.length} colors
                 </p> */}
               </div>
-              <div className="flex gap-1">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-7 w-7 text-red-500 hover:text-red-600 hover:bg-red-50"
-                  onClick={() => onDeletePalette(index)}
-                  title="Delete palette"
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                  <span className="sr-only">Delete palette</span>
-                </Button>
-              </div>
             </div>
 
             {/* Color swatches - clickable to load palette */}
-            <div className="flex items-center justify-between gap-2">
+            <div className="flex items-end justify-between gap-2">
               <div
                 className="flex w-min gap-1 cursor-pointer hover:opacity-80 transition-opacity"
                 onClick={() => onLoadPalette(palette)}
@@ -106,14 +94,26 @@ export function PaletteCard({
                   </div>
                 )}
               </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => onLoadPalette(palette)}
-                title="Load palette in generator"
-              >
-                Open
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  variant="destructive"
+                  size="icon"
+                  className="bg-transparent hover:bg-red-200/50 text-red-500 hover:text-red-500 border-red-500 hover:border-red-500 h-9 w-9"
+                  onClick={() => onDeletePalette(index)}
+                  title="Delete palette"
+                >
+                  <Trash2 />
+                  <span className="sr-only">Delete palette</span>
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onLoadPalette(palette)}
+                  title="Load palette in generator"
+                >
+                  Open
+                </Button>
+              </div>
             </div>
           </div>
         </div>

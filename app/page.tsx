@@ -154,7 +154,7 @@ export default function ColorPaletteGenerator() {
           <TabsContent value="generator" className="flex-1 flex flex-col">
             <div
               className={cn(
-                "flex-1 grid lg:grid-cols-[5fr_0fr] transition-all duration-300",
+                "flex-1 grid lg:grid-cols-[5fr_0fr] transition-all duration-300 gap-4 md:gap-6 lg:gap-0",
                 colorPalette && "lg:grid-cols-[5fr_4fr]"
               )}
             >

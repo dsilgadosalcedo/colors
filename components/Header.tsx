@@ -8,15 +8,12 @@ export function Header() {
   const { activeTab, setActiveTab } = useColorPaletteStore()
 
   return (
-    <header className="flex justify-between p-6">
+    <header className="flex justify-between h-22 pl-4 md:px-6">
       <div className="flex items-center gap-3">
-        {/* <div className="w-10 h-10 p-0.5 bg-gradient-to-br from-[#338B8F] via-[#F07D21] to-[#FFDA33] rounded-lg overflow-hidden"> */}
         <div className="w-10 h-10 bg-[#50b1d8] grid place-items-center rounded-md">
           <Palette className="w-6 h-6 text-[#133541]" />
-          {/* <Image src="/camera.png" alt="Logo" width={24} height={24} /> */}
         </div>
-        {/* </div> */}
-        <h1 className="hidden md:block text-2xl font-black text-[#77d9ab]">
+        <h1 className="hidden md:block text-2xl font-black text-background">
           Create Color Palettes
         </h1>
       </div>
