@@ -490,7 +490,7 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
 
   return (
     <div
-      className="animate-in fade-in-30 duration-200 relative gap-6 backdrop-blur-md grid md:place-content-center place-items-center py-10 lg:py-0 h-[calc(70vh)] lg:h-auto lg:max-h-[calc(100vh-88px-28px)]"
+      className="animate-in fade-in-30 duration-200 relative gap-6 backdrop-blur-md grid md:place-content-center place-items-center py-10 lg:py-0 h-[calc(70vh)] lg:h-auto lg:max-h-[calc(100vh-88px-28px)] overflow-hidden"
       onDragEnter={!isEditingMode ? handleDrag : undefined}
       onDragLeave={!isEditingMode ? handleDrag : undefined}
       onDragOver={!isEditingMode ? handleDrag : undefined}
