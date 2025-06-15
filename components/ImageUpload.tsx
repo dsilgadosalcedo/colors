@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils"
 import { useColorPaletteStore } from "@/lib/store"
 import { Switch } from "./ui/switch"
 import { Card } from "./ui/card"
+// GSAP will be dynamically imported on client side only
 
 interface ImageUploadProps {
   onGeneratePalette: (userPrompt?: string) => void
@@ -135,10 +136,12 @@ const EDITING_EXAMPLES = [
 export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const exampleTextRef = useRef<HTMLSpanElement>(null)
   const [userPrompt, setUserPrompt] = useState("")
   const [currentExample, setCurrentExample] = useState(NO_IMAGE_EXAMPLES[0])
   const [loadingText, setLoadingText] = useState("")
   const [wasGenerating, setWasGenerating] = useState(false)
+  const [isAnimatingExample, setIsAnimatingExample] = useState(false)
 
   const {
     selectedImage,
@@ -159,6 +162,79 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
     autoSavePalette,
   } = useColorPaletteStore()
 
+  // Animated example transition function
+  const animateToNewExample = async (newExample: string) => {
+    if (
+      !exampleTextRef.current ||
+      isAnimatingExample ||
+      newExample === currentExample
+    )
+      return
+
+    setIsAnimatingExample(true)
+    simulateTypingTransition(currentExample, newExample)
+  }
+
+  const simulateTypingTransition = (oldText: string, newText: string) => {
+    let currentText = oldText
+    let phase: "backspacing" | "typing" = "backspacing"
+    let showCursor = true
+
+    // Cursor blinking interval
+    const cursorInterval = setInterval(() => {
+      showCursor = !showCursor
+      setCurrentExample(currentText + (showCursor ? "|" : ""))
+    }, 500)
+
+    const processNextStep = () => {
+      if (phase === "backspacing") {
+        if (currentText.length > 0) {
+          // Remove character (backspace)
+          currentText = currentText.slice(0, -1)
+          setCurrentExample(currentText + "|")
+
+          // Variable backspace speed - faster than typing
+          const delay = 30 + Math.random() * 40 // 30-70ms per backspace
+          setTimeout(processNextStep, delay)
+        } else {
+          // Done backspacing, start typing
+          phase = "typing"
+          // Pause before starting to type
+          setTimeout(processNextStep, 200 + Math.random() * 300)
+        }
+      } else {
+        // Typing phase
+        if (currentText.length < newText.length) {
+          // Add next character
+          currentText += newText[currentText.length]
+          setCurrentExample(currentText + "|")
+
+          // Variable typing speed - more realistic
+          let delay = 60 + Math.random() * 120 // Base 60-180ms per character
+
+          // Add longer pauses after punctuation and spaces
+          const char = currentText[currentText.length - 1]
+          if (char === " ") delay += Math.random() * 100
+          if (char === "," || char === ".") delay += Math.random() * 200
+          if (char === "\n") delay += Math.random() * 300
+
+          // Occasionally add hesitation
+          if (Math.random() < 0.1) delay += Math.random() * 300
+
+          setTimeout(processNextStep, delay)
+        } else {
+          // Typing complete
+          clearInterval(cursorInterval)
+          setCurrentExample(newText)
+          setIsAnimatingExample(false)
+        }
+      }
+    }
+
+    // Start the process after a brief delay
+    setTimeout(processNextStep, 300)
+  }
+
   // Rotate examples every 10 seconds based on current mode
   useEffect(() => {
     const getRandomExample = () => {
@@ -175,14 +251,19 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
     }
 
     // Set initial example based on current state
-    setCurrentExample(getRandomExample())
+    const initialExample = getRandomExample()
+    setCurrentExample(initialExample)
 
     const interval = setInterval(() => {
-      setCurrentExample(getRandomExample())
+      // Only animate if not currently animating
+      if (!isAnimatingExample) {
+        const newExample = getRandomExample()
+        animateToNewExample(newExample)
+      }
     }, 10000)
 
     return () => clearInterval(interval)
-  }, [selectedImage, isEditingMode]) // Re-run when selectedImage or isEditingMode changes
+  }, [selectedImage, isEditingMode]) // Removed isAnimatingExample dependency to prevent re-runs
 
   // Handle loading animation
   useEffect(() => {
@@ -253,10 +334,62 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
   }
 
   const handleExampleClick = () => {
-    setUserPrompt(currentExample)
-    if (textareaRef.current) {
-      textareaRef.current.focus()
+    if (!textareaRef.current || !exampleTextRef.current || isAnimatingExample)
+      return
+
+    setIsAnimatingExample(true)
+
+    // Focus textarea and start realistic typing
+    setUserPrompt("")
+    textareaRef.current?.focus()
+    simulateRealisticTyping(currentExample)
+  }
+
+  const simulateRealisticTyping = (text: string) => {
+    let currentText = ""
+    let currentIndex = 0
+    let showCursor = true
+
+    // Cursor blinking interval
+    const cursorInterval = setInterval(() => {
+      showCursor = !showCursor
+      if (currentIndex <= text.length) {
+        setUserPrompt(currentText + (showCursor ? "|" : ""))
+      }
+    }, 500)
+
+    const typeNextCharacter = () => {
+      if (currentIndex >= text.length) {
+        // Typing complete - remove cursor and finish
+        clearInterval(cursorInterval)
+        setUserPrompt(text)
+        setIsAnimatingExample(false)
+        return
+      }
+
+      // Add next character
+      currentText += text[currentIndex]
+      currentIndex++
+      setUserPrompt(currentText + "|")
+
+      // Calculate next typing delay - vary speed for realism
+      let delay = 50 + Math.random() * 100 // Base 50-150ms per character
+
+      // Add longer pauses after punctuation and spaces for realism
+      const char = text[currentIndex - 1]
+      if (char === " ") delay += Math.random() * 100 // Extra pause after space
+      if (char === "," || char === ".") delay += Math.random() * 200 // Longer pause after punctuation
+      if (char === "\n") delay += Math.random() * 300 // Even longer pause after line break
+
+      // Occasionally add slight hesitation (like thinking)
+      if (Math.random() < 0.1) delay += Math.random() * 300
+
+      // Schedule next character
+      setTimeout(typeNextCharacter, delay)
     }
+
+    // Start typing after a short delay
+    setTimeout(typeNextCharacter, 200)
   }
 
   const handleAddColorText = (colorName: string) => {
@@ -399,15 +532,17 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
       <section className="-bottom-14 md:bottom-8 relative md:absolute md:left-1/2 md:-translate-x-1/2 md:px-6 w-[calc(100%-32px)] md:w-auto">
         {/* Example Prompt */}
         {!userPrompt.trim() ? (
-          <div className="mb-3 text-center overflow-hidden max-w-[calc(100vw-32px)]">
+          <div className="mb-3 text-center max-w-[calc(100vw-32px)]">
             <Button
               variant="outline"
               onClick={handleExampleClick}
-              className="bg-transparent max-w-full text-sm transition-colors cursor-pointer backdrop-blur-sm px-4 py-2 "
-              disabled={isLoading}
+              className="bg-transparent max-w-full text-sm transition-all cursor-pointer backdrop-blur-sm px-4 py-2 hover:scale-105 active:scale-95 duration-200"
+              disabled={isLoading || isAnimatingExample}
               aria-label="Example prompt"
             >
-              {currentExample}
+              <span ref={exampleTextRef} className="inline-block">
+                {currentExample}
+              </span>
             </Button>
           </div>
         ) : null}
