@@ -138,10 +138,11 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const exampleTextRef = useRef<HTMLSpanElement>(null)
   const [userPrompt, setUserPrompt] = useState("")
-  const [currentExample, setCurrentExample] = useState(NO_IMAGE_EXAMPLES[0])
+  const [currentExample, setCurrentExample] = useState("")
   const [loadingText, setLoadingText] = useState("")
   const [wasGenerating, setWasGenerating] = useState(false)
   const [isAnimatingExample, setIsAnimatingExample] = useState(false)
+  const [isInitialized, setIsInitialized] = useState(false)
 
   const {
     selectedImage,
@@ -265,9 +266,9 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
     nextStepTimeout = setTimeout(processNextStep, 100)
   }
 
-  // Rotate examples every 10 seconds based on current mode
+  // Initialize example text based on current mode (only run once on mount)
   useEffect(() => {
-    const getRandomExample = () => {
+    const getInitialExample = () => {
       let examples
       if (isEditingMode) {
         examples = EDITING_EXAMPLES
@@ -280,9 +281,32 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
       return examples[randomIndex]
     }
 
-    // Set initial example based on current state
-    const initialExample = getRandomExample()
-    setCurrentExample(initialExample)
+    if (!isInitialized) {
+      const initialExample = getInitialExample()
+      // Use the same typing animation for the initial example
+      setIsAnimatingExample(true)
+      simulateTypingTransition("", initialExample)
+      setIsInitialized(true)
+    }
+  }, [isInitialized, selectedImage, isEditingMode])
+
+  // Rotate examples every 10 seconds based on current mode
+  useEffect(() => {
+    // Skip if not initialized yet
+    if (!isInitialized) return
+
+    const getRandomExample = () => {
+      let examples
+      if (isEditingMode) {
+        examples = EDITING_EXAMPLES
+      } else if (selectedImage) {
+        examples = WITH_IMAGE_EXAMPLES
+      } else {
+        examples = NO_IMAGE_EXAMPLES
+      }
+      const randomIndex = Math.floor(Math.random() * examples.length)
+      return examples[randomIndex]
+    }
 
     const interval = setInterval(() => {
       // Only animate if not currently animating and page is visible
@@ -306,7 +330,7 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
       clearInterval(interval)
       document.removeEventListener("visibilitychange", handleVisibilityChange)
     }
-  }, [selectedImage, isEditingMode]) // Removed isAnimatingExample dependency to prevent re-runs
+  }, [selectedImage, isEditingMode, isInitialized, isAnimatingExample])
 
   // Handle loading animation
   useEffect(() => {
@@ -393,13 +417,13 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
     let currentIndex = 0
     let showCursor = true
 
-    // Cursor blinking interval
+    // Cursor blinking interval - match the example button timing
     const cursorInterval = setInterval(() => {
       showCursor = !showCursor
       if (currentIndex <= text.length) {
         setUserPrompt(currentText + (showCursor ? "|" : ""))
       }
-    }, 500)
+    }, 300) // Same as example button
 
     const typeNextCharacter = () => {
       if (currentIndex >= text.length) {
@@ -415,24 +439,20 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
       currentIndex++
       setUserPrompt(currentText + "|")
 
-      // Calculate next typing delay - vary speed for realism
-      let delay = 50 + Math.random() * 100 // Base 50-150ms per character
+      // Match the example button timing exactly
+      let delay = 25 + Math.random() * 35 // Base 25-60ms per character (same as example)
 
-      // Add longer pauses after punctuation and spaces for realism
+      // Minimal pauses for readability - same as example button
       const char = text[currentIndex - 1]
-      if (char === " ") delay += Math.random() * 100 // Extra pause after space
-      if (char === "," || char === ".") delay += Math.random() * 200 // Longer pause after punctuation
-      if (char === "\n") delay += Math.random() * 300 // Even longer pause after line break
-
-      // Occasionally add slight hesitation (like thinking)
-      if (Math.random() < 0.1) delay += Math.random() * 300
+      if (char === " ") delay += 10 // Very brief pause after space
+      if (char === "," || char === ".") delay += 20 // Brief pause after punctuation
 
       // Schedule next character
       setTimeout(typeNextCharacter, delay)
     }
 
-    // Start typing after a short delay
-    setTimeout(typeNextCharacter, 200)
+    // Start typing after a short delay - same as example button
+    setTimeout(typeNextCharacter, 100)
   }
 
   const handleAddColorText = (colorName: string) => {
@@ -673,7 +693,7 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
                     id="color-count"
                     className="w-20 h-10 text-xs p-2 rounded-md"
                   >
-                    <SelectValue />
+                    <SelectValue placeholder={colorCount.toString()} />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="3">3</SelectItem>
