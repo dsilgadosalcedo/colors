@@ -1,5 +1,16 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 import { Palette, Trash2 } from "lucide-react"
 import Image from "next/image"
 import { ColorInfo, ColorPalette } from "@/lib/types"
@@ -95,16 +106,37 @@ export function PaletteCard({
                 )}
               </div>
               <div className="flex gap-2">
-                <Button
-                  variant="destructive"
-                  size="icon"
-                  className="bg-transparent hover:bg-red-200/50 text-red-500 hover:text-red-500 border-red-500 hover:border-red-500 h-9 w-9"
-                  onClick={() => onDeletePalette(index)}
-                  title="Delete palette"
-                >
-                  <Trash2 />
-                  <span className="sr-only">Delete palette</span>
-                </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="destructive"
+                      size="icon"
+                      className="bg-transparent hover:bg-red-200/50 text-red-500 hover:text-red-500 border-red-500 hover:border-red-500 h-9 w-9"
+                      title="Delete palette"
+                    >
+                      <Trash2 />
+                      <span className="sr-only">Delete palette</span>
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete Palette</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Are you sure you want to delete this color palette? This
+                        action cannot be undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={() => onDeletePalette(index)}
+                        className="bg-red-600 hover:bg-red-700"
+                      >
+                        Delete
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
                 <Button
                   variant="outline"
                   size="sm"
