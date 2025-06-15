@@ -118,3 +118,19 @@
     @apply bg-background text-foreground;
   }
 }
+
+.card[data-state="show"] {
+  transition: opacity 0.25s, display 0.25s;
+  /* transition-behavior: allow-discrete; */
+
+  @starting-style {
+    opacity: 1;
+    display: block;
+  }
+}
+
+.card[data-state="hide"] {
+  transition: opacity 0.25s, display 0.25s ease allow-discrete;
+  opacity: 0;
+  display: none;
+}

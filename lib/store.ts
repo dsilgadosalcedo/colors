@@ -106,6 +106,10 @@ interface ColorPaletteState {
   isColorInPalette: (colors: ColorInfo[], hexToCheck: string) => boolean
   checkIfCurrentPaletteIsSaved: () => void
 
+  // Favorite Actions
+  toggleFavorite: (index: number) => void
+  getFavoritePalettes: () => ColorPalette[]
+
   // Reset functions
   resetImageState: () => void
   clearCopiedColor: () => void
@@ -595,6 +599,25 @@ export const useColorPaletteStore = create<ColorPaletteState>()(
           console.error("Error auto-saving palette:", error)
           // Don't show error toast for auto-save failures
         }
+      },
+
+      // Favorite Actions
+      toggleFavorite: (index: number) => {
+        const { savedPalettes } = get()
+        const newSavedPalettes = [...savedPalettes]
+
+        if (index >= 0 && index < newSavedPalettes.length) {
+          newSavedPalettes[index] = {
+            ...newSavedPalettes[index],
+            isFavorite: !newSavedPalettes[index].isFavorite,
+          }
+          set({ savedPalettes: newSavedPalettes })
+        }
+      },
+
+      getFavoritePalettes: () => {
+        const { savedPalettes } = get()
+        return savedPalettes.filter((palette) => palette.isFavorite)
       },
     }),
     {

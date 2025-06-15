@@ -73,6 +73,7 @@ export function ColorCard({
           <Button
             variant="outline"
             size="sm"
+            className="h-9 w-9"
             onMouseEnter={handleEditMouseEnter}
             onMouseLeave={handleEditMouseLeave}
             onClick={handleEditClick}

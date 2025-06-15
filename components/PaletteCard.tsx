@@ -11,7 +11,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { Palette, Trash2 } from "lucide-react"
+import { Palette, Trash2, Heart } from "lucide-react"
 import Image from "next/image"
 import { ColorInfo, ColorPalette } from "@/lib/types"
 
@@ -20,6 +20,7 @@ interface PaletteCardProps {
   index: number
   onLoadPalette: (palette: ColorPalette) => void
   onDeletePalette: (index: number) => void
+  onToggleFavorite: (index: number) => void
   isColorInPalette: (colors: ColorInfo[], hexToCheck: string) => boolean
 }
 
@@ -28,43 +29,56 @@ export function PaletteCard({
   index,
   onLoadPalette,
   onDeletePalette,
+  onToggleFavorite,
   isColorInPalette,
 }: PaletteCardProps) {
   return (
     <Card
       key={index}
-      className="animate-in fade-in-0 duration-200 bg-[#f9f9fb]"
+      className="animate-in fade-in-0 duration-200 bg-[#fff9f9]"
     >
       <CardContent className="p-6">
         <div className="flex gap-4">
           {/* Image preview */}
           {palette.imagePreview && (
-            <div className="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0">
-              <Image
+            <div className="w-20 h-22 rounded-sm overflow-hidden flex-shrink-0 relative">
+              <img
                 src={palette.imagePreview || "/placeholder.svg"}
                 alt="Palette source"
-                width={80}
-                height={80}
                 className="object-cover w-full h-full"
               />
             </div>
           )}
 
           <div className="flex-1 flex flex-col justify-between">
-            <div className="flex justify-between items-start mb-2">
+            <div className="flex justify-between items-start">
               <div>
                 <h4 className="font-medium text-sm text-gray-900">
                   {new Date(
                     palette.timestamp || Date.now()
                   ).toLocaleDateString()}
                 </h4>
-                <p className="text-xs text-gray-500 line-clamp-1">
+                <p className="text-xs text-gray-500 line-clamp-2">
                   {palette.mood}
                 </p>
                 {/* <p className="text-xs text-gray-400 mt-1">
                   {palette.colors.length} colors
                 </p> */}
               </div>
+              <button
+                onClick={() => onToggleFavorite(index)}
+                className="ml-2 bg-transparent hover:bg-transparent text-gray-400 border-gray-300 cursor-pointer"
+              >
+                <Heart
+                  size={20}
+                  fill={palette.isFavorite ? "currentColor" : "none"}
+                  className={`${
+                    palette.isFavorite
+                      ? "text-pink-600 border-pink-300"
+                      : " text-gray-400 border-gray-300"
+                  }`}
+                />
+              </button>
             </div>
 
             {/* Color swatches - clickable to load palette */}
@@ -93,7 +107,7 @@ export function PaletteCard({
                   .map((color, i) => (
                     <div
                       key={`${color.hex}-${i}`}
-                      className="w-6 h-6 rounded-full ring-1 ring-inset ring-gray-200"
+                      className="w-6 h-6 rounded-full ring-1 ring-inset ring-gray-800"
                       style={{ backgroundColor: color.hex }}
                     />
                   ))}
