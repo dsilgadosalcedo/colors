@@ -42,23 +42,41 @@ export function PaletteCard({
       // Dynamically import GSAP for client-side animation
       const { gsap } = await import("gsap")
 
+      // Get the SVG element inside the button
+      const heartSvg = heartRef.current.querySelector("svg")
+
       if (palette.isFavorite) {
-        // Unfavoriting animation - gentle shrink
-        gsap.to(heartRef.current, {
-          scale: 0.8,
-          duration: 0.15,
-          ease: "power2.out",
-          yoyo: true,
-          repeat: 1,
+        // Unfavoriting animation - gentle shrink with color fade
+        const tl = gsap.timeline({
           onComplete: () => {
             onToggleFavorite(index)
           },
         })
+
+        tl.to(heartRef.current, {
+          scale: 0.8,
+          duration: 0.15,
+          ease: "power2.out",
+        })
+          // Fade out the red color during the shrink
+          .to(
+            heartSvg,
+            {
+              fill: "none",
+              duration: 0.15,
+            },
+            0
+          ) // Start at the same time as scale
+          .to(heartRef.current, {
+            scale: 1,
+            duration: 0.15,
+            ease: "power2.out",
+          })
       } else {
         // Create Twitter-style explosion effect
         createExplosionEffect(heartRef.current, gsap)
 
-        // Twitter-style heart animation: starts from scale 0 and bounces up
+        // Twitter-style heart animation with smooth red fill
         gsap.set(heartRef.current, { scale: 0 })
 
         const tl = gsap.timeline({
@@ -67,16 +85,27 @@ export function PaletteCard({
           },
         })
 
-        // Heart bounces to life with Twitter-style easing
+        // Heart bounces to life with smooth red fill animation
         tl.to(heartRef.current, {
           scale: 1.2,
           duration: 0.12,
           ease: "back.out(3)",
-        }).to(heartRef.current, {
-          scale: 1,
-          duration: 0.18,
-          ease: "back.out(1.7)",
         })
+          // Start filling with red at the same time as the first scale
+          .to(
+            heartSvg,
+            {
+              fill: "#FF0000", // red-500 color
+              duration: 0.1,
+              ease: "power2.out",
+            },
+            0
+          ) // Start at the same time as scale animation
+          .to(heartRef.current, {
+            scale: 1,
+            duration: 0.18,
+            ease: "back.out(1.7)",
+          })
       }
     } catch (error) {
       // Fallback if GSAP fails to load
