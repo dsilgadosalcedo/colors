@@ -179,28 +179,58 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
     let currentText = oldText
     let phase: "backspacing" | "typing" = "backspacing"
     let showCursor = true
+    let cursorInterval: NodeJS.Timeout | null = null
+    let nextStepTimeout: NodeJS.Timeout | null = null
 
-    // Cursor blinking interval
-    const cursorInterval = setInterval(() => {
+    // Cleanup function to clear all timers
+    const cleanup = () => {
+      if (cursorInterval) clearInterval(cursorInterval)
+      if (nextStepTimeout) clearTimeout(nextStepTimeout)
+    }
+
+    // Handle page visibility changes
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        // Page became hidden, stop animation
+        cleanup()
+        setCurrentExample(newText) // Jump to final state
+        setIsAnimatingExample(false)
+      }
+    }
+
+    // Add visibility change listener
+    document.addEventListener("visibilitychange", handleVisibilityChange)
+
+    // Cursor blinking interval - faster blinking during transition
+    cursorInterval = setInterval(() => {
       showCursor = !showCursor
       setCurrentExample(currentText + (showCursor ? "|" : ""))
-    }, 500)
+    }, 300)
 
     const processNextStep = () => {
+      // Check if page is hidden before proceeding
+      if (document.hidden) {
+        cleanup()
+        document.removeEventListener("visibilitychange", handleVisibilityChange)
+        setCurrentExample(newText)
+        setIsAnimatingExample(false)
+        return
+      }
+
       if (phase === "backspacing") {
         if (currentText.length > 0) {
-          // Remove character (backspace)
+          // Remove character (backspace) - very fast
           currentText = currentText.slice(0, -1)
           setCurrentExample(currentText + "|")
 
-          // Variable backspace speed - faster than typing
-          const delay = 30 + Math.random() * 40 // 30-70ms per backspace
-          setTimeout(processNextStep, delay)
+          // Much faster backspace speed
+          const delay = 15 + Math.random() * 20 // 15-35ms per backspace
+          nextStepTimeout = setTimeout(processNextStep, delay)
         } else {
-          // Done backspacing, start typing
+          // Done backspacing, start typing immediately
           phase = "typing"
-          // Pause before starting to type
-          setTimeout(processNextStep, 200 + Math.random() * 300)
+          // Very brief pause before typing
+          nextStepTimeout = setTimeout(processNextStep, 100)
         }
       } else {
         // Typing phase
@@ -209,30 +239,30 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
           currentText += newText[currentText.length]
           setCurrentExample(currentText + "|")
 
-          // Variable typing speed - more realistic
-          let delay = 60 + Math.random() * 120 // Base 60-180ms per character
+          // Much faster typing speed
+          let delay = 25 + Math.random() * 35 // Base 25-60ms per character
 
-          // Add longer pauses after punctuation and spaces
+          // Minimal pauses for readability
           const char = currentText[currentText.length - 1]
-          if (char === " ") delay += Math.random() * 100
-          if (char === "," || char === ".") delay += Math.random() * 200
-          if (char === "\n") delay += Math.random() * 300
+          if (char === " ") delay += 10 // Very brief pause after space
+          if (char === "," || char === ".") delay += 20 // Brief pause after punctuation
 
-          // Occasionally add hesitation
-          if (Math.random() < 0.1) delay += Math.random() * 300
-
-          setTimeout(processNextStep, delay)
+          nextStepTimeout = setTimeout(processNextStep, delay)
         } else {
           // Typing complete
-          clearInterval(cursorInterval)
+          cleanup()
+          document.removeEventListener(
+            "visibilitychange",
+            handleVisibilityChange
+          )
           setCurrentExample(newText)
           setIsAnimatingExample(false)
         }
       }
     }
 
-    // Start the process after a brief delay
-    setTimeout(processNextStep, 300)
+    // Start immediately with minimal delay
+    nextStepTimeout = setTimeout(processNextStep, 100)
   }
 
   // Rotate examples every 10 seconds based on current mode
@@ -255,14 +285,27 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
     setCurrentExample(initialExample)
 
     const interval = setInterval(() => {
-      // Only animate if not currently animating
-      if (!isAnimatingExample) {
+      // Only animate if not currently animating and page is visible
+      if (!isAnimatingExample && !document.hidden) {
         const newExample = getRandomExample()
         animateToNewExample(newExample)
       }
     }, 10000)
 
-    return () => clearInterval(interval)
+    // Handle page visibility changes for the main interval
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        // Reset animation state when page becomes hidden
+        setIsAnimatingExample(false)
+      }
+    }
+
+    document.addEventListener("visibilitychange", handleVisibilityChange)
+
+    return () => {
+      clearInterval(interval)
+      document.removeEventListener("visibilitychange", handleVisibilityChange)
+    }
   }, [selectedImage, isEditingMode]) // Removed isAnimatingExample dependency to prevent re-runs
 
   // Handle loading animation
