@@ -1,19 +1,19 @@
-"use client"
+'use client'
 
-import type React from "react"
-import { Tabs, TabsContent } from "@/components/ui/tabs"
-import { generateColorPalette } from "./actions"
-import { toast } from "@/components/ui/use-toast"
-import { useColorPaletteStore } from "@/lib/store"
-import { useRef, useEffect } from "react"
+import type React from 'react'
+import { Tabs, TabsContent } from '@/components/ui/tabs'
+import { generateColorPalette } from './actions'
+import { toast } from '@/components/ui/use-toast'
+import { useColorPaletteStore } from '@/lib/store'
+import { useRef, useEffect } from 'react'
 
 // Components
-import { Header } from "@/components/Header"
-import { ImageUpload } from "@/components/ImageUpload"
-import { ColorPaletteDisplay } from "@/components/ColorPalette"
-import { SavedPalettes } from "@/components/SavedPalettes"
-import { DragOverlay } from "@/components/DragOverlay"
-import { cn } from "@/lib/utils"
+import { Header } from '@/components/Header'
+import { ImageUpload } from '@/components/ImageUpload'
+import { ColorPaletteDisplay } from '@/components/ColorPalette'
+import { SavedPalettes } from '@/components/SavedPalettes'
+import { DragOverlay } from '@/components/DragOverlay'
+import { cn } from '@/lib/utils'
 
 export default function ColorPaletteGenerator() {
   const dragCounter = useRef(0)
@@ -41,10 +41,14 @@ export default function ColorPaletteGenerator() {
 
   const generatePalette = async (userPrompt?: string) => {
     // Allow generation with either image or text prompt, or editing existing palette
-    if (!selectedImage && !userPrompt?.trim() && !isEditingMode) return
+    if (!selectedImage && !userPrompt?.trim() && !isEditingMode) {
+      return
+    }
 
     // In editing mode, we need a user prompt to know what to edit
-    if (isEditingMode && !userPrompt?.trim()) return
+    if (isEditingMode && !userPrompt?.trim()) {
+      return
+    }
 
     setIsLoading(true)
     try {
@@ -61,20 +65,20 @@ export default function ColorPaletteGenerator() {
       }
       setColorPalette(paletteWithTimestamp)
     } catch (error) {
-      console.error("Error generating palette:", error)
+      console.error('Error generating palette:', error)
 
-      if (error instanceof Error && error.message === "INVALID_REQUEST") {
+      if (error instanceof Error && error.message === 'INVALID_REQUEST') {
         toast({
-          title: "No palette generated",
+          title: 'No palette generated',
           description:
-            "Please provide a clear description of the colors you want or upload an image.",
-          variant: "destructive",
+            'Please provide a clear description of the colors you want or upload an image.',
+          variant: 'destructive',
         })
       } else {
         toast({
-          title: "Error",
-          description: "Failed to generate color palette. Please try again.",
-          variant: "destructive",
+          title: 'Error',
+          description: 'Failed to generate color palette. Please try again.',
+          variant: 'destructive',
         })
       }
     } finally {
@@ -88,7 +92,9 @@ export default function ColorPaletteGenerator() {
     e.stopPropagation()
 
     // Only handle page-level drag when on generator tab
-    if (activeTab !== "generator") return
+    if (activeTab !== 'generator') {
+      return
+    }
 
     dragCounter.current++
     if (dragCounter.current === 1) {
@@ -101,7 +107,9 @@ export default function ColorPaletteGenerator() {
     e.stopPropagation()
 
     // Only handle page-level drag when on generator tab
-    if (activeTab !== "generator") return
+    if (activeTab !== 'generator') {
+      return
+    }
 
     dragCounter.current--
     if (dragCounter.current === 0) {
@@ -114,7 +122,9 @@ export default function ColorPaletteGenerator() {
     e.stopPropagation()
 
     // Only handle page-level drag when on generator tab
-    if (activeTab !== "generator") return
+    if (activeTab !== 'generator') {
+      return
+    }
   }
 
   const handlePageDrop = (e: React.DragEvent) => {
@@ -122,20 +132,22 @@ export default function ColorPaletteGenerator() {
     e.stopPropagation()
 
     // Only handle page-level drag when on generator tab
-    if (activeTab !== "generator") return
+    if (activeTab !== 'generator') {
+      return
+    }
 
     dragCounter.current = 0
     setPageDragActive(false)
 
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       const file = e.dataTransfer.files[0]
-      if (file.type.startsWith("image/")) {
+      if (file.type.startsWith('image/')) {
         handleImageUpload(file)
       } else {
         toast({
-          title: "Invalid file type",
-          description: "Please upload an image file.",
-          variant: "destructive",
+          title: 'Invalid file type',
+          description: 'Please upload an image file.',
+          variant: 'destructive',
         })
       }
     }
@@ -160,15 +172,15 @@ export default function ColorPaletteGenerator() {
           <TabsContent value="generator" className="flex-1 flex flex-col">
             <div
               className={cn(
-                "flex-1 grid lg:grid-cols-[5fr_0fr] transition-all duration-300 gap-4 md:gap-6 lg:gap-0",
-                colorPalette && "lg:grid-cols-[5fr_4fr]"
+                'flex-1 grid lg:grid-cols-[5fr_0fr] transition-all duration-300 gap-4 md:gap-6 lg:gap-0',
+                colorPalette && 'lg:grid-cols-[5fr_4fr]'
               )}
             >
               {/* Upload Section */}
               <ImageUpload onGeneratePalette={generatePalette} />
 
               {/* Results Section */}
-              <ColorPaletteDisplay state={colorPalette ? "show" : "hide"} />
+              <ColorPaletteDisplay state={colorPalette ? 'show' : 'hide'} />
             </div>
           </TabsContent>
 
@@ -178,7 +190,7 @@ export default function ColorPaletteGenerator() {
         </Tabs>
 
         {/* Drag Overlay - only show when generator tab is active */}
-        <DragOverlay isVisible={pageDragActive && activeTab === "generator"} />
+        <DragOverlay isVisible={pageDragActive && activeTab === 'generator'} />
       </main>
     </>
   )

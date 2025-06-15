@@ -1,20 +1,20 @@
-import React, { useRef, useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea"
-import { Label } from "@/components/ui/label"
+import React, { useRef, useState, useEffect } from 'react'
+import { Button } from '@/components/ui/button'
+import { Textarea } from '@/components/ui/textarea'
+import { Label } from '@/components/ui/label'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { Paperclip, Send, Plus } from "lucide-react"
-import Image from "next/image"
-import { cn } from "@/lib/utils"
-import { useColorPaletteStore } from "@/lib/store"
-import { Switch } from "./ui/switch"
-import { Card } from "./ui/card"
+} from '@/components/ui/select'
+import { Paperclip, Send, Plus } from 'lucide-react'
+import Image from 'next/image'
+import { cn } from '@/lib/utils'
+import { useColorPaletteStore } from '@/lib/store'
+import { Switch } from './ui/switch'
+import { Card } from './ui/card'
 // GSAP will be dynamically imported on client side only
 
 interface ImageUploadProps {
@@ -23,123 +23,123 @@ interface ImageUploadProps {
 
 // Example prompts for when there's no image (text-only palette generation)
 const NO_IMAGE_EXAMPLES = [
-  "Create a warm autumn palette with golden and crimson tones",
-  "Generate ocean blues with seafoam and coral accents",
-  "Design a vintage 1970s color scheme",
-  "Make a minimalist palette with soft pastels",
-  "Create a bold neon cyberpunk color combination",
-  "Generate earthy forest colors for a nature brand",
-  "Design a luxury gold and black palette",
-  "Create sunset colors with pink and orange gradients",
-  "Make a calming spa palette with greens and whites",
-  "Generate 5 colors inspired by cherry blossoms",
-  "Create a desert landscape color scheme",
-  "Design a modern tech brand palette",
-  "Make a cozy winter cabin color combination",
-  "Generate vibrant tropical fruit colors",
-  "Create a sophisticated wine bar palette",
+  'Create a warm autumn palette with golden and crimson tones',
+  'Generate ocean blues with seafoam and coral accents',
+  'Design a vintage 1970s color scheme',
+  'Make a minimalist palette with soft pastels',
+  'Create a bold neon cyberpunk color combination',
+  'Generate earthy forest colors for a nature brand',
+  'Design a luxury gold and black palette',
+  'Create sunset colors with pink and orange gradients',
+  'Make a calming spa palette with greens and whites',
+  'Generate 5 colors inspired by cherry blossoms',
+  'Create a desert landscape color scheme',
+  'Design a modern tech brand palette',
+  'Make a cozy winter cabin color combination',
+  'Generate vibrant tropical fruit colors',
+  'Create a sophisticated wine bar palette',
   "Design colors for a children's playroom",
-  "Make a vintage denim and leather palette",
-  "Generate arctic tundra inspired colors",
-  "Create a bohemian festival color scheme",
-  "Design a corporate professional palette",
-  "Make a retro 80s neon color combination",
-  "Generate soft morning mist colors",
-  "Create a spicy Mexican cuisine palette",
-  "Design colors inspired by gemstones",
-  "Make a peaceful zen garden color scheme",
-  "Generate colors from a lavender field",
-  "Create a dramatic gothic color palette",
-  "Design bright carnival celebration colors",
-  "Make a subtle French countryside palette",
-  "Generate colors inspired by Japanese art",
-  "Create a fresh spring garden color scheme",
-  "Design a warm coffee shop palette",
-  "Make colors inspired by Northern Lights",
-  "Generate a beachy coastal color combination",
-  "Create a sophisticated art gallery palette",
-  "Design colors for a wellness brand",
-  "Make a bold street art color scheme",
-  "Generate soft romantic wedding colors",
-  "Create a modern apartment color palette",
-  "Design colors inspired by precious metals",
+  'Make a vintage denim and leather palette',
+  'Generate arctic tundra inspired colors',
+  'Create a bohemian festival color scheme',
+  'Design a corporate professional palette',
+  'Make a retro 80s neon color combination',
+  'Generate soft morning mist colors',
+  'Create a spicy Mexican cuisine palette',
+  'Design colors inspired by gemstones',
+  'Make a peaceful zen garden color scheme',
+  'Generate colors from a lavender field',
+  'Create a dramatic gothic color palette',
+  'Design bright carnival celebration colors',
+  'Make a subtle French countryside palette',
+  'Generate colors inspired by Japanese art',
+  'Create a fresh spring garden color scheme',
+  'Design a warm coffee shop palette',
+  'Make colors inspired by Northern Lights',
+  'Generate a beachy coastal color combination',
+  'Create a sophisticated art gallery palette',
+  'Design colors for a wellness brand',
+  'Make a bold street art color scheme',
+  'Generate soft romantic wedding colors',
+  'Create a modern apartment color palette',
+  'Design colors inspired by precious metals',
 ]
 
 // Example prompts for when there's an image (specifications for analysis)
 const WITH_IMAGE_EXAMPLES = [
   "Don't include background colors",
-  "Focus on warm tones only",
-  "Ignore the text and focus on objects",
-  "Extract only the most vibrant colors",
-  "Prioritize colors from the center of the image",
-  "Skip any white or black areas",
-  "Focus on the main subject, ignore the background",
-  "Extract muted and subtle tones",
-  "Only include colors that appear prominently",
-  "Avoid any gray or neutral colors",
-  "Focus on the lighting and shadow colors",
-  "Extract colors from clothing or fabric only",
-  "Prioritize natural colors over artificial ones",
-  "Focus on the sky colors in the image",
-  "Extract colors from plants or nature elements",
-  "Ignore any metallic or reflective surfaces",
-  "Focus on skin tones and human elements",
-  "Extract colors from the foreground only",
-  "Prioritize colors that complement each other",
-  "Focus on the emotional mood of the colors",
-  "Extract colors from architectural elements",
-  "Ignore any branding or logo colors",
-  "Focus on the most saturated colors",
-  "Extract colors from water or liquid elements",
-  "Prioritize colors from the left side of the image",
-  "Focus on colors that create contrast",
-  "Extract colors from food or organic elements",
-  "Ignore any monochrome or grayscale areas",
-  "Focus on colors from the bottom third",
-  "Extract colors that would work for a brand palette",
+  'Focus on warm tones only',
+  'Ignore the text and focus on objects',
+  'Extract only the most vibrant colors',
+  'Prioritize colors from the center of the image',
+  'Skip any white or black areas',
+  'Focus on the main subject, ignore the background',
+  'Extract muted and subtle tones',
+  'Only include colors that appear prominently',
+  'Avoid any gray or neutral colors',
+  'Focus on the lighting and shadow colors',
+  'Extract colors from clothing or fabric only',
+  'Prioritize natural colors over artificial ones',
+  'Focus on the sky colors in the image',
+  'Extract colors from plants or nature elements',
+  'Ignore any metallic or reflective surfaces',
+  'Focus on skin tones and human elements',
+  'Extract colors from the foreground only',
+  'Prioritize colors that complement each other',
+  'Focus on the emotional mood of the colors',
+  'Extract colors from architectural elements',
+  'Ignore any branding or logo colors',
+  'Focus on the most saturated colors',
+  'Extract colors from water or liquid elements',
+  'Prioritize colors from the left side of the image',
+  'Focus on colors that create contrast',
+  'Extract colors from food or organic elements',
+  'Ignore any monochrome or grayscale areas',
+  'Focus on colors from the bottom third',
+  'Extract colors that would work for a brand palette',
 ]
 
 // Example prompts for editing existing palettes
 const EDITING_EXAMPLES = [
-  "Add a warm red color to the palette",
-  "Make the third color darker",
-  "Change the primary color to blue",
-  "Replace the green with a forest green",
-  "Add a complementary color to the orange",
-  "Make all colors more vibrant",
-  "Soften the bright colors",
-  "Add a neutral gray color",
-  "Remove the yellow and add purple instead",
-  "Make the palette more pastel",
-  "Increase the saturation of all colors",
-  "Add a color that matches the sky",
-  "Replace the pink with a coral shade",
-  "Make the palette warmer overall",
-  "Add a deep navy blue",
-  "Change the brown to a chocolate brown",
-  "Add a mint green color",
-  "Make the red more burgundy",
-  "Add a color for text readability",
-  "Replace the lightest color with white",
-  "Add a golden yellow accent",
-  "Make the purple more royal",
-  "Add an earthy tone",
-  "Change the primary to a teal color",
-  "Add a soft pink for highlights",
-  "Make the palette more monochromatic",
-  "Add a contrasting accent color",
-  "Replace the orange with a peach",
-  "Add a charcoal color for depth",
-  "Make all colors slightly desaturated",
+  'Add a warm red color to the palette',
+  'Make the third color darker',
+  'Change the primary color to blue',
+  'Replace the green with a forest green',
+  'Add a complementary color to the orange',
+  'Make all colors more vibrant',
+  'Soften the bright colors',
+  'Add a neutral gray color',
+  'Remove the yellow and add purple instead',
+  'Make the palette more pastel',
+  'Increase the saturation of all colors',
+  'Add a color that matches the sky',
+  'Replace the pink with a coral shade',
+  'Make the palette warmer overall',
+  'Add a deep navy blue',
+  'Change the brown to a chocolate brown',
+  'Add a mint green color',
+  'Make the red more burgundy',
+  'Add a color for text readability',
+  'Replace the lightest color with white',
+  'Add a golden yellow accent',
+  'Make the purple more royal',
+  'Add an earthy tone',
+  'Change the primary to a teal color',
+  'Add a soft pink for highlights',
+  'Make the palette more monochromatic',
+  'Add a contrasting accent color',
+  'Replace the orange with a peach',
+  'Add a charcoal color for depth',
+  'Make all colors slightly desaturated',
 ]
 
 export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const exampleTextRef = useRef<HTMLSpanElement>(null)
-  const [userPrompt, setUserPrompt] = useState("")
-  const [currentExample, setCurrentExample] = useState("")
-  const [loadingText, setLoadingText] = useState("")
+  const [userPrompt, setUserPrompt] = useState('')
+  const [currentExample, setCurrentExample] = useState('')
+  const [loadingText, setLoadingText] = useState('')
   const [wasGenerating, setWasGenerating] = useState(false)
   const [isAnimatingExample, setIsAnimatingExample] = useState(false)
   const [isInitialized, setIsInitialized] = useState(false)
@@ -169,8 +169,9 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
       !exampleTextRef.current ||
       isAnimatingExample ||
       newExample === currentExample
-    )
+    ) {
       return
+    }
 
     setIsAnimatingExample(true)
     simulateTypingTransition(currentExample, newExample)
@@ -178,15 +179,19 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
 
   const simulateTypingTransition = (oldText: string, newText: string) => {
     let currentText = oldText
-    let phase: "backspacing" | "typing" = "backspacing"
+    let phase: 'backspacing' | 'typing' = 'backspacing'
     let showCursor = true
     let cursorInterval: NodeJS.Timeout | null = null
     let nextStepTimeout: NodeJS.Timeout | null = null
 
     // Cleanup function to clear all timers
     const cleanup = () => {
-      if (cursorInterval) clearInterval(cursorInterval)
-      if (nextStepTimeout) clearTimeout(nextStepTimeout)
+      if (cursorInterval) {
+        clearInterval(cursorInterval)
+      }
+      if (nextStepTimeout) {
+        clearTimeout(nextStepTimeout)
+      }
     }
 
     // Handle page visibility changes
@@ -200,36 +205,36 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
     }
 
     // Add visibility change listener
-    document.addEventListener("visibilitychange", handleVisibilityChange)
+    document.addEventListener('visibilitychange', handleVisibilityChange)
 
     // Cursor blinking interval - faster blinking during transition
     cursorInterval = setInterval(() => {
       showCursor = !showCursor
-      setCurrentExample(currentText + (showCursor ? "|" : ""))
+      setCurrentExample(currentText + (showCursor ? '|' : ''))
     }, 300)
 
     const processNextStep = () => {
       // Check if page is hidden before proceeding
       if (document.hidden) {
         cleanup()
-        document.removeEventListener("visibilitychange", handleVisibilityChange)
+        document.removeEventListener('visibilitychange', handleVisibilityChange)
         setCurrentExample(newText)
         setIsAnimatingExample(false)
         return
       }
 
-      if (phase === "backspacing") {
+      if (phase === 'backspacing') {
         if (currentText.length > 0) {
           // Remove character (backspace) - very fast
           currentText = currentText.slice(0, -1)
-          setCurrentExample(currentText + "|")
+          setCurrentExample(currentText + '|')
 
           // Much faster backspace speed
           const delay = 15 + Math.random() * 20 // 15-35ms per backspace
           nextStepTimeout = setTimeout(processNextStep, delay)
         } else {
           // Done backspacing, start typing immediately
-          phase = "typing"
+          phase = 'typing'
           // Very brief pause before typing
           nextStepTimeout = setTimeout(processNextStep, 100)
         }
@@ -238,22 +243,26 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
         if (currentText.length < newText.length) {
           // Add next character
           currentText += newText[currentText.length]
-          setCurrentExample(currentText + "|")
+          setCurrentExample(currentText + '|')
 
           // Much faster typing speed
           let delay = 25 + Math.random() * 35 // Base 25-60ms per character
 
           // Minimal pauses for readability
           const char = currentText[currentText.length - 1]
-          if (char === " ") delay += 10 // Very brief pause after space
-          if (char === "," || char === ".") delay += 20 // Brief pause after punctuation
+          if (char === ' ') {
+            delay += 10
+          } // Very brief pause after space
+          if (char === ',' || char === '.') {
+            delay += 20
+          } // Brief pause after punctuation
 
           nextStepTimeout = setTimeout(processNextStep, delay)
         } else {
           // Typing complete
           cleanup()
           document.removeEventListener(
-            "visibilitychange",
+            'visibilitychange',
             handleVisibilityChange
           )
           setCurrentExample(newText)
@@ -285,7 +294,7 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
       const initialExample = getInitialExample()
       // Use the same typing animation for the initial example
       setIsAnimatingExample(true)
-      simulateTypingTransition("", initialExample)
+      simulateTypingTransition('', initialExample)
       setIsInitialized(true)
     }
   }, [isInitialized, selectedImage, isEditingMode])
@@ -293,7 +302,9 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
   // Rotate examples every 10 seconds based on current mode
   useEffect(() => {
     // Skip if not initialized yet
-    if (!isInitialized) return
+    if (!isInitialized) {
+      return
+    }
 
     const getRandomExample = () => {
       let examples
@@ -324,11 +335,11 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
       }
     }
 
-    document.addEventListener("visibilitychange", handleVisibilityChange)
+    document.addEventListener('visibilitychange', handleVisibilityChange)
 
     return () => {
       clearInterval(interval)
-      document.removeEventListener("visibilitychange", handleVisibilityChange)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
     }
   }, [selectedImage, isEditingMode, isInitialized, isAnimatingExample])
 
@@ -336,21 +347,21 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
   useEffect(() => {
     if (isLoading) {
       const baseText = isEditingMode
-        ? "Editing your palette"
-        : "Generating palette"
+        ? 'Editing your palette'
+        : 'Generating palette'
       let dotCount = 0
 
       const interval = setInterval(() => {
         dotCount = (dotCount + 1) % 4
-        setLoadingText(baseText + ".".repeat(dotCount))
+        setLoadingText(baseText + '.'.repeat(dotCount))
       }, 500)
 
       return () => clearInterval(interval)
     } else {
-      setLoadingText("")
+      setLoadingText('')
       // Clear prompt only if we were generating/editing (not saving)
       if (wasGenerating) {
-        setUserPrompt("")
+        setUserPrompt('')
         setWasGenerating(false)
       }
     }
@@ -359,9 +370,9 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    if (e.type === "dragenter" || e.type === "dragover") {
+    if (e.type === 'dragenter' || e.type === 'dragover') {
       setDragActive(true)
-    } else if (e.type === "dragleave") {
+    } else if (e.type === 'dragleave') {
       setDragActive(false)
     }
   }
@@ -394,26 +405,27 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
+    if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
       handleGenerate()
     }
   }
 
   const handleExampleClick = () => {
-    if (!textareaRef.current || !exampleTextRef.current || isAnimatingExample)
+    if (!textareaRef.current || !exampleTextRef.current || isAnimatingExample) {
       return
+    }
 
     setIsAnimatingExample(true)
 
     // Focus textarea and start realistic typing
-    setUserPrompt("")
+    setUserPrompt('')
     textareaRef.current?.focus()
     simulateRealisticTyping(currentExample)
   }
 
   const simulateRealisticTyping = (text: string) => {
-    let currentText = ""
+    let currentText = ''
     let currentIndex = 0
     let showCursor = true
 
@@ -421,7 +433,7 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
     const cursorInterval = setInterval(() => {
       showCursor = !showCursor
       if (currentIndex <= text.length) {
-        setUserPrompt(currentText + (showCursor ? "|" : ""))
+        setUserPrompt(currentText + (showCursor ? '|' : ''))
       }
     }, 300) // Same as example button
 
@@ -437,15 +449,19 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
       // Add next character
       currentText += text[currentIndex]
       currentIndex++
-      setUserPrompt(currentText + "|")
+      setUserPrompt(currentText + '|')
 
       // Match the example button timing exactly
       let delay = 25 + Math.random() * 35 // Base 25-60ms per character (same as example)
 
       // Minimal pauses for readability - same as example button
       const char = text[currentIndex - 1]
-      if (char === " ") delay += 10 // Very brief pause after space
-      if (char === "," || char === ".") delay += 20 // Brief pause after punctuation
+      if (char === ' ') {
+        delay += 10
+      } // Very brief pause after space
+      if (char === ',' || char === '.') {
+        delay += 20
+      } // Brief pause after punctuation
 
       // Schedule next character
       setTimeout(typeNextCharacter, delay)
@@ -484,7 +500,7 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
 
     // Reset file input
     if (fileInputRef.current) {
-      fileInputRef.current.value = ""
+      fileInputRef.current.value = ''
     }
   }
 
@@ -496,13 +512,13 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
     }
 
     window.addEventListener(
-      "addColorText",
+      'addColorText',
       handleAddColorTextEvent as EventListener
     )
 
     return () => {
       window.removeEventListener(
-        "addColorText",
+        'addColorText',
         handleAddColorTextEvent as EventListener
       )
     }
@@ -519,17 +535,17 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
       {/* Hero Section */}
       <div className="text-center">
         <h2 className="text-4xl font-bold leading-tight tracking-tight">
-          {isEditingMode ? "Edit your palette" : "Create beautiful colors"}
+          {isEditingMode ? 'Edit your palette' : 'Create beautiful colors'}
         </h2>
         <p
           className={cn(
-            "text-lg text-muted-foreground md:max-w-2xl mx-auto leading-relaxed text-balance mt-6 md:mt-0",
-            isEditingMode ? "max-w-sm" : "max-w-xs"
+            'text-lg text-muted-foreground md:max-w-2xl mx-auto leading-relaxed text-balance mt-6 md:mt-0',
+            isEditingMode ? 'max-w-sm' : 'max-w-xs'
           )}
         >
           {isEditingMode
-            ? "Describe changes you want to make to your palette"
-            : "Upload an image or describe what you want"}
+            ? 'Describe changes you want to make to your palette'
+            : 'Upload an image or describe what you want'}
         </p>
       </div>
 
@@ -543,27 +559,27 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
 
       <div
         className={cn(
-          "w-full h-[calc(100%+24px)] md:h-full md:mx-6 md:rounded-3xl absolute top-0 left-0 object-cover -z-10 duration-200 overflow-hidden",
+          'w-full h-[calc(100%+24px)] md:h-full md:mx-6 md:rounded-3xl absolute top-0 left-0 object-cover -z-10 duration-200 overflow-hidden',
           selectedImage
-            ? "opacity-40 blur-sm"
-            : "bg-gradient-to-b lg:bg-gradient-to-r from-secondary via-muted-foreground to-transparent opacity-20"
+            ? 'opacity-40 blur-sm'
+            : 'bg-gradient-to-b lg:bg-gradient-to-r from-secondary via-muted-foreground to-transparent opacity-20'
         )}
       >
         <Image
-          src={selectedImage || "/placeholder.svg"}
+          src={selectedImage || '/placeholder.svg'}
           alt="Uploaded image"
           fill
           className="object-cover mask-b-from-30% lg:mask-b-from-100% lg:mask-r-from-30% data-[state=show]:animate-in data-[state=hide]:animate-out fade-in fade-out duration-300 data-[state=show]:blur-none data-[state=hide]:blur-lg data-[state=hide]:opacity-0"
-          data-state={selectedImage ? "show" : "hide"}
+          data-state={selectedImage ? 'show' : 'hide'}
         />
       </div>
 
       <div
         className="flex gap-2 group absolute top-4 left-4 md:left-10 data-[state=show]:animate-in data-[state=hide]:animate-out fade-in fade-out duration-200 data-[state=show]:blur-none data-[state=hide]:blur-lg data-[state=hide]:opacity-0"
-        data-state={selectedImage ? "show" : "hide"}
+        data-state={selectedImage ? 'show' : 'hide'}
       >
         <Image
-          src={selectedImage || "/placeholder.svg"}
+          src={selectedImage || '/placeholder.svg'}
           alt="Uploaded image"
           width={100}
           height={100}
@@ -618,12 +634,12 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
               isLoading
                 ? loadingText
                 : isColorTextPreviewMode
-                ? `${userPrompt}${
-                    userPrompt.trim() ? " " : ""
-                  }${colorTextPreview}`
-                : userPrompt
+                  ? `${userPrompt}${
+                      userPrompt.trim() ? ' ' : ''
+                    }${colorTextPreview}`
+                  : userPrompt
             }
-            onChange={(e) =>
+            onChange={e =>
               !isLoading &&
               !isColorTextPreviewMode &&
               setUserPrompt(e.target.value)
@@ -631,14 +647,14 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
             onKeyDown={handleKeyDown}
             placeholder={
               isEditingMode
-                ? "Edit your palette"
+                ? 'Edit your palette'
                 : selectedImage
-                ? "Add specifications"
-                : "Describe your palette"
+                  ? 'Add specifications'
+                  : 'Describe your palette'
             }
             className={cn(
-              "resize-none focus-visible:ring-0 focus-visible:ring-offset-0 px-0 min-h-[28px] text-lg font-medium border-none rounded-none",
-              isColorTextPreviewMode && "text-muted-foreground"
+              'resize-none focus-visible:ring-0 focus-visible:ring-offset-0 px-0 min-h-[28px] text-lg font-medium border-none rounded-none',
+              isColorTextPreviewMode && 'text-muted-foreground'
             )}
             disabled={isLoading}
             readOnly={isLoading || isColorTextPreviewMode}
@@ -659,7 +675,7 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
               <Switch
                 id="editing"
                 checked={isEditingMode}
-                onCheckedChange={(checked) => {
+                onCheckedChange={checked => {
                   if (!checked && isEditingMode) {
                     exitEditingMode()
                   }
@@ -684,9 +700,7 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
                 </Label>
                 <Select
                   value={colorCount.toString()}
-                  onValueChange={(value) =>
-                    setColorCount(Number.parseInt(value))
-                  }
+                  onValueChange={value => setColorCount(Number.parseInt(value))}
                   disabled={isLoading || isEditingMode}
                 >
                   <SelectTrigger

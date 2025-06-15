@@ -1,5 +1,5 @@
-import { Button } from "@/components/ui/button"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Button } from '@/components/ui/button'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import {
   Palette,
   Download,
@@ -7,20 +7,17 @@ import {
   CheckCircle,
   Undo,
   Redo,
-} from "lucide-react"
-import { ColorCard } from "./ColorCard"
-import { useColorPaletteStore } from "@/lib/store"
-import { cn } from "@/lib/utils"
+} from 'lucide-react'
+import { ColorCard } from './ColorCard'
+import { useColorPaletteStore } from '@/lib/store'
 
-export function ColorPaletteDisplay({ state }: { state: "show" | "hide" }) {
+export function ColorPaletteDisplay({ state }: { state: 'show' | 'hide' }) {
   const {
     colorPalette,
     copiedColor,
     isCurrentPaletteSaved,
-    downloadBounce,
     canUndo,
     canRedo,
-    hasUndone,
     copyToClipboard,
     savePalette,
     downloadPalette,
@@ -111,8 +108,12 @@ export function ColorPaletteDisplay({ state }: { state: "show" | "hide" }) {
                     b.hex.toLowerCase() ===
                     colorPalette.dominantColor.toLowerCase()
 
-                  if (aIsDominant && !bIsDominant) return -1 // a comes first
-                  if (!aIsDominant && bIsDominant) return 1 // b comes first
+                  if (aIsDominant && !bIsDominant) {
+                    return -1
+                  } // a comes first
+                  if (!aIsDominant && bIsDominant) {
+                    return 1
+                  } // b comes first
                   return 0 // maintain original order for non-dominant colors
                 })
                 .map((color, index) => {
@@ -142,7 +143,7 @@ const ColorPaletteBox = ({
   state,
 }: {
   children: React.ReactNode
-  state: "show" | "hide"
+  state: 'show' | 'hide'
 }) => {
   return (
     <div

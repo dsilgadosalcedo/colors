@@ -1,5 +1,5 @@
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -10,11 +10,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
-import { Palette, Trash2, Heart } from "lucide-react"
-import Image from "next/image"
-import { ColorInfo, ColorPalette } from "@/lib/types"
-import { useRef } from "react"
+} from '@/components/ui/alert-dialog'
+import { Palette, Trash2, Heart } from 'lucide-react'
+import Image from 'next/image'
+import { ColorInfo, ColorPalette } from '@/lib/types'
+import { useRef } from 'react'
 
 interface PaletteCardProps {
   palette: ColorPalette
@@ -36,14 +36,16 @@ export function PaletteCard({
   const heartRef = useRef<HTMLButtonElement>(null)
 
   const handleFavoriteClick = async () => {
-    if (!heartRef.current) return
+    if (!heartRef.current) {
+      return
+    }
 
     try {
       // Dynamically import GSAP for client-side animation
-      const { gsap } = await import("gsap")
+      const { gsap } = await import('gsap')
 
       // Get the SVG element inside the button
-      const heartSvg = heartRef.current.querySelector("svg")
+      const heartSvg = heartRef.current.querySelector('svg')
 
       if (palette.isFavorite) {
         // Unfavoriting animation - heartbeat with color fade
@@ -57,13 +59,13 @@ export function PaletteCard({
         tl.to(heartRef.current, {
           scale: 0.7,
           duration: 0.08,
-          ease: "power2.out",
+          ease: 'power2.out',
         })
           // Fade out the red color during the first contraction
           .to(
             heartSvg,
             {
-              fill: "none",
+              fill: 'none',
               duration: 0.12,
             },
             0
@@ -71,12 +73,12 @@ export function PaletteCard({
           .to(heartRef.current, {
             scale: 1.15,
             duration: 0.12,
-            ease: "back.out(2)",
+            ease: 'back.out(2)',
           })
           .to(heartRef.current, {
             scale: 1,
             duration: 0.1,
-            ease: "power2.out",
+            ease: 'power2.out',
           })
       } else {
         // Create Twitter-style explosion effect
@@ -93,27 +95,27 @@ export function PaletteCard({
         tl.to(heartRef.current, {
           scale: 0.7,
           duration: 0.08,
-          ease: "power2.out",
+          ease: 'power2.out',
         })
           // Start filling with red during the contraction
           .to(
             heartSvg,
             {
-              fill: "#FF0000",
+              fill: '#FF0000',
               duration: 0.1,
-              ease: "power2.out",
+              ease: 'power2.out',
             },
             0
           ) // Start at the same time as scale animation
           .to(heartRef.current, {
             scale: 1.2,
             duration: 0.15,
-            ease: "back.out(3)",
+            ease: 'back.out(3)',
           })
           .to(heartRef.current, {
             scale: 1,
             duration: 0.12,
-            ease: "power2.out",
+            ease: 'power2.out',
           })
       }
     } catch (error) {
@@ -128,17 +130,17 @@ export function PaletteCard({
     const centerY = rect.top + rect.height / 2
 
     // Create bubble effect (like Twitter's ring) - smaller and more proportional
-    const bubble = document.createElement("div")
-    bubble.style.position = "fixed"
-    bubble.style.left = centerX - 15 + "px"
-    bubble.style.top = centerY - 15 + "px"
-    bubble.style.width = "30px"
-    bubble.style.height = "30px"
-    bubble.style.borderRadius = "50%"
+    const bubble = document.createElement('div')
+    bubble.style.position = 'fixed'
+    bubble.style.left = centerX - 15 + 'px'
+    bubble.style.top = centerY - 15 + 'px'
+    bubble.style.width = '30px'
+    bubble.style.height = '30px'
+    bubble.style.borderRadius = '50%'
     bubble.style.background =
-      "radial-gradient(circle, rgba(226, 38, 77, 0.6) 0%, rgba(204, 142, 245, 0.4) 100%)"
-    bubble.style.pointerEvents = "none"
-    bubble.style.zIndex = "1000"
+      'radial-gradient(circle, rgba(226, 38, 77, 0.6) 0%, rgba(204, 142, 245, 0.4) 100%)'
+    bubble.style.pointerEvents = 'none'
+    bubble.style.zIndex = '1000'
     document.body.appendChild(bubble)
 
     // Animate bubble - smaller scale for proportional effect
@@ -149,7 +151,7 @@ export function PaletteCard({
         scale: 1.8,
         opacity: 0,
         duration: 0.5,
-        ease: "power2.out",
+        ease: 'power2.out',
         onComplete: () => bubble.remove(),
       }
     )
@@ -157,25 +159,25 @@ export function PaletteCard({
     // Create particle explosion - fewer and smaller particles
     const particleCount = 6
     const colors = [
-      "#ff6b6b",
-      "#feca57",
-      "#ff9ff3",
-      "#54a0ff",
-      "#5f27cd",
-      "#00d2d3",
+      '#ff6b6b',
+      '#feca57',
+      '#ff9ff3',
+      '#54a0ff',
+      '#5f27cd',
+      '#00d2d3',
     ]
 
     for (let i = 0; i < particleCount; i++) {
-      const particle = document.createElement("div")
-      particle.style.position = "fixed"
-      particle.style.left = centerX - 2 + "px"
-      particle.style.top = centerY - 2 + "px"
-      particle.style.width = "4px"
-      particle.style.height = "4px"
-      particle.style.borderRadius = "50%"
+      const particle = document.createElement('div')
+      particle.style.position = 'fixed'
+      particle.style.left = centerX - 2 + 'px'
+      particle.style.top = centerY - 2 + 'px'
+      particle.style.width = '4px'
+      particle.style.height = '4px'
+      particle.style.borderRadius = '50%'
       particle.style.background = colors[i]
-      particle.style.pointerEvents = "none"
-      particle.style.zIndex = "1001"
+      particle.style.pointerEvents = 'none'
+      particle.style.zIndex = '1001'
       document.body.appendChild(particle)
 
       // Calculate explosion direction - shorter distance for smaller effect
@@ -195,7 +197,7 @@ export function PaletteCard({
         opacity: 0,
         duration: duration,
         delay: delay,
-        ease: "power2.out",
+        ease: 'power2.out',
         onComplete: () => particle.remove(),
       })
     }
@@ -209,7 +211,7 @@ export function PaletteCard({
           {palette.imagePreview && (
             <div className="w-20 h-22 rounded-sm overflow-hidden flex-shrink-0 relative">
               <img
-                src={palette.imagePreview || "/placeholder.svg"}
+                src={palette.imagePreview || '/placeholder.svg'}
                 alt="Palette source"
                 className="object-cover w-full h-full"
               />
@@ -238,11 +240,11 @@ export function PaletteCard({
               >
                 <Heart
                   size={20}
-                  fill={palette.isFavorite ? "currentColor" : "none"}
+                  fill={palette.isFavorite ? 'currentColor' : 'none'}
                   className={`${
                     palette.isFavorite
-                      ? "text-red-500 border-red-500"
-                      : " text-secondary border-secondary"
+                      ? 'text-red-500 border-red-500'
+                      : ' text-secondary border-secondary'
                   } transition-colors duration-200`}
                 />
               </button>
@@ -266,8 +268,12 @@ export function PaletteCard({
                       b.hex.toLowerCase() ===
                       palette.dominantColor.toLowerCase()
 
-                    if (aIsDominant && !bIsDominant) return -1 // a comes first
-                    if (!aIsDominant && bIsDominant) return 1 // b comes first
+                    if (aIsDominant && !bIsDominant) {
+                      return -1
+                    } // a comes first
+                    if (!aIsDominant && bIsDominant) {
+                      return 1
+                    } // b comes first
                     return 0 // maintain original order for non-dominant colors
                   })
                   .slice(0, 5)

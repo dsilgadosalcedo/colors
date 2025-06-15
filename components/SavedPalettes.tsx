@@ -1,9 +1,7 @@
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { History, Heart } from "lucide-react"
-import { PaletteCard } from "./PaletteCard"
-import { useColorPaletteStore } from "@/lib/store"
-import { cn } from "@/lib/utils"
+import { Button } from '@/components/ui/button'
+import { PaletteCard } from './PaletteCard'
+import { useColorPaletteStore } from '@/lib/store'
+import { cn } from '@/lib/utils'
 
 export function SavedPalettes() {
   const {
@@ -29,7 +27,7 @@ export function SavedPalettes() {
   }
 
   const favoritePalettes = getFavoritePalettes()
-  const regularPalettes = savedPalettes.filter((palette) => !palette.isFavorite)
+  const regularPalettes = savedPalettes.filter(palette => !palette.isFavorite)
 
   return (
     <>
@@ -39,7 +37,7 @@ export function SavedPalettes() {
           {favoritePalettes.length > 0 && (
             <AnimatedSection
               className="md:bg-gradient-to-r from-secondary via-muted-foreground to-transparent py-6 md:m-6 rounded-l-[38px]"
-              state={favoritePalettes.length > 0 ? "show" : "hide"}
+              state={favoritePalettes.length > 0 ? 'show' : 'hide'}
             >
               <>
                 <header className="px-6 mb-4">
@@ -51,7 +49,7 @@ export function SavedPalettes() {
                   {favoritePalettes.map((palette, favoriteIndex) => {
                     // Find the actual index in savedPalettes
                     const actualIndex = savedPalettes.findIndex(
-                      (p) => p === palette
+                      p => p === palette
                     )
                     return (
                       <PaletteCard
@@ -83,7 +81,7 @@ export function SavedPalettes() {
                 {regularPalettes.map((palette, regularIndex) => {
                   // Find the actual index in savedPalettes
                   const actualIndex = savedPalettes.findIndex(
-                    (p) => p === palette
+                    p => p === palette
                   )
                   return (
                     <PaletteCard
@@ -112,7 +110,7 @@ export function SavedPalettes() {
           <Button
             className="mt-4"
             variant="outline"
-            onClick={() => setActiveTab("generator")}
+            onClick={() => setActiveTab('generator')}
           >
             Create My First Palette
           </Button>
@@ -129,12 +127,12 @@ const AnimatedSection = ({
 }: {
   children: React.ReactNode
   className?: string
-  state: "show" | "hide"
+  state: 'show' | 'hide'
 }) => {
   return (
     <section
       className={cn(
-        "data-[state=show]:animate-in data-[state=hide]:animate-out fade-in slide-in-from-right-10 fade-out slide-out-to-right-10 duration-300",
+        'data-[state=show]:animate-in data-[state=hide]:animate-out fade-in slide-in-from-right-10 fade-out slide-out-to-right-10 duration-300',
         className
       )}
       data-state={state}

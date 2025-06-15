@@ -1,7 +1,7 @@
-import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
-import { useColorPaletteStore } from "@/lib/store"
-import { Palette } from "lucide-react"
+import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
+import { useColorPaletteStore } from '@/lib/store'
+import { Palette } from 'lucide-react'
 
 export function Header() {
   const { activeTab, setActiveTab } = useColorPaletteStore()
@@ -20,25 +20,25 @@ export function Header() {
       {/* Custom Navigation Buttons in Header */}
       <nav className="flex items-center">
         <Button
-          onClick={() => setActiveTab("generator")}
+          onClick={() => setActiveTab('generator')}
           variant="link"
           className={cn(
-            "text-xl font-semibold",
-            activeTab === "generator"
-              ? "text-card-foreground"
-              : "text-muted-foreground"
+            'text-xl font-semibold',
+            activeTab === 'generator'
+              ? 'text-card-foreground'
+              : 'text-muted-foreground'
           )}
         >
           Generator
         </Button>
         <Button
-          onClick={() => setActiveTab("collection")}
+          onClick={() => setActiveTab('collection')}
           variant="link"
           className={cn(
-            "text-xl font-semibold",
-            activeTab === "collection"
-              ? "text-card-foreground"
-              : "text-muted-foreground"
+            'text-xl font-semibold',
+            activeTab === 'collection'
+              ? 'text-card-foreground'
+              : 'text-muted-foreground'
           )}
         >
           My Collection

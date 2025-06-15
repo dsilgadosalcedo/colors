@@ -1,8 +1,8 @@
-"use server"
+'use server'
 
-import { google } from "@ai-sdk/google"
-import { generateObject } from "ai"
-import { z } from "zod"
+import { google } from '@ai-sdk/google'
+import { generateObject } from 'ai'
+import { z } from 'zod'
 
 // Helper function to extract color count from user prompt
 function extractColorCountFromPrompt(prompt: string): number | null {
@@ -18,51 +18,51 @@ function extractColorCountFromPrompt(prompt: string): number | null {
 // Helper function to check if prompt is requesting a palette
 function isPaletteRequest(prompt: string): boolean {
   const paletteKeywords = [
-    "palette",
-    "colors",
-    "color scheme",
-    "generate",
-    "create",
-    "make",
-    "show",
-    "give me",
-    "want",
-    "need",
-    "design",
-    "red",
-    "blue",
-    "green",
-    "yellow",
-    "orange",
-    "purple",
-    "pink",
-    "brown",
-    "black",
-    "white",
-    "gray",
-    "grey",
-    "warm",
-    "cool",
-    "bright",
-    "dark",
-    "light",
-    "vibrant",
-    "pastel",
-    "neon",
-    "muted",
-    "soft",
-    "bold",
-    "sunset",
-    "ocean",
-    "forest",
-    "autumn",
-    "spring",
-    "summer",
-    "winter",
+    'palette',
+    'colors',
+    'color scheme',
+    'generate',
+    'create',
+    'make',
+    'show',
+    'give me',
+    'want',
+    'need',
+    'design',
+    'red',
+    'blue',
+    'green',
+    'yellow',
+    'orange',
+    'purple',
+    'pink',
+    'brown',
+    'black',
+    'white',
+    'gray',
+    'grey',
+    'warm',
+    'cool',
+    'bright',
+    'dark',
+    'light',
+    'vibrant',
+    'pastel',
+    'neon',
+    'muted',
+    'soft',
+    'bold',
+    'sunset',
+    'ocean',
+    'forest',
+    'autumn',
+    'spring',
+    'summer',
+    'winter',
   ]
 
   const lowerPrompt = prompt.toLowerCase()
-  return paletteKeywords.some((keyword) => lowerPrompt.includes(keyword))
+  return paletteKeywords.some(keyword => lowerPrompt.includes(keyword))
 }
 
 export async function generateColorPalette(
@@ -75,7 +75,7 @@ export async function generateColorPalette(
     // Handle text-only requests (only validate for new palette creation, not editing)
     if (!imageDataUrl && userPrompt && !currentPalette) {
       if (!isPaletteRequest(userPrompt)) {
-        throw new Error("INVALID_REQUEST")
+        throw new Error('INVALID_REQUEST')
       }
     }
 
@@ -92,22 +92,22 @@ export async function generateColorPalette(
       colors: z
         .array(
           z.object({
-            hex: z.string().describe("Hex color code starting with #"),
-            name: z.string().describe("Creative name for the color"),
+            hex: z.string().describe('Hex color code starting with #'),
+            name: z.string().describe('Creative name for the color'),
             description: z
               .string()
               .describe(
-                "Brief description of the color and its characteristics"
+                'Brief description of the color and its characteristics'
               ),
           })
         )
         .max(10), // Ensure we never get more than 10 colors
       dominantColor: z
         .string()
-        .describe("The most prominent hex color in the palette"),
+        .describe('The most prominent hex color in the palette'),
       mood: z
         .string()
-        .describe("The overall mood or feeling the color palette conveys"),
+        .describe('The overall mood or feeling the color palette conveys'),
     })
 
     let messages
@@ -121,18 +121,18 @@ export async function generateColorPalette(
               color.description
             }`
         )
-        .join("\n")
+        .join('\n')
 
       if (imageDataUrl) {
         // Editing with image reference
-        const base64Data = imageDataUrl.split(",")[1]
+        const base64Data = imageDataUrl.split(',')[1]
 
         messages = [
           {
-            role: "user" as const,
+            role: 'user' as const,
             content: [
               {
-                type: "text" as const,
+                type: 'text' as const,
                 text: `PALETTE EDITING TASK
 
 EXISTING PALETTE DATA:
@@ -168,7 +168,7 @@ RETURN the palette with:
 Example: If user says "add the color of that red car" and you have 3 existing colors, return those exact 3 colors plus 1 new color extracted from the red car (4 total).`,
               },
               {
-                type: "image" as const,
+                type: 'image' as const,
                 image: base64Data,
               },
             ],
@@ -178,10 +178,10 @@ Example: If user says "add the color of that red car" and you have 3 existing co
         // Editing without image reference
         messages = [
           {
-            role: "user" as const,
+            role: 'user' as const,
             content: [
               {
-                type: "text" as const,
+                type: 'text' as const,
                 text: `PALETTE EDITING TASK
 
 EXISTING PALETTE DATA:
@@ -218,20 +218,20 @@ Example: If user says "add a red color" and you have 3 existing colors, return t
       }
     } else if (imageDataUrl) {
       // Image-based generation (with optional user prompt)
-      const base64Data = imageDataUrl.split(",")[1]
+      const base64Data = imageDataUrl.split(',')[1]
 
       messages = [
         {
-          role: "user" as const,
+          role: 'user' as const,
           content: [
             {
-              type: "text" as const,
+              type: 'text' as const,
               text: `Analyze this image and extract a color palette of ${actualColorCount} distinct colors. ${
-                userPrompt ? `Additional requirements: ${userPrompt}. ` : ""
+                userPrompt ? `Additional requirements: ${userPrompt}. ` : ''
               }Provide creative names for each color, brief descriptions, identify the dominant color, and describe the overall mood. Focus on the most prominent and visually appealing colors in the image.`,
             },
             {
-              type: "image" as const,
+              type: 'image' as const,
               image: base64Data,
             },
           ],
@@ -241,10 +241,10 @@ Example: If user says "add a red color" and you have 3 existing colors, return t
       // Text-only generation
       messages = [
         {
-          role: "user" as const,
+          role: 'user' as const,
           content: [
             {
-              type: "text" as const,
+              type: 'text' as const,
               text: `Create a color palette of ${actualColorCount} colors based on this description: "${userPrompt}". Provide creative names for each color, brief descriptions, identify the dominant color, and describe the overall mood. Make sure the colors work well together as a cohesive palette.`,
             },
           ],
@@ -253,7 +253,7 @@ Example: If user says "add a red color" and you have 3 existing colors, return t
     }
 
     const result = await generateObject({
-      model: google("gemini-2.0-flash-exp"),
+      model: google('gemini-2.0-flash-exp'),
       schema: ColorPaletteSchema,
       messages,
     })
@@ -266,12 +266,12 @@ Example: If user says "add a red color" and you have 3 existing colors, return t
 
     return finalResult
   } catch (error) {
-    console.error("Error generating color palette:", error)
+    console.error('Error generating color palette:', error)
 
-    if (error instanceof Error && error.message === "INVALID_REQUEST") {
-      throw new Error("INVALID_REQUEST")
+    if (error instanceof Error && error.message === 'INVALID_REQUEST') {
+      throw new Error('INVALID_REQUEST')
     }
 
-    throw new Error("Failed to generate color palette")
+    throw new Error('Failed to generate color palette')
   }
 }
