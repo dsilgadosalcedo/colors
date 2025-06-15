@@ -33,10 +33,7 @@ export function PaletteCard({
   isColorInPalette,
 }: PaletteCardProps) {
   return (
-    <Card
-      key={index}
-      className="animate-in fade-in-0 duration-200 bg-[#fff9f9]"
-    >
+    <Card key={index}>
       <CardContent className="p-6">
         <div className="flex gap-4">
           {/* Image preview */}
@@ -53,12 +50,12 @@ export function PaletteCard({
           <div className="flex-1 flex flex-col justify-between">
             <div className="flex justify-between items-start">
               <div>
-                <h4 className="font-medium text-sm text-gray-900">
+                <h4 className="font-medium text-sm text-muted-foreground">
                   {new Date(
                     palette.timestamp || Date.now()
                   ).toLocaleDateString()}
                 </h4>
-                <p className="text-xs text-gray-500 line-clamp-2">
+                <p className="text-xs text-card-foreground line-clamp-2">
                   {palette.mood}
                 </p>
                 {/* <p className="text-xs text-gray-400 mt-1">
@@ -74,8 +71,8 @@ export function PaletteCard({
                   fill={palette.isFavorite ? "currentColor" : "none"}
                   className={`${
                     palette.isFavorite
-                      ? "text-pink-600 border-pink-300"
-                      : " text-gray-400 border-gray-300"
+                      ? "text-ring border-ring"
+                      : " text-secondary border-secondary"
                   }`}
                 />
               </button>
@@ -107,7 +104,7 @@ export function PaletteCard({
                   .map((color, i) => (
                     <div
                       key={`${color.hex}-${i}`}
-                      className="w-6 h-6 rounded-full ring-1 ring-inset ring-gray-800"
+                      className="w-6 h-6 rounded-full ring-1 ring-inset ring-border"
                       style={{ backgroundColor: color.hex }}
                     />
                   ))}
@@ -125,7 +122,7 @@ export function PaletteCard({
                     <Button
                       variant="destructive"
                       size="icon"
-                      className="bg-transparent hover:bg-red-200/50 text-red-500 hover:text-red-500 border-red-500 hover:border-red-500 h-9 w-9"
+                      className="bg-transparent hover:bg-red-600/50 text-red-300 hover:text-red-300 border-red-700 hover:border-red-700 h-9 w-9"
                       title="Delete palette"
                     >
                       <Trash2 />
@@ -142,10 +139,7 @@ export function PaletteCard({
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                       <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction
-                        onClick={() => onDeletePalette(index)}
-                        className="bg-red-600 hover:bg-red-700"
-                      >
+                      <AlertDialogAction onClick={() => onDeletePalette(index)}>
                         Delete
                       </AlertDialogAction>
                     </AlertDialogFooter>

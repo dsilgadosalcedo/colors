@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { useColorPaletteStore } from "@/lib/store"
-import Image from "next/image"
 import { Palette } from "lucide-react"
 
 export function Header() {
@@ -10,10 +9,10 @@ export function Header() {
   return (
     <header className="flex justify-between h-22 pl-4 md:px-6">
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 bg-[#50b1d8] grid place-items-center rounded-md">
-          <Palette className="w-6 h-6 text-[#133541]" />
+        <div className="w-10 h-10 bg-secondary grid place-items-center rounded-md">
+          <Palette className="w-6 h-6 text-secondary-foreground" />
         </div>
-        <h1 className="hidden md:block text-2xl font-black text-background">
+        <h1 className="hidden md:block text-2xl font-black">
           Create Color Palettes
         </h1>
       </div>
@@ -25,7 +24,9 @@ export function Header() {
           variant="link"
           className={cn(
             "text-xl font-semibold",
-            activeTab === "generator" ? "text-[#77d9ab]" : "text-[#189258]"
+            activeTab === "generator"
+              ? "text-card-foreground"
+              : "text-muted-foreground"
           )}
         >
           Generator
@@ -35,7 +36,9 @@ export function Header() {
           variant="link"
           className={cn(
             "text-xl font-semibold",
-            activeTab === "collection" ? "text-[#77d9ab]" : "text-[#189258]"
+            activeTab === "collection"
+              ? "text-card-foreground"
+              : "text-muted-foreground"
           )}
         >
           My Collection

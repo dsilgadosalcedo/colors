@@ -1,17 +1,17 @@
-import React from "react";
-import { cn } from "@/lib/utils";
+import React from "react"
+import { cn } from "@/lib/utils"
 
 interface DragOverlayProps {
-  isVisible: boolean;
+  isVisible: boolean
 }
 
 export function DragOverlay({ isVisible }: DragOverlayProps) {
-  if (!isVisible) return null;
+  if (!isVisible) return null
 
   return (
     <div
       className={cn(
-        "fixed inset-0 z-50 bg-black/50 backdrop-blur-sm transition-all duration-200",
+        "fixed inset-0 z-50 bg-black/50 backdrop-blur-sm transition-all duration-200 top-0 left-0 w-0 h-0",
         "grid place-items-center place-content-center"
       )}
     >
@@ -24,5 +24,5 @@ export function DragOverlay({ isVisible }: DragOverlayProps) {
       />
       <h3 className="text-xl font-semibold text-background">Drop your image</h3>
     </div>
-  );
+  )
 }

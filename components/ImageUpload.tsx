@@ -322,12 +322,12 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
     >
       {/* Hero Section */}
       <div className="text-center">
-        <h2 className="text-4xl font-bold text-background leading-tight tracking-tight">
+        <h2 className="text-4xl font-bold leading-tight tracking-tight">
           {isEditingMode ? "Edit your palette" : "Create beautiful colors"}
         </h2>
         <p
           className={cn(
-            "text-lg text-[#77d9ab] md:max-w-2xl mx-auto leading-relaxed text-balance mt-6 md:mt-0",
+            "text-lg text-muted-foreground md:max-w-2xl mx-auto leading-relaxed text-balance mt-6 md:mt-0",
             isEditingMode ? "max-w-sm" : "max-w-xs"
           )}
         >
@@ -349,15 +349,15 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
         className={cn(
           "w-full h-[calc(100%+24px)] md:h-full md:mx-6 md:rounded-3xl absolute top-0 left-0 object-cover -z-10 duration-200 overflow-hidden",
           selectedImage
-            ? "opacity-20 blur-sm"
-            : "bg-gradient-to-b lg:bg-gradient-to-r from-[#50b1d8] via-[#77d9ab] to-transparent opacity-10"
+            ? "opacity-40 blur-sm"
+            : "bg-gradient-to-b lg:bg-gradient-to-r from-secondary via-muted-foreground to-transparent opacity-20"
         )}
       >
         <Image
           src={selectedImage || "/placeholder.svg"}
           alt="Uploaded image"
           fill
-          className="object-cover mask-b-from-30% lg:mask-b-from-100% lg:mask-r-from-30% data-[state=show]:animate-in data-[state=hide]:animate-out fade-in  fade-out duration-300 data-[state=show]:blur-none data-[state=hide]:blur-lg data-[state=hide]:opacity-0"
+          className="object-cover mask-b-from-30% lg:mask-b-from-100% lg:mask-r-from-30% data-[state=show]:animate-in data-[state=hide]:animate-out fade-in fade-out duration-300 data-[state=show]:blur-none data-[state=hide]:blur-lg data-[state=hide]:opacity-0"
           data-state={selectedImage ? "show" : "hide"}
         />
       </div>
@@ -374,11 +374,10 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
           className="object-cover rounded-lg shadow-md hidden md:block"
         />
         <Button
-          variant="outline"
+          variant="ghost"
           size="sm"
           onClick={handleRemoveImage}
           disabled={isLoading}
-          className="bg-transparent hover:bg-red-200/10 text-red-200 hover:text-red-200 border-red-400 hover:border-red-400 "
         >
           <span className="hidden md:block">Remove</span>
           <span className="block md:hidden">Remove image</span>
@@ -390,7 +389,7 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
           variant="outline"
           size="icon"
           onClick={exitEditingMode}
-          className="absolute top-4 md:right-10 right-4 bg-transparent text-[#77d9ab] hover:bg-[#FFC857] hover:text-[#133541] border-[#FFC857] hover:border-[#FFC857] disabled:border-[#50b1d8] disabled:cursor-not-allowed disabled:opacity-100"
+          className="absolute top-4 md:right-10 right-4 bg-transparent text-muted-foreground hover:bg-ring hover:text-secondary-foreground border-ring hover:border-ring disabled:border-secondary disabled:cursor-not-allowed disabled:opacity-100"
         >
           <Plus />
         </Button>
@@ -404,7 +403,7 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
             <Button
               variant="outline"
               onClick={handleExampleClick}
-              className=" text-[#77d9ab] max-w-full hover:text-[#77d9ab] text-sm transition-colors cursor-pointer bg-transparent hover:bg-white/10 backdrop-blur-sm px-4 py-2 border border-[#77d9ab]/30 hover:border-[#189258]/50"
+              className="bg-transparent max-w-full text-sm transition-colors cursor-pointer backdrop-blur-sm px-4 py-2 "
               disabled={isLoading}
               aria-label="Example prompt"
             >
@@ -414,7 +413,7 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
         ) : null}
 
         {/* Text Input Area */}
-        <Card className="backdrop-blur-sm bg-[#0a3922] p-3 relative md:w-140 border-none">
+        <Card className="backdrop-blur-sm p-3 relative md:w-140 border-none">
           <Textarea
             ref={textareaRef}
             value={
@@ -439,9 +438,10 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
                 ? "Add specifications"
                 : "Describe your palette"
             }
-            className={`resize-none focus-visible:ring-0 focus-visible:ring-offset-0 px-0 min-h-[28px] bg-transparent text-lg font-medium border-none placeholder:text-[#77d9ab] rounded-none ${
-              isColorTextPreviewMode ? "text-[#77d9ab]" : "text-background"
-            }`}
+            className={cn(
+              "resize-none focus-visible:ring-0 focus-visible:ring-offset-0 px-0 min-h-[28px] text-lg font-medium border-none rounded-none",
+              isColorTextPreviewMode && "text-muted-foreground"
+            )}
             disabled={isLoading}
             readOnly={isLoading || isColorTextPreviewMode}
           />
@@ -454,7 +454,7 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
                 size="icon"
                 onClick={handleUploadClick}
                 disabled={isLoading || isEditingMode}
-                className="bg-transparent text-[#77d9ab] hover:bg-[#FFC857] hover:text-[#133541] border-[#FFC857] hover:border-[#FFC857] disabled:border-[#50b1d8] disabled:cursor-not-allowed disabled:opacity-100"
+                className="bg-transparent text-muted-foreground hover:bg-ring hover:text-secondary-foreground border-ring hover:border-ring disabled:border-secondary disabled:cursor-not-allowed disabled:opacity-100"
               >
                 <Paperclip />
               </Button>
@@ -467,9 +467,9 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
                   }
                 }}
                 disabled={!isEditingMode}
-                className="data-[state=checked]:bg-[#FFC857] data-[state=unchecked]:bg-transparent border border-[#FFC857] w-14 disabled:border-[#50b1d8] disabled:cursor-not-allowed disabled:opacity-100 rounded-md"
+                className="data-[state=checked]:bg-ring data-[state=unchecked]:bg-transparent border border-ring w-14 disabled:border-secondary disabled:cursor-not-allowed disabled:opacity-100 rounded-md"
               />
-              <Label htmlFor="editing" className="text-[#77d9ab]">
+              <Label htmlFor="editing" className="text-card-foreground">
                 Editing
               </Label>
             </div>
@@ -479,7 +479,7 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
               <div className="flex items-center justify-between gap-2">
                 <Label
                   htmlFor="color-count"
-                  className="text-sm font-medium text-[#77d9ab]"
+                  className="text-sm font-medium text-card-foreground"
                 >
                   <span className="hidden md:block">Number of colors</span>
                   <span className="block md:hidden">Colors</span>
@@ -493,7 +493,7 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
                 >
                   <SelectTrigger
                     id="color-count"
-                    className="w-20 h-10 text-xs p-2 bg-transparent text-background rounded-md"
+                    className="w-20 h-10 text-xs p-2 rounded-md"
                   >
                     <SelectValue />
                   </SelectTrigger>
@@ -510,11 +510,10 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
 
               <Button
                 type="button"
-                variant="ghost"
+                variant="accent"
                 size="icon"
                 onClick={handleGenerate}
                 disabled={isLoading || (!selectedImage && !userPrompt.trim())}
-                className="text-[#133541]  bg-[#FFC857] hover:bg-[#FFC857] hover:text-[#133541] disabled:bg-[#50b1d8] disabled:text-[#133541] disabled:opacity-100"
               >
                 <Send />
               </Button>

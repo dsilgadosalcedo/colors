@@ -3,6 +3,7 @@ import { ColorInfo } from "@/lib/types"
 import { Badge } from "./ui/badge"
 import { Button } from "./ui/button"
 import { useColorPaletteStore } from "@/lib/store"
+import { Card } from "./ui/card"
 
 interface ColorCardProps {
   color: ColorInfo
@@ -37,14 +38,14 @@ export function ColorCard({
     window.dispatchEvent(event)
   }
   return (
-    <div
-      className="group rounded-3xl relative"
+    <Card
+      className="group relative"
       style={{
         border: `2px solid ${color.hex}`,
       }}
     >
       <div
-        className="w-[calc(100%-4px)] h-20 -translate-y-1 group-hover:translate-y-0 grid place-items-center rounded-3xl transition-all duration-300 group-hover:rounded-b-4xl group-hover:rounded-t-[20px] m-0.5 cursor-pointer"
+        className="w-[calc(100%-6px)] h-20 -translate-y-1 group-hover:translate-y-0 grid place-items-center rounded-3xl transition-all duration-300 group-hover:rounded-b-4xl group-hover:rounded-t-[19px] m-[3px] cursor-pointer"
         style={{ backgroundColor: color.hex }}
         onClick={() => onCopyColor(color.hex)}
       >
@@ -55,7 +56,10 @@ export function ColorCard({
         )}
       </div>
       {isPrimary ? (
-        <Badge variant="secondary" className="text-xs absolute top-2 left-2.5">
+        <Badge
+          variant="secondary"
+          className="bg-ring text-xs absolute top-2 left-2.5"
+        >
           Primary
         </Badge>
       ) : null}
@@ -63,10 +67,10 @@ export function ColorCard({
       <div className="my-3 mx-4">
         <div className="flex items-end justify-between gap-2">
           <div>
-            <p className="text-xs text-gray-600 font-mono font-bold mt-0.5 mb-0">
+            <p className="text-xs text-muted-foreground font-mono font-bold mt-0.5 mb-0">
               {color.hex}
             </p>
-            <p className="text-xs text-gray-500 leading-tight line-clamp-2 font-medium mt-1">
+            <p className="text-xs text-card-foreground leading-tight line-clamp-2 font-medium mt-1">
               {color.description}
             </p>
           </div>
@@ -82,6 +86,6 @@ export function ColorCard({
           </Button>
         </div>
       </div>
-    </div>
+    </Card>
   )
 }

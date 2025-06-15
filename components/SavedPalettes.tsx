@@ -38,12 +38,12 @@ export function SavedPalettes() {
           {/* Favorites Section */}
           {favoritePalettes.length > 0 && (
             <AnimatedSection
-              className="md:bg-gradient-to-r from-[#50b1d8] via-[#77d9ab] to-transparent py-6 md:m-6 rounded-l-[38px]"
+              className="md:bg-gradient-to-r from-secondary via-muted-foreground to-transparent py-6 md:m-6 rounded-l-[38px]"
               state={favoritePalettes.length > 0 ? "show" : "hide"}
             >
               <>
                 <header className="px-6 mb-4">
-                  <h2 className="text-2xl font-bold text-background mb-6">
+                  <h2 className="text-2xl font-bold mb-6 text-secondary-foreground">
                     Favorites · {favoritePalettes.length}
                   </h2>
                 </header>
@@ -73,9 +73,9 @@ export function SavedPalettes() {
           {/* Regular Palettes Section */}
           {regularPalettes.length > 0 && (
             <div className="py-8 md:m-6 relative">
-              <div className="absolute top-0 -left-1 w-1 h-full bg-[#2f6441] rounded-full" />
+              <div className="absolute top-0 -left-1 w-1 h-full bg-secondary rounded-full" />
               <div className="px-6 mb-4">
-                <h2 className="text-2xl font-bold text-background mb-6">
+                <h2 className="text-2xl font-bold mb-6">
                   Palettes · {regularPalettes.length}
                 </h2>
               </div>
@@ -103,10 +103,10 @@ export function SavedPalettes() {
         </>
       ) : (
         <section className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 grid place-items-center text-center transition-all duration-300">
-          <h3 className="text-4xl font-bold text-background leading-tight tracking-tight">
+          <h3 className="text-4xl font-bold leading-tight tracking-tight">
             No saved palettes yet
           </h3>
-          <p className="text-lg text-[#77d9ab] max-w-2xl mx-auto leading-relaxed text-balance">
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed text-balance">
             Generate and save color palettes to build your collection
           </p>
           <Button
