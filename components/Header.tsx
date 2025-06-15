@@ -10,7 +10,7 @@ export function Header() {
     <header className="flex justify-between h-22 pl-4 md:px-6">
       <div className="flex items-center gap-3">
         <div className="w-10 h-10 bg-secondary grid place-items-center rounded-md">
-          <Palette className="w-6 h-6 text-secondary-foreground" />
+          <Palette className="w-5 h-5 text-secondary-foreground" />
         </div>
         <h1 className="hidden md:block text-2xl font-black">
           Create Color Palettes
