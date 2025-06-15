@@ -14,6 +14,7 @@ import {
 import { Palette, Trash2, Heart } from "lucide-react"
 import Image from "next/image"
 import { ColorInfo, ColorPalette } from "@/lib/types"
+import { useRef } from "react"
 
 interface PaletteCardProps {
   palette: ColorPalette
@@ -32,6 +33,136 @@ export function PaletteCard({
   onToggleFavorite,
   isColorInPalette,
 }: PaletteCardProps) {
+  const heartRef = useRef<HTMLButtonElement>(null)
+
+  const handleFavoriteClick = async () => {
+    if (!heartRef.current) return
+
+    try {
+      // Dynamically import GSAP for client-side animation
+      const { gsap } = await import("gsap")
+
+      if (palette.isFavorite) {
+        // Unfavoriting animation - gentle shrink
+        gsap.to(heartRef.current, {
+          scale: 0.8,
+          duration: 0.15,
+          ease: "power2.out",
+          yoyo: true,
+          repeat: 1,
+          onComplete: () => {
+            onToggleFavorite(index)
+          },
+        })
+      } else {
+        // Create Twitter-style explosion effect
+        createExplosionEffect(heartRef.current, gsap)
+
+        // Twitter-style heart animation: starts from scale 0 and bounces up
+        gsap.set(heartRef.current, { scale: 0 })
+
+        const tl = gsap.timeline({
+          onComplete: () => {
+            onToggleFavorite(index)
+          },
+        })
+
+        // Heart bounces to life with Twitter-style easing
+        tl.to(heartRef.current, {
+          scale: 1.2,
+          duration: 0.12,
+          ease: "back.out(3)",
+        }).to(heartRef.current, {
+          scale: 1,
+          duration: 0.18,
+          ease: "back.out(1.7)",
+        })
+      }
+    } catch (error) {
+      // Fallback if GSAP fails to load
+      onToggleFavorite(index)
+    }
+  }
+
+  const createExplosionEffect = (heartElement: HTMLElement, gsap: any) => {
+    const rect = heartElement.getBoundingClientRect()
+    const centerX = rect.left + rect.width / 2
+    const centerY = rect.top + rect.height / 2
+
+    // Create bubble effect (like Twitter's ring) - smaller and more proportional
+    const bubble = document.createElement("div")
+    bubble.style.position = "fixed"
+    bubble.style.left = centerX - 15 + "px"
+    bubble.style.top = centerY - 15 + "px"
+    bubble.style.width = "30px"
+    bubble.style.height = "30px"
+    bubble.style.borderRadius = "50%"
+    bubble.style.background =
+      "radial-gradient(circle, rgba(226, 38, 77, 0.6) 0%, rgba(204, 142, 245, 0.4) 100%)"
+    bubble.style.pointerEvents = "none"
+    bubble.style.zIndex = "1000"
+    document.body.appendChild(bubble)
+
+    // Animate bubble - smaller scale for proportional effect
+    gsap.fromTo(
+      bubble,
+      { scale: 0, opacity: 1 },
+      {
+        scale: 1.8,
+        opacity: 0,
+        duration: 0.5,
+        ease: "power2.out",
+        onComplete: () => bubble.remove(),
+      }
+    )
+
+    // Create particle explosion - fewer and smaller particles
+    const particleCount = 6
+    const colors = [
+      "#ff6b6b",
+      "#feca57",
+      "#ff9ff3",
+      "#54a0ff",
+      "#5f27cd",
+      "#00d2d3",
+    ]
+
+    for (let i = 0; i < particleCount; i++) {
+      const particle = document.createElement("div")
+      particle.style.position = "fixed"
+      particle.style.left = centerX - 2 + "px"
+      particle.style.top = centerY - 2 + "px"
+      particle.style.width = "4px"
+      particle.style.height = "4px"
+      particle.style.borderRadius = "50%"
+      particle.style.background = colors[i]
+      particle.style.pointerEvents = "none"
+      particle.style.zIndex = "1001"
+      document.body.appendChild(particle)
+
+      // Calculate explosion direction - shorter distance for smaller effect
+      const angle = (i / particleCount) * Math.PI * 2
+      const distance = 20 + Math.random() * 10 // 20-30px range (much smaller)
+      const endX = centerX + Math.cos(angle) * distance
+      const endY = centerY + Math.sin(angle) * distance
+
+      // Animate particles with slightly faster timing
+      const delay = Math.random() * 0.05
+      const duration = 0.4 + Math.random() * 0.2
+
+      gsap.to(particle, {
+        x: endX - centerX,
+        y: endY - centerY,
+        scale: 0,
+        opacity: 0,
+        duration: duration,
+        delay: delay,
+        ease: "power2.out",
+        onComplete: () => particle.remove(),
+      })
+    }
+  }
+
   return (
     <Card key={index}>
       <CardContent className="p-6">
@@ -63,17 +194,18 @@ export function PaletteCard({
                 </p> */}
               </div>
               <button
-                onClick={() => onToggleFavorite(index)}
-                className="ml-2 bg-transparent hover:bg-transparent text-gray-400 border-gray-300 cursor-pointer"
+                ref={heartRef}
+                onClick={handleFavoriteClick}
+                className="ml-2 bg-transparent hover:bg-transparent text-gray-400 border-gray-300 cursor-pointer transition-all duration-200 hover:scale-110"
               >
                 <Heart
                   size={20}
                   fill={palette.isFavorite ? "currentColor" : "none"}
                   className={`${
                     palette.isFavorite
-                      ? "text-ring border-ring"
+                      ? "text-red-500 border-red-500"
                       : " text-secondary border-secondary"
-                  }`}
+                  } transition-colors duration-200`}
                 />
               </button>
             </div>
