@@ -46,65 +46,74 @@ export function PaletteCard({
       const heartSvg = heartRef.current.querySelector("svg")
 
       if (palette.isFavorite) {
-        // Unfavoriting animation - gentle shrink with color fade
+        // Unfavoriting animation - heartbeat with color fade
         const tl = gsap.timeline({
           onComplete: () => {
             onToggleFavorite(index)
           },
         })
 
+        // Heartbeat: contract then expand
         tl.to(heartRef.current, {
-          scale: 0.8,
-          duration: 0.15,
+          scale: 0.7,
+          duration: 0.08,
           ease: "power2.out",
         })
-          // Fade out the red color during the shrink
+          // Fade out the red color during the first contraction
           .to(
             heartSvg,
             {
               fill: "none",
-              duration: 0.15,
+              duration: 0.12,
             },
             0
           ) // Start at the same time as scale
           .to(heartRef.current, {
+            scale: 1.15,
+            duration: 0.12,
+            ease: "back.out(2)",
+          })
+          .to(heartRef.current, {
             scale: 1,
-            duration: 0.15,
+            duration: 0.1,
             ease: "power2.out",
           })
       } else {
         // Create Twitter-style explosion effect
         createExplosionEffect(heartRef.current, gsap)
 
-        // Twitter-style heart animation with smooth red fill
-        gsap.set(heartRef.current, { scale: 0 })
-
+        // Heartbeat animation with smooth red fill
         const tl = gsap.timeline({
           onComplete: () => {
             onToggleFavorite(index)
           },
         })
 
-        // Heart bounces to life with smooth red fill animation
+        // Heartbeat: contract then expand with red fill
         tl.to(heartRef.current, {
-          scale: 1.2,
-          duration: 0.12,
-          ease: "back.out(3)",
+          scale: 0.7,
+          duration: 0.08,
+          ease: "power2.out",
         })
-          // Start filling with red at the same time as the first scale
+          // Start filling with red during the contraction
           .to(
             heartSvg,
             {
-              fill: "#FF0000", // red-500 color
+              fill: "#FF0000",
               duration: 0.1,
               ease: "power2.out",
             },
             0
           ) // Start at the same time as scale animation
           .to(heartRef.current, {
+            scale: 1.2,
+            duration: 0.15,
+            ease: "back.out(3)",
+          })
+          .to(heartRef.current, {
             scale: 1,
-            duration: 0.18,
-            ease: "back.out(1.7)",
+            duration: 0.12,
+            ease: "power2.out",
           })
       }
     } catch (error) {
