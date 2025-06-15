@@ -96,6 +96,8 @@ interface ColorPaletteState {
 
   // Business Logic Actions
   handleImageUpload: (file: File) => void
+  loadDefaultImage: () => Promise<void>
+  initializeApp: () => Promise<void>
   copyToClipboard: (hex: string) => void
   savePalette: () => Promise<void>
   deleteSavedPalette: (index: number) => void
@@ -343,6 +345,42 @@ export const useColorPaletteStore = create<ColorPaletteState>()(
           })
         }
         reader.readAsDataURL(file)
+      },
+
+      loadDefaultImage: async () => {
+        try {
+          const response = await fetch("/elle.jpg")
+          if (!response.ok) {
+            throw new Error("Failed to load default image")
+          }
+          const blob = await response.blob()
+          const reader = new FileReader()
+          reader.onload = (e) => {
+            set({
+              selectedImage: e.target?.result as string,
+              colorPalette: null,
+              isCurrentPaletteSaved: false,
+              isEditingMode: false,
+              editingPaletteIndex: null,
+              previousPalette: null,
+              previousPaletteWasSaved: false,
+              hasUndone: false,
+              canUndo: false,
+              canRedo: false,
+            })
+          }
+          reader.readAsDataURL(blob)
+        } catch (error) {
+          console.error("Error loading default image:", error)
+        }
+      },
+
+      initializeApp: async () => {
+        const { savedPalettes } = get()
+        // If no saved palettes, load the default image for first-time users
+        if (savedPalettes.length === 0) {
+          await get().loadDefaultImage()
+        }
       },
 
       copyToClipboard: (hex: string) => {

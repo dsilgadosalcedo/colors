@@ -5,7 +5,7 @@ import { Tabs, TabsContent } from "@/components/ui/tabs"
 import { generateColorPalette } from "./actions"
 import { toast } from "@/components/ui/use-toast"
 import { useColorPaletteStore } from "@/lib/store"
-import { useRef } from "react"
+import { useRef, useEffect } from "react"
 
 // Components
 import { Header } from "@/components/Header"
@@ -31,7 +31,13 @@ export default function ColorPaletteGenerator() {
     setActiveTab,
     setPageDragActive,
     handleImageUpload,
+    initializeApp,
   } = useColorPaletteStore()
+
+  // Initialize app with default image for first-time users
+  useEffect(() => {
+    initializeApp()
+  }, [initializeApp])
 
   const generatePalette = async (userPrompt?: string) => {
     // Allow generation with either image or text prompt, or editing existing palette
