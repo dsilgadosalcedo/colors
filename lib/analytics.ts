@@ -1,6 +1,6 @@
 import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/next'
-import { getCLS, getFID, getFCP, getLCP, getTTFB, Metric } from 'web-vitals'
+import { onCLS, onINP, onFCP, onLCP, onTTFB, type Metric } from 'web-vitals'
 
 // Web Vitals tracking function
 export function sendToAnalytics(metric: Metric) {
@@ -24,18 +24,18 @@ export function sendToAnalytics(metric: Metric) {
 
 // Initialize Web Vitals tracking
 export function initWebVitals() {
-  getCLS(sendToAnalytics)
-  getFID(sendToAnalytics)
-  getFCP(sendToAnalytics)
-  getLCP(sendToAnalytics)
-  getTTFB(sendToAnalytics)
+  onCLS(sendToAnalytics)
+  onINP(sendToAnalytics) // INP replaces FID in web-vitals v5
+  onFCP(sendToAnalytics)
+  onLCP(sendToAnalytics)
+  onTTFB(sendToAnalytics)
 }
 
 // Performance budget thresholds
 export const PERFORMANCE_BUDGETS = {
   // Core Web Vitals thresholds (good/needs improvement/poor)
   LCP: { good: 2500, poor: 4000 }, // Largest Contentful Paint
-  FID: { good: 100, poor: 300 }, // First Input Delay
+  INP: { good: 200, poor: 500 }, // Interaction to Next Paint (replaces FID)
   CLS: { good: 0.1, poor: 0.25 }, // Cumulative Layout Shift
   FCP: { good: 1800, poor: 3000 }, // First Contentful Paint
   TTFB: { good: 800, poor: 1800 }, // Time to First Byte
@@ -67,11 +67,13 @@ export function checkPerformanceBudget(
 export { Analytics as VercelAnalytics, SpeedInsights as VercelSpeedInsights }
 
 // Custom event tracking
+
 export function trackEvent(
   eventName: string,
   properties?: Record<string, any>
 ) {
   if (typeof window !== 'undefined' && (window as any).va) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ;(window as any).va('track', eventName, properties)
   }
 }

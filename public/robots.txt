@@ -1,0 +1,19 @@
+User-agent: *
+Allow: /
+
+# Sitemaps
+Sitemap: https://colors.example.com/sitemap.xml
+
+# Crawl delay
+Crawl-delay: 1
+
+# Disallow API routes
+Disallow: /api/
+
+# Allow specific paths
+Allow: /api/analytics
+
+# Block sensitive paths
+Disallow: /_next/
+Disallow: /.*\.json$
+Disallow: /.*\.map$ 

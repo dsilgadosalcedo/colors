@@ -28,7 +28,6 @@ const nextConfig = {
     return config
   },
   compress: true,
-  swcMinify: true,
   poweredByHeader: false,
   async headers() {
     return [
@@ -53,8 +52,10 @@ const nextConfig = {
   },
 }
 
-const withBundleAnalyzer = require('@next/bundle-analyzer')({
+import withBundleAnalyzer from '@next/bundle-analyzer'
+
+const bundleAnalyzer = withBundleAnalyzer({
   enabled: process.env.ANALYZE === 'true',
 })
 
-module.exports = withBundleAnalyzer(nextConfig)
+export default bundleAnalyzer(nextConfig)
