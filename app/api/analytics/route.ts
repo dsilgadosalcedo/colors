@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Metric } from 'web-vitals'
-import PostHogClient from '@/lib/posthog'
+import { captureServerEvent } from '@/lib/server/posthog'
 
 export async function POST(request: NextRequest) {
   try {
@@ -26,21 +26,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Send metric to PostHog
-    const posthog = PostHogClient()
-    // Capture the web vital event
-    posthog.capture({
-      distinctId: 'anonymous',
-      event: 'web_vital',
-      properties: {
-        metric_name: metric.name,
-        metric_value: metric.value,
-        metric_id: metric.id,
-        metric_rating: metric.rating,
-        metric_delta: metric.delta,
-      },
+    await captureServerEvent('web_vital', {
+      metric_name: metric.name,
+      metric_value: metric.value,
+      metric_id: metric.id,
+      metric_rating: metric.rating,
+      metric_delta: metric.delta,
     })
-    // Ensure all events are flushed before response
-    posthog.shutdown()
 
     return NextResponse.json({
       success: true,

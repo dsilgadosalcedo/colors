@@ -25,6 +25,12 @@ const nextConfig = {
     if (!dev && !isServer) {
       config.optimization.sideEffects = false
     }
+
+    // Optimize bundle for production
+    if (!dev && !isServer) {
+      config.optimization.sideEffects = false
+    }
+
     return config
   },
   compress: true,

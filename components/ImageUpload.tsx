@@ -526,7 +526,7 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
 
   return (
     <div
-      className="animate-in fade-in-30 duration-200 relative gap-6 backdrop-blur-md grid md:place-content-center place-items-center py-10 lg:py-0 h-[calc(70vh)] lg:h-auto lg:max-h-[calc(100vh-88px-28px)] overflow-hidden"
+      className="animate-in fade-in-30 duration-200 relative gap-6 backdrop-blur-md grid md:place-content-center place-items-center py-10 lg:py-0 h-[calc(70vh)] lg:h-auto lg:max-h-[calc(100vh-88px-28px)]"
       onDragEnter={!isEditingMode ? handleDrag : undefined}
       onDragLeave={!isEditingMode ? handleDrag : undefined}
       onDragOver={!isEditingMode ? handleDrag : undefined}
@@ -559,7 +559,7 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
 
       <div
         className={cn(
-          'w-full h-[calc(100%+24px)] md:h-full md:mx-6 md:rounded-3xl absolute top-0 left-0 object-cover -z-10 duration-200 overflow-hidden',
+          'w-full md:max-w-[calc(100%-3rem)] h-[calc(100%+24px)] md:h-full md:mx-6 md:rounded-3xl absolute top-0 left-0 object-cover -z-10 duration-200 overflow-hidden',
           selectedImage
             ? 'opacity-40 blur-sm'
             : 'bg-gradient-to-b lg:bg-gradient-to-r from-secondary via-muted-foreground to-transparent opacity-20'

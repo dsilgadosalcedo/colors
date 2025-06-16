@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import PostHogClient from '@/lib/posthog'
+import { captureServerEvent } from '@/lib/server/posthog'
 
 export interface ApiError extends Error {
   statusCode?: number
@@ -135,24 +135,17 @@ export async function handleApiError(
   // Log error to PostHog (only for 5xx errors or retryable errors)
   if ((apiError.statusCode ?? 500) >= 500 || apiError.retryable) {
     try {
-      const posthog = PostHogClient()
-      posthog.capture({
-        distinctId: 'anonymous',
-        event: 'api_error',
-        properties: {
-          error_id: errorId,
-          error_code: apiError.code,
-          error_message: apiError.message,
-          status_code: apiError.statusCode,
-          retryable: apiError.retryable,
-          url: request?.url,
-          method: request?.method,
-          user_agent: request?.headers.get('user-agent'),
-          timestamp: new Date().toISOString(),
-          context,
-        },
+      await captureServerEvent('api_error', {
+        error_id: errorId,
+        error_code: apiError.code,
+        error_message: apiError.message,
+        status_code: apiError.statusCode,
+        retryable: apiError.retryable,
+        url: request?.url,
+        method: request?.method,
+        user_agent: request?.headers.get('user-agent'),
+        context,
       })
-      posthog.shutdown()
     } catch (postHogError) {
       // Fallback logging if PostHog fails
       console.error('Failed to log API error to PostHog:', postHogError)

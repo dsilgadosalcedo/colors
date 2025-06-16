@@ -147,11 +147,11 @@ export default function RootLayout({
 
         {/* Performance Monitoring */}
         <PerformanceMonitor />
-        <VercelAnalytics />
-        <VercelSpeedInsights />
+        {/* <VercelAnalytics /> */}
+        {/* <VercelSpeedInsights /> */}
 
         {/* Web Vitals Tracking */}
-        <Script
+        {/* <Script
           id="web-vitals"
           strategy="afterInteractive"
           dangerouslySetInnerHTML={{
@@ -161,7 +161,7 @@ export default function RootLayout({
               });
             `,
           }}
-        />
+        /> */}
       </body>
     </html>
   )

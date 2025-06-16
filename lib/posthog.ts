@@ -1,10 +1,18 @@
-import { PostHog } from 'posthog-node'
+// Legacy file - redirects to server-only PostHog implementation
+// This file exists only for backwards compatibility
 
-export default function PostHogClient() {
-  const posthogClient = new PostHog(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
-    host: process.env.NEXT_PUBLIC_POSTHOG_HOST,
-    flushAt: 1,
-    flushInterval: 0,
-  })
-  return posthogClient
+export async function getServerPostHogClient() {
+  // Only import server-side PostHog when actually needed
+  const { getServerPostHogClient: serverClient } = await import(
+    '@/lib/server/posthog'
+  )
+  return serverClient()
+}
+
+// Legacy export - deprecated
+export default function PostHogClientSync() {
+  console.warn(
+    '[PostHog] Synchronous client deprecated. Use getServerPostHogClient() from @/lib/server/posthog'
+  )
+  return null
 }
