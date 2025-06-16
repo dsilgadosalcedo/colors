@@ -6,14 +6,23 @@ if [ -f ~/.zshrc ]; then
   export PATH="$HOME/.local/state/fnm_multishells/$(ls -t ~/.local/state/fnm_multishells/ | head -1)/bin:$PATH" 2>/dev/null || true
 fi
 
-# Try different package managers in order of preference
-if command -v pnpm >/dev/null 2>&1; then
-  pnpm exec lint-staged
+# Use npx to run lint-staged to avoid pnpm modifying package.json
+if command -v npx >/dev/null 2>&1; then
+  npx lint-staged
 elif command -v yarn >/dev/null 2>&1; then
   yarn lint-staged
-elif command -v npx >/dev/null 2>&1; then
-  npx lint-staged
+elif command -v pnpm >/dev/null 2>&1; then
+  # Save package.json before pnpm exec to restore it after
+  cp package.json package.json.backup
+  pnpm exec lint-staged
+  # Restore package.json if pnpm modified it
+  if ! diff -q package.json package.json.backup >/dev/null 2>&1; then
+    echo "Restoring package.json (pnpm added packageManager field)"
+    mv package.json.backup package.json
+  else
+    rm package.json.backup
+  fi
 else
-  echo "No package manager found (pnpm, yarn, or npm). Skipping lint-staged."
+  echo "No package manager found (npx, yarn, or pnpm). Skipping lint-staged."
   exit 0
 fi 
