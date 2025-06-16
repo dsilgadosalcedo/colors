@@ -209,7 +209,7 @@ export function PaletteCard({
         <div className="flex gap-4">
           {/* Image preview */}
           {palette.imagePreview && (
-            <div className="w-20 h-22 rounded-sm overflow-hidden flex-shrink-0 relative">
+            <div className="w-22 h-22 rounded-sm overflow-hidden flex-shrink-0 relative">
               <img
                 src={palette.imagePreview || '/placeholder.svg'}
                 alt="Palette source"
