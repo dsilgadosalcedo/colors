@@ -8,7 +8,22 @@ import { ThemeProvider } from '@/components/theme-provider'
 import { generateMetadata, generateStructuredData, siteConfig } from '@/lib/seo'
 import { VercelAnalytics, VercelSpeedInsights } from '@/lib/analytics'
 import { PerformanceMonitor } from '@/components/PerformanceMonitor'
+import { ErrorBoundary } from '@/components/ErrorBoundary'
+import { validateEnv } from '@/lib/validations'
 import Script from 'next/script'
+import { PostHogProvider } from '@/components/PostHogProvider'
+
+// Validate environment variables on startup
+if (typeof window === 'undefined') {
+  try {
+    validateEnv()
+  } catch (error) {
+    console.error('Environment validation failed:', error)
+    if (process.env.NODE_ENV === 'production') {
+      process.exit(1)
+    }
+  }
+}
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -116,15 +131,19 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="dark"
-          enableSystem
-          disableTransitionOnChange
-        >
-          {children}
-          <Toaster />
-        </ThemeProvider>
+        <ErrorBoundary showDetails={process.env.NODE_ENV === 'development'}>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="dark"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <PostHogProvider>
+              {children}
+              <Toaster />
+            </PostHogProvider>
+          </ThemeProvider>
+        </ErrorBoundary>
 
         {/* Performance Monitoring */}
         <PerformanceMonitor />

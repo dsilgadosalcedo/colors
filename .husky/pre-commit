@@ -1,1 +1,19 @@
-npx lint-staged 
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Try to source fnm environment if available
+if [ -f ~/.zshrc ]; then
+  export PATH="$HOME/.local/state/fnm_multishells/$(ls -t ~/.local/state/fnm_multishells/ | head -1)/bin:$PATH" 2>/dev/null || true
+fi
+
+# Try different package managers in order of preference
+if command -v pnpm >/dev/null 2>&1; then
+  pnpm exec lint-staged
+elif command -v yarn >/dev/null 2>&1; then
+  yarn lint-staged
+elif command -v npx >/dev/null 2>&1; then
+  npx lint-staged
+else
+  echo "No package manager found (pnpm, yarn, or npm). Skipping lint-staged."
+  exit 0
+fi 

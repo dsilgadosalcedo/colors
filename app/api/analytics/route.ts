@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Metric } from 'web-vitals'
+import PostHogClient from '@/lib/posthog'
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,10 +17,7 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    // In production, you would send this to your analytics service
-    // Examples: Google Analytics, Mixpanel, PostHog, etc.
-
-    // For now, we'll just validate and acknowledge receipt
+    // Validate incoming metric
     if (!metric.name || typeof metric.value !== 'number') {
       return NextResponse.json(
         { error: 'Invalid metric data' },
@@ -27,24 +25,22 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // TODO: Integrate with your preferred analytics service
-    // Example integrations:
-
-    // Google Analytics 4:
-    // gtag('event', 'web_vital', {
-    //   name: metric.name,
-    //   value: metric.value,
-    //   metric_id: metric.id,
-    //   metric_rating: metric.rating,
-    // });
-
-    // PostHog:
-    // posthog.capture('web_vital', {
-    //   metric_name: metric.name,
-    //   metric_value: metric.value,
-    //   metric_id: metric.id,
-    //   metric_rating: metric.rating,
-    // });
+    // Send metric to PostHog
+    const posthog = PostHogClient()
+    // Capture the web vital event
+    posthog.capture({
+      distinctId: 'anonymous',
+      event: 'web_vital',
+      properties: {
+        metric_name: metric.name,
+        metric_value: metric.value,
+        metric_id: metric.id,
+        metric_rating: metric.rating,
+        metric_delta: metric.delta,
+      },
+    })
+    // Ensure all events are flushed before response
+    posthog.shutdown()
 
     return NextResponse.json({
       success: true,
