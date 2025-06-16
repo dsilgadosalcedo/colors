@@ -39,7 +39,7 @@ export function generateMetadata({
   noIndex?: boolean
 }): Metadata {
   const url = `${siteConfig.url}${path}`
-  const fullTitle = title ? `${title} | ${siteConfig.name}` : siteConfig.name
+  const fullTitle = title ? `${title}` : siteConfig.name
 
   return {
     title: fullTitle,
