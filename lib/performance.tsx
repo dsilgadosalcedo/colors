@@ -50,7 +50,7 @@ export const PaletteLoading = () => (
 // Lazy loaded components
 export const LazySavedPalettes = createLazyComponent(
   () =>
-    import('@/components/SavedPalettes').then(m => ({
+    import('@/components/saved-palettes').then(m => ({
       default: m.SavedPalettes,
     })),
   CardLoading
@@ -58,7 +58,7 @@ export const LazySavedPalettes = createLazyComponent(
 
 export const LazyPaletteCard = createLazyComponent(
   () =>
-    import('@/components/PaletteCard').then(m => ({ default: m.PaletteCard })),
+    import('@/components/palette-card').then(m => ({ default: m.PaletteCard })),
   CardLoading
 )
 

@@ -6,11 +6,11 @@ import { Viewport } from 'next'
 import '@/styles/globals.css'
 import { ThemeProvider } from '@/components/theme-provider'
 import { generateMetadata, generateStructuredData, siteConfig } from '@/lib/seo'
-import { PerformanceMonitor } from '@/components/PerformanceMonitor'
-import { ErrorBoundary } from '@/components/ErrorBoundary'
+import { PerformanceMonitor } from '@/components/performance-monitor'
+import { ErrorBoundary } from '@/components/error-boundary'
 import { validateEnv } from '@/lib/validations'
 import Script from 'next/script'
-import { PostHogProvider } from '@/components/PostHogProvider'
+import { PostHogProvider } from '@/components/posthog-provider'
 
 // Validate environment variables on startup
 if (typeof window === 'undefined') {

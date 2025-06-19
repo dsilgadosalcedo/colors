@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button'
-import { PaletteCard } from './PaletteCard'
+import { PaletteCard } from './palette-card'
 import { useColorPaletteStore } from '@/lib/store'
 import { cn } from '@/lib/utils'
 import { ColorPalette } from '@/lib/types'

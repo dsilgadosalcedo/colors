@@ -1,5 +1,5 @@
 import { render, screen, fireEvent } from '@testing-library/react'
-import { ColorCard } from '@/components/ColorCard'
+import { ColorCard } from '@/components/color-card'
 
 // Mock zustand store
 jest.mock('@/lib/store', () => ({

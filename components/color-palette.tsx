@@ -8,7 +8,7 @@ import {
   Undo,
   Redo,
 } from 'lucide-react'
-import { ColorCard } from './ColorCard'
+import { ColorCard } from './color-card'
 import { useColorPaletteStore } from '@/lib/store'
 
 export function ColorPaletteDisplay({ state }: { state: 'show' | 'hide' }) {

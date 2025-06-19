@@ -8,11 +8,11 @@ import { useColorPaletteStore } from '@/lib/store'
 import { useRef, useEffect } from 'react'
 
 // Components
-import { Header } from '@/components/Header'
+import { Header } from '@/components/header'
 import { ImageUpload } from '@/components/ImageUpload'
-import { ColorPaletteDisplay } from '@/components/ColorPalette'
-import { SavedPalettes } from '@/components/SavedPalettes'
-import { DragOverlay } from '@/components/DragOverlay'
+import { ColorPaletteDisplay } from '@/components/color-palette'
+import { SavedPalettes } from '@/components/saved-palettes'
+import { DragOverlay } from '@/components/drag-overlay'
 import { cn } from '@/lib/utils'
 
 export default function ColorPaletteGenerator() {
@@ -56,7 +56,7 @@ export default function ColorPaletteGenerator() {
         selectedImage, // Always pass the image if available (for both generation and editing)
         colorCount,
         userPrompt,
-        isEditingMode ? colorPalette : undefined // Pass current palette for editing
+        isEditingMode ? (colorPalette ?? undefined) : undefined // Pass current palette for editing
       )
       const paletteWithTimestamp = {
         ...result,
