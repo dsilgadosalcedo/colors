@@ -29,6 +29,7 @@ interface TextInputAreaProps {
   onGenerate: () => void
   onKeyDown: (e: React.KeyboardEvent) => void
   onExitEditingMode: () => void
+  onImageUpload: (file: File) => void
   textareaRef: React.RefObject<HTMLTextAreaElement | null>
 }
 
@@ -47,8 +48,36 @@ export function TextInputArea({
   onGenerate,
   onKeyDown,
   onExitEditingMode,
+  onImageUpload,
   textareaRef,
 }: TextInputAreaProps) {
+  const handlePaste = (e: React.ClipboardEvent) => {
+    // Don't interfere if we're in loading state or color text preview mode
+    if (isLoading || isColorTextPreviewMode) {
+      return
+    }
+
+    const items = e.clipboardData?.items
+    if (!items) return
+
+    // Look for image files in clipboard
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i]
+
+      if (item.type.startsWith('image/')) {
+        e.preventDefault() // Prevent default paste behavior
+
+        const file = item.getAsFile()
+        if (file) {
+          onImageUpload(file)
+        }
+        return
+      }
+    }
+
+    // If no image found, allow normal text pasting
+  }
+
   return (
     <Card className="backdrop-blur-sm p-3 relative md:w-140 border-none">
       <Textarea
@@ -64,6 +93,7 @@ export function TextInputArea({
           !isLoading && !isColorTextPreviewMode && setUserPrompt(e.target.value)
         }
         onKeyDown={onKeyDown}
+        onPaste={handlePaste}
         placeholder={
           isEditingMode
             ? 'Edit your palette'

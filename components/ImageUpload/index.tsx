@@ -189,7 +189,7 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
     >
       {/* Hero Section */}
       <div className="text-center">
-        <h2 className="text-4xl font-bold leading-tight tracking-tight">
+        <h2 className="text-2xl md:text-4xl font-bold leading-tight tracking-tight">
           {isEditingMode ? 'Edit your palette' : 'Create beautiful colors'}
         </h2>
         <p
@@ -256,6 +256,7 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
           onGenerate={handleGenerate}
           onKeyDown={handleKeyDown}
           onExitEditingMode={exitEditingMode}
+          onImageUpload={handleImageUpload}
           textareaRef={textareaRef}
         />
       </section>
