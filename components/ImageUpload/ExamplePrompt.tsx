@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { useColorPaletteStore } from '@/lib/store'
+import { useIsMobile } from '@/hooks/use-mobile'
 import {
   NO_IMAGE_EXAMPLES,
   WITH_IMAGE_EXAMPLES,
@@ -188,6 +189,8 @@ export function ExamplePrompt({
     isAnimatingExample,
   ])
 
+  const isMobile = useIsMobile()
+
   // Don't render if there's user input
   if (userPrompt.trim()) {
     return null
@@ -197,6 +200,7 @@ export function ExamplePrompt({
     <div className="mb-3 text-center max-w-[calc(100vw-32px)]">
       <Button
         variant="outline"
+        size={isMobile ? 'sm' : 'default'}
         onClick={handleExampleClick}
         className="bg-transparent max-w-full text-sm transition-all cursor-pointer backdrop-blur-sm px-4 py-2 hover:scale-105 active:scale-95 duration-200"
         disabled={isLoading || isAnimatingExample}

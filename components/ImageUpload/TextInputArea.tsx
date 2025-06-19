@@ -9,11 +9,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Paperclip, Send } from 'lucide-react'
+import { Paperclip, Send, Camera } from 'lucide-react'
 import { Switch } from '@/components/ui/switch'
 import { Card } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 import { gsap } from 'gsap'
+import { useIsMobile } from '@/hooks/use-mobile'
 
 interface TextInputAreaProps {
   userPrompt: string
@@ -27,6 +28,7 @@ interface TextInputAreaProps {
   colorCount: number
   setColorCount: (count: number) => void
   onUploadClick: () => void
+  onCameraClick?: () => void
   onGenerate: () => void
   onKeyDown: (e: React.KeyboardEvent) => void
   onExitEditingMode: () => void
@@ -46,6 +48,7 @@ export function TextInputArea({
   colorCount,
   setColorCount,
   onUploadClick,
+  onCameraClick,
   onGenerate,
   onKeyDown,
   onExitEditingMode,
@@ -54,6 +57,7 @@ export function TextInputArea({
 }: TextInputAreaProps) {
   const timelineRef = useRef<gsap.core.Timeline | null>(null)
   const cardRef = useRef<HTMLDivElement>(null)
+  const isMobile = useIsMobile()
 
   const handlePaste = (e: React.ClipboardEvent) => {
     // Don't interfere if we're in loading state or color text preview mode
@@ -160,30 +164,58 @@ export function TextInputArea({
 
       <div className="flex items-center justify-between gap-4 mt-2">
         <div className="flex items-center justify-center gap-2">
+          {/* Upload button - hide on mobile when editing */}
           <Button
             type="button"
             variant="outline"
             size="icon"
             onClick={onUploadClick}
             disabled={isLoading || isEditingMode}
-            className="bg-transparent text-muted-foreground hover:bg-ring hover:text-secondary-foreground border-ring hover:border-ring disabled:border-secondary disabled:cursor-not-allowed disabled:opacity-100"
+            className={cn(
+              'bg-transparent text-muted-foreground hover:bg-ring hover:text-secondary-foreground border-ring hover:border-ring disabled:border-secondary disabled:cursor-not-allowed disabled:opacity-100',
+              isMobile && isEditingMode && 'hidden'
+            )}
           >
             <Paperclip />
           </Button>
-          <Switch
-            id="editing"
-            checked={isEditingMode}
-            onCheckedChange={checked => {
-              if (!checked && isEditingMode) {
-                onExitEditingMode()
-              }
-            }}
-            disabled={!isEditingMode}
-            className="data-[state=checked]:bg-ring data-[state=unchecked]:bg-transparent border border-ring w-14 disabled:border-secondary disabled:cursor-not-allowed disabled:opacity-100 rounded-md"
-          />
-          <Label htmlFor="editing" className="text-card-foreground">
-            Editing
-          </Label>
+          {/* Camera button - hide on mobile when editing */}
+          {onCameraClick && (
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              onClick={onCameraClick}
+              disabled={isLoading || isEditingMode}
+              className={cn(
+                'bg-transparent text-muted-foreground hover:bg-ring hover:text-secondary-foreground border-ring hover:border-ring disabled:border-secondary disabled:cursor-not-allowed disabled:opacity-100',
+                isMobile && isEditingMode && 'hidden'
+              )}
+            >
+              <Camera />
+            </Button>
+          )}
+          {/* Editing switch and label - hide on mobile when not editing */}
+          <div
+            className={cn(
+              'flex items-center gap-2',
+              isMobile && !isEditingMode && 'hidden md:flex'
+            )}
+          >
+            <Switch
+              id="editing"
+              checked={isEditingMode}
+              onCheckedChange={checked => {
+                if (!checked && isEditingMode) {
+                  onExitEditingMode()
+                }
+              }}
+              disabled={!isEditingMode}
+              className="data-[state=checked]:bg-ring data-[state=unchecked]:bg-transparent border border-ring w-14 disabled:border-secondary disabled:cursor-not-allowed disabled:opacity-100 rounded-md"
+            />
+            <Label htmlFor="editing" className="text-card-foreground">
+              Editing
+            </Label>
+          </div>
         </div>
 
         <div className="flex items-center justify-center gap-2">
