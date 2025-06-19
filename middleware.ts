@@ -19,7 +19,10 @@ const securityHeaders = {
     "frame-ancestors 'none'",
     "base-uri 'self'",
     "form-action 'self'",
-    'upgrade-insecure-requests',
+    // Only upgrade insecure requests in production where we have proper SSL certificates
+    ...(process.env.NODE_ENV === 'production'
+      ? ['upgrade-insecure-requests']
+      : []),
   ].join('; '),
 
   // Security headers
