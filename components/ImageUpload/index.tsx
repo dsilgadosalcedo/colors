@@ -145,8 +145,15 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
-      handleGenerate()
+    if (e.key === 'Enter') {
+      if (e.shiftKey) {
+        // Allow new line with Shift+Enter
+        return
+      } else {
+        // Submit with Enter
+        e.preventDefault()
+        handleGenerate()
+      }
     }
   }
 
