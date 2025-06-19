@@ -4,6 +4,7 @@ import { Plus } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useColorPaletteStore } from '@/lib/store'
 import { toast } from '@/components/ui/use-toast'
+import { useIsMobile } from '@/hooks/use-mobile'
 import { ExamplePrompt } from './ExamplePrompt'
 import { ImageBackground } from './ImageBackground'
 import { TextInputArea } from './TextInputArea'
@@ -14,10 +15,12 @@ interface ImageUploadProps {
 
 export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const cameraInputRef = useRef<HTMLInputElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const [userPrompt, setUserPrompt] = useState('')
   const [loadingText, setLoadingText] = useState('')
   const [wasGenerating, setWasGenerating] = useState(false)
+  const isMobile = useIsMobile()
 
   const {
     selectedImage,
@@ -140,6 +143,10 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
     fileInputRef.current?.click()
   }
 
+  const handleCameraClick = () => {
+    cameraInputRef.current?.click()
+  }
+
   const handleGenerate = () => {
     onGeneratePalette(userPrompt.trim() || undefined)
   }
@@ -211,10 +218,20 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
         ref={fileInputRef}
         type="file"
         accept="image/*"
-        capture="environment"
         onChange={handleFileInput}
         className="hidden"
       />
+
+      {isMobile && (
+        <input
+          ref={cameraInputRef}
+          type="file"
+          accept="image/*"
+          capture="environment"
+          onChange={handleFileInput}
+          className="hidden"
+        />
+      )}
 
       {/* Background Image Component */}
       <ImageBackground
@@ -258,6 +275,7 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
           colorCount={colorCount}
           setColorCount={setColorCount}
           onUploadClick={handleUploadClick}
+          onCameraClick={isMobile ? handleCameraClick : undefined}
           onGenerate={handleGenerate}
           onKeyDown={handleKeyDown}
           onExitEditingMode={exitEditingMode}
