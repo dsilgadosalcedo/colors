@@ -19,7 +19,7 @@ export function ImageBackground({
       {/* Background Image */}
       <div
         className={cn(
-          'w-full md:w-[calc(100%-40px)] h-[calc(100%+24px)] md:h-full md:mx-6 md:rounded-3xl absolute top-0 left-0 object-cover -z-10 duration-200 overflow-hidden',
+          'w-full md:w-[calc(100%-40px)] h-[calc(100%+24px)] md:h-full md:mx-6 md:rounded-3xl absolute top-0 left-0 object-cover -z-10 duration-200',
           selectedImage
             ? 'opacity-40 blur-sm'
             : 'bg-gradient-to-b lg:bg-gradient-to-r from-secondary via-muted-foreground to-transparent opacity-20'
@@ -29,7 +29,7 @@ export function ImageBackground({
           src={selectedImage || '/placeholder.svg'}
           alt="Uploaded image"
           fill
-          className="object-cover mask-b-from-30% lg:mask-b-from-100% lg:mask-r-from-30% data-[state=show]:animate-in data-[state=hide]:animate-out fade-in fade-out duration-300 data-[state=show]:blur-none data-[state=hide]:blur-lg data-[state=hide]:opacity-0"
+          className="object-cover mask-b-from-30% lg:mask-b-from-100% lg:mask-r-from-30% data-[state=show]:animate-in data-[state=hide]:animate-out fade-in fade-out duration-300 data-[state=show]:blur-none data-[state=hide]:blur-lg data-[state=hide]:opacity-0 md:rounded-3xl"
           data-state={selectedImage ? 'show' : 'hide'}
         />
       </div>
