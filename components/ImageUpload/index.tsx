@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react'
+import React, { useRef, useState, useEffect, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
 import { Plus } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -21,14 +21,12 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
 
   const {
     selectedImage,
-    dragActive,
     colorCount,
     isLoading,
     isEditingMode,
     colorTextPreview,
     isColorTextPreviewMode,
     colorPalette,
-    setSelectedImage,
     setColorPalette,
     setDragActive,
     setColorCount,
@@ -70,6 +68,28 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
     }
   }, [colorPalette, isEditingMode, autoSavePalette])
 
+  const handleAddColorText = useCallback(
+    (colorName: string) => {
+      const colorText = `the color ${colorName.toLowerCase()}`
+      const currentText = userPrompt.trim()
+      const newText = currentText ? `${currentText} ${colorText}` : colorText
+      setUserPrompt(newText)
+
+      // Focus textarea after adding text
+      if (textareaRef.current) {
+        textareaRef.current.focus()
+        // Move cursor to end
+        const length = newText.length
+        setTimeout(() => {
+          if (textareaRef.current) {
+            textareaRef.current.setSelectionRange(length, length)
+          }
+        }, 0)
+      }
+    },
+    [userPrompt, setUserPrompt]
+  )
+
   // Handle color text events from ColorCard components
   useEffect(() => {
     const handleAddColorTextEvent = (event: CustomEvent) => {
@@ -86,7 +106,7 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
         handleAddColorTextEvent as EventListener
       )
     }
-  }, [])
+  }, [handleAddColorText])
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault()
@@ -130,45 +150,10 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
     }
   }
 
-  const handleExampleClick = () => {
+  const handleExampleClick = (example: string) => {
+    setUserPrompt(example)
     if (textareaRef.current) {
       textareaRef.current.focus()
-      simulateRealisticTyping()
-    }
-  }
-
-  const simulateRealisticTyping = () => {
-    if (!textareaRef.current) {
-      return
-    }
-
-    const textarea = textareaRef.current
-    textarea.focus()
-
-    // Add a brief pause to simulate thinking
-    setTimeout(() => {
-      // Simulate typing by dispatching input events
-      const inputEvent = new Event('input', { bubbles: true })
-      textarea.dispatchEvent(inputEvent)
-    }, 100)
-  }
-
-  const handleAddColorText = (colorName: string) => {
-    const colorText = `the color ${colorName.toLowerCase()}`
-    const currentText = userPrompt.trim()
-    const newText = currentText ? `${currentText} ${colorText}` : colorText
-    setUserPrompt(newText)
-
-    // Focus textarea after adding text
-    if (textareaRef.current) {
-      textareaRef.current.focus()
-      // Move cursor to end
-      const length = newText.length
-      setTimeout(() => {
-        if (textareaRef.current) {
-          textareaRef.current.setSelectionRange(length, length)
-        }
-      }, 0)
     }
   }
 

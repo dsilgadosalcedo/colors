@@ -3,6 +3,7 @@
 import { google } from '@ai-sdk/google'
 import { generateObject } from 'ai'
 import { z } from 'zod'
+import { ColorPalette, ColorInfo } from '@/lib/types'
 
 // Helper function to extract color count from user prompt
 function extractColorCountFromPrompt(prompt: string): number | null {
@@ -69,7 +70,7 @@ export async function generateColorPalette(
   imageDataUrl: string | null,
   defaultColorCount = 3,
   userPrompt?: string,
-  currentPalette?: any // For editing existing palettes
+  currentPalette?: ColorPalette // For editing existing palettes
 ) {
   try {
     // Handle text-only requests (only validate for new palette creation, not editing)
@@ -116,7 +117,7 @@ export async function generateColorPalette(
       // Editing existing palette
       const currentColorsDetailed = currentPalette.colors
         .map(
-          (color: any, index: number) =>
+          (color: ColorInfo, index: number) =>
             `Color ${index + 1}: ${color.name} (${color.hex}) - ${
               color.description
             }`

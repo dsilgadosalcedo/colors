@@ -70,11 +70,19 @@ export { Analytics as VercelAnalytics, SpeedInsights as VercelSpeedInsights }
 
 export function trackEvent(
   eventName: string,
-  properties?: Record<string, any>
+  properties?: Record<string, unknown>
 ) {
-  if (typeof window !== 'undefined' && (window as any).va) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ;(window as any).va('track', eventName, properties)
+  if (typeof window !== 'undefined' && (window as { va?: unknown }).va) {
+    // Use proper typing for Vercel Analytics
+    ;(
+      window as {
+        va?: (
+          action: string,
+          event: string,
+          data?: Record<string, unknown>
+        ) => void
+      }
+    ).va?.('track', eventName, properties)
   }
 }
 

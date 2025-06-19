@@ -29,7 +29,7 @@ export function PerformanceMonitor() {
 
       try {
         observer.observe({ entryTypes: ['longtask'] })
-      } catch (e) {
+      } catch {
         // Some browsers might not support longtask
         console.log('Long task monitoring not supported')
       }

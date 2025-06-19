@@ -77,13 +77,7 @@ function defaultKeyGenerator(req: NextRequest): string {
 
 // Rate limiter function
 export function rateLimit(config: RateLimitConfig) {
-  const {
-    windowMs,
-    maxRequests,
-    keyGenerator = defaultKeyGenerator,
-    skipSuccessfulRequests = false,
-    skipFailedRequests = false,
-  } = config
+  const { windowMs, maxRequests, keyGenerator = defaultKeyGenerator } = config
 
   return {
     check: (req: NextRequest): RateLimitResult => {

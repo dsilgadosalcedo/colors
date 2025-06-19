@@ -1,3 +1,4 @@
+import React from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import {
@@ -11,9 +12,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
-import { Palette, Trash2, Heart } from 'lucide-react'
-import Image from 'next/image'
-import { ColorInfo, ColorPalette } from '@/lib/types'
+import { Trash2, Heart } from 'lucide-react'
+import { ColorPalette } from '@/lib/types'
 import { useRef } from 'react'
 
 interface PaletteCardProps {
@@ -22,7 +22,6 @@ interface PaletteCardProps {
   onLoadPalette: (palette: ColorPalette) => void
   onDeletePalette: (index: number) => void
   onToggleFavorite: (index: number) => void
-  isColorInPalette: (colors: ColorInfo[], hexToCheck: string) => boolean
 }
 
 export function PaletteCard({
@@ -31,7 +30,6 @@ export function PaletteCard({
   onLoadPalette,
   onDeletePalette,
   onToggleFavorite,
-  isColorInPalette,
 }: PaletteCardProps) {
   const heartRef = useRef<HTMLButtonElement>(null)
 
@@ -118,13 +116,17 @@ export function PaletteCard({
             ease: 'power2.out',
           })
       }
-    } catch (error) {
+    } catch {
       // Fallback if GSAP fails to load
       onToggleFavorite(index)
     }
   }
 
-  const createExplosionEffect = (heartElement: HTMLElement, gsap: any) => {
+  const createExplosionEffect = (
+    heartElement: HTMLElement,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    gsap: any
+  ) => {
     const rect = heartElement.getBoundingClientRect()
     const centerX = rect.left + rect.width / 2
     const centerY = rect.top + rect.height / 2

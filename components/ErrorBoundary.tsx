@@ -160,7 +160,7 @@ export function SimpleErrorBoundary({
 // Hook for manually reporting errors
 export function useErrorHandler() {
   return {
-    reportError: (error: Error, context?: Record<string, any>) => {
+    reportError: (error: Error, context?: Record<string, unknown>) => {
       try {
         const errorId = `error_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
         posthog.capture('$exception', {

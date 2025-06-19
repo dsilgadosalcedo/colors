@@ -10,7 +10,7 @@ import {
 interface ExamplePromptProps {
   userPrompt: string
   isLoading: boolean
-  onExampleClick: () => void
+  onExampleClick: (example: string) => void
 }
 
 export function ExamplePrompt({
@@ -116,8 +116,8 @@ export function ExamplePrompt({
     const processNextStep = () => {
       if (phase === 'backspacing') {
         if (currentText.length > 0) {
-          // Random backspace speed (40-120ms)
-          const delay = Math.random() * 80 + 40
+          // Random backspace speed (20-60ms) - faster
+          const delay = Math.random() * 40 + 20
           currentText = currentText.slice(0, -1)
           updateDisplay()
           nextStepTimeout = setTimeout(processNextStep, delay)
@@ -125,13 +125,13 @@ export function ExamplePrompt({
           // Switch to typing phase
           phase = 'typing'
           // Small pause before typing
-          nextStepTimeout = setTimeout(processNextStep, 200)
+          nextStepTimeout = setTimeout(processNextStep, 100)
         }
       } else {
         // Typing phase
         if (currentText.length < newText.length) {
-          // Random typing speed (60-150ms)
-          const delay = Math.random() * 90 + 60
+          // Random typing speed (30-80ms) - faster
+          const delay = Math.random() * 50 + 30
           currentText = newText.slice(0, currentText.length + 1)
           updateDisplay()
           nextStepTimeout = setTimeout(processNextStep, delay)
@@ -154,31 +154,38 @@ export function ExamplePrompt({
 
   const handleExampleClick = () => {
     if (!isLoading && !isAnimatingExample) {
-      onExampleClick()
+      onExampleClick(currentExample)
     }
   }
 
-  // Initialize example on mount
+  // Initialize example on mount with typing animation
   useEffect(() => {
     if (!isInitialized) {
-      const initialExample = getInitialExample()
-      setCurrentExample(initialExample)
       setIsInitialized(true)
+      const initialExample = getInitialExample()
+      animateToNewExample(initialExample)
     }
-  }, [isInitialized, getInitialExample])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isInitialized])
 
-  // Update example when context changes
+  // Schedule next example rotation with a pause to allow clicks
   useEffect(() => {
-    if (isInitialized) {
+    if (!isInitialized || isAnimatingExample || !currentExample) {
+      return
+    }
+    const rotationDelay = 7000 // milliseconds to wait before next animation (reduced to 4s)
+    const timeoutId = setTimeout(() => {
       const newExample = getRandomExample()
       animateToNewExample(newExample)
-    }
+    }, rotationDelay)
+    return () => clearTimeout(timeoutId)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     selectedImage,
     isEditingMode,
     isInitialized,
-    getRandomExample,
-    animateToNewExample,
+    currentExample,
+    isAnimatingExample,
   ])
 
   // Don't render if there's user input

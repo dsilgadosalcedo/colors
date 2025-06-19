@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button'
 import { PaletteCard } from './PaletteCard'
 import { useColorPaletteStore } from '@/lib/store'
 import { cn } from '@/lib/utils'
+import { ColorPalette } from '@/lib/types'
 
 export function SavedPalettes() {
   const {
@@ -11,10 +12,9 @@ export function SavedPalettes() {
     deleteSavedPalette,
     toggleFavorite,
     getFavoritePalettes,
-    isColorInPalette,
   } = useColorPaletteStore()
 
-  const handleLoadPalette = (palette: any) => {
+  const handleLoadPalette = (palette: ColorPalette) => {
     loadSavedPalette(palette)
   }
 
@@ -46,7 +46,7 @@ export function SavedPalettes() {
                   </h2>
                 </header>
                 <ul className="grid md:grid-cols-2 xl:grid-cols-3 gap-6 px-6">
-                  {favoritePalettes.map((palette, favoriteIndex) => {
+                  {favoritePalettes.map(palette => {
                     // Find the actual index in savedPalettes
                     const actualIndex = savedPalettes.findIndex(
                       p => p === palette
@@ -59,7 +59,6 @@ export function SavedPalettes() {
                         onLoadPalette={handleLoadPalette}
                         onDeletePalette={handleDeletePalette}
                         onToggleFavorite={handleToggleFavorite}
-                        isColorInPalette={isColorInPalette}
                       />
                     )
                   })}
@@ -78,7 +77,7 @@ export function SavedPalettes() {
                 </h2>
               </div>
               <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6 px-6 pb-6">
-                {regularPalettes.map((palette, regularIndex) => {
+                {regularPalettes.map(palette => {
                   // Find the actual index in savedPalettes
                   const actualIndex = savedPalettes.findIndex(
                     p => p === palette
@@ -91,7 +90,6 @@ export function SavedPalettes() {
                       onLoadPalette={handleLoadPalette}
                       onDeletePalette={handleDeletePalette}
                       onToggleFavorite={handleToggleFavorite}
-                      isColorInPalette={isColorInPalette}
                     />
                   )
                 })}

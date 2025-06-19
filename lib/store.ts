@@ -137,7 +137,8 @@ const createStorablePalette = async (
   } catch (error) {
     console.error('Error compressing image:', error)
     // Return palette without image if compression fails
-    const { imagePreview, ...paletteWithoutImage } = palette
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { imagePreview: _, ...paletteWithoutImage } = palette
     return paletteWithoutImage as ColorPalette
   }
 }
@@ -229,7 +230,7 @@ export const useColorPaletteStore = create<ColorPaletteState>()(
           colorTextPreview: '',
           isColorTextPreviewMode: false,
         }),
-      addColorTextToPrompt: colorName => {
+      addColorTextToPrompt: () => {
         // This will be handled by the ImageUpload component
         set({
           colorTextPreview: '',

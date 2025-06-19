@@ -74,10 +74,11 @@ function calculateRetryDelay(attempt: number): number {
 // Retry wrapper for async functions
 export async function withRetry<T>(
   operation: () => Promise<T>,
-  isRetryableError: (error: any) => boolean = error => error.retryable === true,
+  isRetryableError: (error: unknown) => boolean = error =>
+    (error as { retryable?: boolean }).retryable === true,
   maxRetries: number = RETRY_CONFIG.maxRetries
 ): Promise<T> {
-  let lastError: any
+  let lastError: unknown
 
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
@@ -109,7 +110,7 @@ export async function withRetry<T>(
 export async function handleApiError(
   error: unknown,
   request?: NextRequest,
-  context?: Record<string, any>
+  context?: Record<string, unknown>
 ): Promise<NextResponse> {
   let apiError: ApiError
 
@@ -220,7 +221,7 @@ function getPublicErrorMessage(error: ApiError): string {
 }
 
 // Utility function to check if an error is retryable
-export function isRetryableError(error: any): boolean {
+export function isRetryableError(error: unknown): boolean {
   if (error instanceof ApiErrorClass) {
     return error.retryable
   }

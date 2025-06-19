@@ -7,7 +7,7 @@ const POSTHOG_API_KEY = process.env.NEXT_PUBLIC_POSTHOG_KEY
 
 export async function captureServerEvent(
   eventName: string,
-  properties: Record<string, any> = {}
+  properties: Record<string, unknown> = {}
 ) {
   // Server-side only check
   if (typeof window !== 'undefined') {
@@ -60,7 +60,10 @@ export async function captureServerEvent(
 export async function getServerPostHogClient() {
   console.log('[PostHog] Using HTTP API instead of posthog-node client')
   return {
-    capture: (data: any) => {
+    capture: (data: {
+      event: string
+      properties?: Record<string, unknown>
+    }) => {
       captureServerEvent(data.event, data.properties)
     },
     shutdown: () => Promise.resolve(),

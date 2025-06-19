@@ -6,7 +6,6 @@ import { Viewport } from 'next'
 import '@/styles/globals.css'
 import { ThemeProvider } from '@/components/theme-provider'
 import { generateMetadata, generateStructuredData, siteConfig } from '@/lib/seo'
-import { VercelAnalytics, VercelSpeedInsights } from '@/lib/analytics'
 import { PerformanceMonitor } from '@/components/PerformanceMonitor'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { validateEnv } from '@/lib/validations'
@@ -147,8 +146,6 @@ export default function RootLayout({
 
         {/* Performance Monitoring */}
         <PerformanceMonitor />
-        {/* <VercelAnalytics /> */}
-        {/* <VercelSpeedInsights /> */}
 
         {/* Web Vitals Tracking */}
         {/* <Script
