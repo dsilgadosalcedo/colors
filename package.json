@@ -107,7 +107,7 @@
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
       "prettier --write",
-      "eslint --fix"
+      "next lint --fix --file"
     ],
     "*.{json,md,css}": [
       "prettier --write"
