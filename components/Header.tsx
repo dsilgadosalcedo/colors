@@ -9,7 +9,7 @@ export function Header() {
 
   return (
     <header className="flex justify-between h-16 md:h-22 px-4 md:px-6">
-      <div className="flex items-center gap-3">
+      <div className="hidden md:flex items-center gap-3">
         <div className="w-10 h-10 bg-secondary grid place-items-center rounded-md">
           <Palette className="w-5 h-5 text-secondary-foreground" />
         </div>
@@ -19,12 +19,12 @@ export function Header() {
       </div>
 
       {/* Custom Navigation Buttons in Header */}
-      <nav className="flex items-center gap-2 md:gap-4">
+      <nav className="flex w-full md:w-auto items-center gap-2 md:gap-4">
         <Button
           onClick={() => setActiveTab('generator')}
           variant="link"
           className={cn(
-            'px-2 md:px-3 text-sm md:text-xl font-semibold',
+            'px-2 md:px-3 text-md md:text-xl font-semibold',
             activeTab === 'generator'
               ? 'text-card-foreground'
               : 'text-muted-foreground'
@@ -36,7 +36,7 @@ export function Header() {
           onClick={() => setActiveTab('collection')}
           variant="link"
           className={cn(
-            'px-2 md:px-3 text-sm md:text-xl font-semibold mr-1',
+            'px-2 md:px-3 text-md md:text-xl font-semibold mr-1',
             activeTab === 'collection'
               ? 'text-card-foreground'
               : 'text-muted-foreground'
@@ -44,7 +44,9 @@ export function Header() {
         >
           My Collection
         </Button>
-        <ThemeToggle />
+        <div className="flex-1 flex justify-end">
+          <ThemeToggle />
+        </div>
       </nav>
     </header>
   )

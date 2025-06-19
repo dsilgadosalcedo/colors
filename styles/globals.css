@@ -1,5 +1,5 @@
-@import "tailwindcss";
-@import "tw-animate-css";
+@import 'tailwindcss';
+@import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -119,8 +119,10 @@
   }
 }
 
-.card[data-state="show"] {
-  transition: opacity 0.25s, display 0.25s;
+.card[data-state='show'] {
+  transition:
+    opacity 0.25s,
+    display 0.25s;
   /* transition-behavior: allow-discrete; */
 
   @starting-style {
@@ -129,8 +131,10 @@
   }
 }
 
-.card[data-state="hide"] {
-  transition: opacity 0.25s, display 0.25s ease allow-discrete;
+.card[data-state='hide'] {
+  transition:
+    opacity 0.25s,
+    display 0.25s ease allow-discrete;
   opacity: 0;
   display: none;
 }

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
@@ -13,6 +13,7 @@ import { Paperclip, Send } from 'lucide-react'
 import { Switch } from '@/components/ui/switch'
 import { Card } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
+import { gsap } from 'gsap'
 
 interface TextInputAreaProps {
   userPrompt: string
@@ -51,6 +52,9 @@ export function TextInputArea({
   onImageUpload,
   textareaRef,
 }: TextInputAreaProps) {
+  const timelineRef = useRef<gsap.core.Timeline | null>(null)
+  const cardRef = useRef<HTMLDivElement>(null)
+
   const handlePaste = (e: React.ClipboardEvent) => {
     // Don't interfere if we're in loading state or color text preview mode
     if (isLoading || isColorTextPreviewMode) {
@@ -78,8 +82,52 @@ export function TextInputArea({
     // If no image found, allow normal text pasting
   }
 
+  // Simple and elegant GSAP loading animation
+  useEffect(() => {
+    if (!cardRef.current) return
+
+    if (isLoading) {
+      // Create smooth glow animation on the card
+      const tl = gsap.timeline({ repeat: -1 })
+
+      tl.to(cardRef.current, {
+        boxShadow:
+          '0 0 20px rgba(59, 130, 246, 0.15), 0 0 40px rgba(59, 130, 246, 0.05)',
+        scale: 1.005,
+        duration: 2,
+        ease: 'power2.inOut',
+        yoyo: true,
+        repeat: -1,
+      })
+
+      timelineRef.current = tl
+    } else {
+      // Clean up animation
+      if (timelineRef.current) {
+        timelineRef.current.kill()
+        timelineRef.current = null
+      }
+      if (cardRef.current) {
+        gsap.set(cardRef.current, {
+          boxShadow: 'none',
+          scale: 1,
+          clearProps: 'all',
+        })
+      }
+    }
+
+    return () => {
+      if (timelineRef.current) {
+        timelineRef.current.kill()
+      }
+    }
+  }, [isLoading])
+
   return (
-    <Card className="backdrop-blur-sm p-3 relative md:w-140 border-none">
+    <Card
+      ref={cardRef}
+      className="backdrop-blur-sm p-3 relative md:w-140 border-none"
+    >
       <Textarea
         ref={textareaRef}
         value={
@@ -102,8 +150,9 @@ export function TextInputArea({
               : 'Describe your palette'
         }
         className={cn(
-          'resize-none focus-visible:ring-0 focus-visible:ring-offset-0 px-0 min-h-[28px] text-lg font-medium border-none rounded-none',
-          isColorTextPreviewMode && 'text-muted-foreground'
+          'resize-none focus-visible:ring-0 focus-visible:ring-offset-0 px-0 min-h-[28px] text-sm md:text-lg font-medium border-none rounded-none relative',
+          isColorTextPreviewMode && 'text-muted-foreground',
+          isLoading && 'text-muted-foreground/80'
         )}
         disabled={isLoading}
         readOnly={isLoading || isColorTextPreviewMode}
@@ -154,7 +203,7 @@ export function TextInputArea({
             >
               <SelectTrigger
                 id="color-count"
-                className="w-20 h-10 text-xs p-2 rounded-md"
+                className="w-12 md:w-20 h-10 text-xs p-2 rounded-md"
               >
                 <SelectValue placeholder={colorCount.toString()} />
               </SelectTrigger>
