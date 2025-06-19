@@ -53,14 +53,14 @@ describe('ColorCard', () => {
     render(<ColorCard {...mockProps} />)
 
     // Find the color display div by looking for the element with the background color
-    const colorDisplay = screen.getByRole('button') // The clickable div acts as a button
+    const colorDisplay = screen.getAllByRole('button')[0] // The first button is the color area
     expect(colorDisplay).toHaveStyle('background-color: rgb(255, 0, 0)')
   })
 
   it('should call onCopyColor when color area is clicked', () => {
     render(<ColorCard {...mockProps} />)
 
-    const colorArea = screen.getByRole('button')
+    const colorArea = screen.getAllByRole('button')[0] // The first button is the color area
     fireEvent.click(colorArea)
 
     expect(mockProps.onCopyColor).toHaveBeenCalledWith('#FF0000')

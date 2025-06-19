@@ -36,6 +36,11 @@ export function ColorCard({
     })
     window.dispatchEvent(event)
   }
+
+  const handleColorClick = () => {
+    onCopyColor(color.hex)
+  }
+
   return (
     <Card
       className="group relative"
@@ -46,10 +51,21 @@ export function ColorCard({
       <div
         className="w-[calc(100%-6px)] h-20 -translate-y-1 group-hover:translate-y-0 grid place-items-center rounded-3xl transition-all duration-300 group-hover:rounded-b-4xl group-hover:rounded-t-[19px] m-[3px] cursor-pointer"
         style={{ backgroundColor: color.hex }}
-        onClick={() => onCopyColor(color.hex)}
+        onClick={handleColorClick}
+        role="button"
+        tabIndex={0}
+        onKeyDown={e => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault()
+            handleColorClick()
+          }
+        }}
       >
         {copiedColor === color.hex ? (
-          <Check className="w-6 h-6 text-white opacity-40 group-hover:opacity-100 group-hover:scale-105 animate-in fade-in-0 duration-200" />
+          <Check
+            className="w-6 h-6 text-white opacity-40 group-hover:opacity-100 group-hover:scale-105 animate-in fade-in-0 duration-200"
+            data-testid="check-icon"
+          />
         ) : (
           <Copy className="w-5 h-5 text-white opacity-40 group-hover:opacity-100 group-hover:scale-105 animate-in fade-in-0 duration-200" />
         )}
