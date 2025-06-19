@@ -43,12 +43,22 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
   useEffect(() => {
     if (isLoading && !wasGenerating) {
       setWasGenerating(true)
-      const messages = [
-        'Analyzing image colors...',
-        'Extracting dominant tones...',
-        'Creating beautiful palette...',
-        'Almost ready...',
-      ]
+
+      // Different messages based on whether there's an image or not
+      const messages = selectedImage
+        ? [
+            'Analyzing image colors...',
+            'Extracting dominant tones...',
+            'Creating beautiful palette...',
+            'Almost ready...',
+          ]
+        : [
+            'Analyzing your request...',
+            'Applying color theory...',
+            'Creating beautiful palette...',
+            'Almost ready...',
+          ]
+
       let messageIndex = 0
       setLoadingText(messages[0])
 
@@ -62,7 +72,7 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
       setWasGenerating(false)
       setLoadingText('')
     }
-  }, [isLoading, wasGenerating])
+  }, [isLoading, wasGenerating, selectedImage])
 
   // Auto-save palette when generated
   useEffect(() => {
