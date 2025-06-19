@@ -1,1 +1,14 @@
-npm test
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Use npx to run lint-staged to avoid pnpm modifying package.json  
+if command -v npx >/dev/null 2>&1; then
+  npx lint-staged
+elif command -v yarn >/dev/null 2>&1; then
+  yarn lint-staged
+elif command -v pnpm >/dev/null 2>&1; then
+  pnpm exec lint-staged
+else
+  echo "No package manager found. Skipping lint-staged."
+  exit 0
+fi
