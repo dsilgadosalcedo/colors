@@ -19,7 +19,7 @@ export function ImageBackground({
       {/* Background Image */}
       <div
         className={cn(
-          'w-full h-[calc(100%+24px)] md:h-full md:mx-6 md:rounded-3xl absolute top-0 left-0 object-cover -z-10 duration-200 overflow-hidden',
+          'w-full md:w-[calc(100%-40px)] h-[calc(100%+24px)] md:h-full md:mx-6 md:rounded-3xl absolute top-0 left-0 object-cover -z-10 duration-200 overflow-hidden',
           selectedImage
             ? 'opacity-40 blur-sm'
             : 'bg-gradient-to-b lg:bg-gradient-to-r from-secondary via-muted-foreground to-transparent opacity-20'
