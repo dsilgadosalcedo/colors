@@ -172,10 +172,6 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
         exitEditingMode()
       }
       setColorPalette(null)
-      toast({
-        title: 'Image removed',
-        description: 'You can now upload a new image or create with text',
-      })
     } catch (error) {
       console.error('Error removing image:', error)
       toast({
