@@ -30,7 +30,7 @@ export function ColorPaletteDisplay({ state }: { state: 'show' | 'hide' }) {
     <ColorPaletteBox state={state}>
       {colorPalette && (
         <>
-          <header className="px-4 py-3 grid @xl:flex gap-4 justify-between items-center border-b sticky top-0 z-10">
+          <header className="px-4 py-3 flex gap-4 justify-between items-center border-b sticky top-0 z-10">
             <div className="flex items-center gap-2">
               <h3>Color Palette</h3>
               {(canUndo || canRedo) && (
@@ -64,13 +64,14 @@ export function ColorPaletteDisplay({ state }: { state: 'show' | 'hide' }) {
               >
                 {isCurrentPaletteSaved ? (
                   <>
-                    <CheckCircle size={8} />
+                    <CheckCircle className="hidden md:block" size={8} />
                     Saved
                   </>
                 ) : (
                   <>
-                    <Palette size={8} />
-                    Save Palette
+                    <Palette className="hidden md:block" size={8} />
+                    <span className="hidden md:block">Save Palette</span>
+                    <span className="md:hidden">Save</span>
                   </>
                 )}
               </Button>
@@ -81,11 +82,11 @@ export function ColorPaletteDisplay({ state }: { state: 'show' | 'hide' }) {
                 className="relative"
               >
                 <Download />
-                Download CSS
+                <span className="hidden md:block">Download CSS</span>
               </Button>
               <Button variant="outline" size="sm" onClick={sharePalette}>
                 <Share2 size={8} />
-                Share
+                <span className="hidden md:block">Share</span>
               </Button>
             </div>
           </header>

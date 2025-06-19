@@ -49,7 +49,7 @@ export function ColorCard({
       }}
     >
       <div
-        className="w-[calc(100%-6px)] h-20 -translate-y-1 group-hover:translate-y-0 grid place-items-center rounded-3xl transition-all duration-300 group-hover:rounded-b-4xl group-hover:rounded-t-[19px] m-[3px] cursor-pointer"
+        className="w-[calc(100%-6px)] h-20 md:-translate-y-1 group-hover:translate-y-0 grid place-items-center rounded-t-[19px] rounded-b-4xl md:rounded-3xl transition-all duration-300 group-hover:rounded-b-4xl group-hover:rounded-t-[19px] m-[3px] cursor-pointer"
         style={{ backgroundColor: color.hex }}
         onClick={handleColorClick}
         role="button"

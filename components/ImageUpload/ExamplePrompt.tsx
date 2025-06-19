@@ -202,7 +202,7 @@ export function ExamplePrompt({
         variant="outline"
         size={isMobile ? 'sm' : 'default'}
         onClick={handleExampleClick}
-        className="bg-transparent max-w-full text-sm transition-all cursor-pointer backdrop-blur-sm px-4 py-2 hover:scale-105 active:scale-95 duration-200"
+        className="bg-transparent max-w-full text-sm transition-all cursor-pointer backdrop-blur-sm px-4 py-2 hover:scale-105 active:scale-95 duration-200 overflow-hidden whitespace-nowrap"
         disabled={isLoading || isAnimatingExample}
         aria-label="Example prompt"
       >

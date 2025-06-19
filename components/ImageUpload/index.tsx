@@ -244,12 +244,14 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
       {!!colorPalette && (
         <Button
           variant="outline"
-          size="icon"
+          size="sm"
           onClick={exitEditingMode}
           disabled={isLoading}
           className="absolute top-4 md:right-10 right-4 bg-transparent text-muted-foreground hover:bg-ring hover:text-secondary-foreground border-ring hover:border-ring disabled:border-secondary disabled:cursor-not-allowed disabled:opacity-100"
         >
           <Plus />
+          <span className="hidden md:block">Create new palette</span>
+          <span className="md:hidden">New palette</span>
         </Button>
       )}
 
