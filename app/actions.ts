@@ -204,6 +204,17 @@ EDITING GUIDELINES:
 - If user says "remove [color]": Remove only that color, keep everything else unchanged
 - If user says "make it [mood]": Only change the mood description, keep colors unchanged
 - If user says "make [color] the dominant": Only change the dominantColor field, keep everything else
+- If user says "change/update/improve the descriptions": Rewrite all color descriptions while keeping exact same colors and hex values
+- If user says "change/update the mood": Rewrite the mood description while keeping everything else the same
+- If user says "change the mood and descriptions": Update both mood and all color descriptions while keeping exact same colors and hex values
+- If user says "make it more [adjective]": Adjust descriptions and mood to reflect that quality while keeping same colors
+- If user requests general improvements: Keep exact same colors but improve the names, descriptions, and mood
+
+WHEN UPDATING DESCRIPTIONS OR MOOD:
+- Apply the same enhanced reasoning principles from the main generation prompts
+- Use color theory, accessibility awareness, and professional standards
+- Keep descriptions concise (6-9 words for colors, 15-20 words for mood)
+- Make descriptions more engaging, professional, and contextually appropriate
 
 RETURN the palette with:
 - All existing colors preserved exactly as they are, plus any requested changes
@@ -249,6 +260,17 @@ EDITING GUIDELINES:
 - If user says "remove [color]": Remove only that color, keep everything else unchanged
 - If user says "make it [mood]": Only change the mood description, keep colors unchanged
 - If user says "make [color] the dominant": Only change the dominantColor field, keep everything else
+- If user says "change/update/improve the descriptions": Rewrite all color descriptions while keeping exact same colors and hex values
+- If user says "change/update the mood": Rewrite the mood description while keeping everything else the same
+- If user says "change the mood and descriptions": Update both mood and all color descriptions while keeping exact same colors and hex values
+- If user says "make it more [adjective]": Adjust descriptions and mood to reflect that quality while keeping same colors
+- If user requests general improvements: Keep exact same colors but improve the names, descriptions, and mood
+
+WHEN UPDATING DESCRIPTIONS OR MOOD:
+- Apply the same enhanced reasoning principles from the main generation prompts
+- Use color theory, accessibility awareness, and professional standards
+- Keep descriptions concise (6-9 words for colors, 15-20 words for mood)
+- Make descriptions more engaging, professional, and contextually appropriate
 
 RETURN the palette with:
 - All existing colors preserved exactly as they are, plus any requested changes
