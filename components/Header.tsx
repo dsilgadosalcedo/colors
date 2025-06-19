@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { useColorPaletteStore } from '@/lib/store'
 import { Palette } from 'lucide-react'
+import { ThemeToggle } from '@/components/ui/theme-toggle'
 
 export function Header() {
   const { activeTab, setActiveTab } = useColorPaletteStore()
@@ -18,7 +19,7 @@ export function Header() {
       </div>
 
       {/* Custom Navigation Buttons in Header */}
-      <nav className="flex items-center">
+      <nav className="flex items-center gap-4">
         <Button
           onClick={() => setActiveTab('generator')}
           variant="link"
@@ -43,6 +44,7 @@ export function Header() {
         >
           My Collection
         </Button>
+        <ThemeToggle />
       </nav>
     </header>
   )
