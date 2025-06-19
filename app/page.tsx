@@ -8,7 +8,7 @@ import { useColorPaletteStore } from '@/lib/store'
 import { useRef, useEffect } from 'react'
 
 // Components
-import { Header } from '../components/header'
+import { Header } from '@/components/header'
 import { ImageUpload } from '@/components/ImageUpload'
 import { ColorPaletteDisplay } from '@/components/color-palette'
 import { SavedPalettes } from '@/components/saved-palettes'
