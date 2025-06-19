@@ -4,7 +4,7 @@ import { useColorPaletteStore } from '@/lib/store'
 import { Palette } from 'lucide-react'
 import { ThemeToggle } from '@/components/ui/theme-toggle'
 
-export function Header() {
+export function MainHeader() {
   const { activeTab, setActiveTab } = useColorPaletteStore()
 
   return (
