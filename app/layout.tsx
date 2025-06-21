@@ -60,7 +60,6 @@ const structuredData = generateStructuredData({
   name: siteConfig.name,
   description: siteConfig.description,
   url: siteConfig.url,
-  image: siteConfig.ogImage,
   additionalData: {
     applicationCategory: 'DesignApplication',
     operatingSystem: 'Web Browser',
