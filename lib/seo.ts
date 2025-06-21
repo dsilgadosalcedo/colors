@@ -5,8 +5,8 @@ export const siteConfig = {
   name: 'AI Color Palette Generator',
   description:
     'Generate stunning color palettes from images or text descriptions using AI. Create, customize, and export professional color schemes for your design projects.',
-  url: process.env.NEXT_PUBLIC_APP_URL || 'https://colors.example.com',
-  ogImage: '/og-image.png',
+  url: process.env.NEXT_PUBLIC_APP_URL || 'https://arrecifes-colors.vercel.app',
+  ogImage: '/colors-shot.jpg',
   creator: 'Arrecifes',
   keywords: [
     'color palette',
@@ -86,7 +86,7 @@ export function generateMetadata({
       title: fullTitle,
       description: description || siteConfig.description,
       images: [image || siteConfig.ogImage],
-      creator: '@arrecifes', // Replace with actual Twitter handle
+      creator: '@dsilgadosalcedo',
     },
 
     // Additional meta tags
