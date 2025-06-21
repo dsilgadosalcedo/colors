@@ -6,7 +6,6 @@ export const siteConfig = {
   description:
     'Generate stunning color palettes from images or text descriptions using AI. Create, customize, and export professional color schemes for your design projects.',
   url: process.env.NEXT_PUBLIC_APP_URL || 'https://arrecifes-colors.vercel.app',
-  ogImage: '/colors-shot.jpg',
   creator: 'Arrecifes',
   keywords: [
     'color palette',
@@ -70,14 +69,7 @@ export function generateMetadata({
       title: fullTitle,
       description: description || siteConfig.description,
       siteName: siteConfig.name,
-      images: [
-        {
-          url: image || siteConfig.ogImage,
-          width: 1200,
-          height: 630,
-          alt: fullTitle,
-        },
-      ],
+      images: image ? [{ url: image }] : undefined,
     },
 
     // Twitter
@@ -85,7 +77,7 @@ export function generateMetadata({
       card: 'summary_large_image',
       title: fullTitle,
       description: description || siteConfig.description,
-      images: [image || siteConfig.ogImage],
+      images: image ? [image] : undefined,
       creator: '@dsilgadosalcedo',
     },
 
