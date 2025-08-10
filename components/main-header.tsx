@@ -27,7 +27,7 @@ export function MainHeader() {
           className={cn(
             'px-2 md:px-3 text-md md:text-xl font-semibold',
             activeTab === 'generator'
-              ? 'text-card-foreground'
+              ? 'text-card-foreground underline'
               : 'text-muted-foreground'
           )}
         >
@@ -39,7 +39,7 @@ export function MainHeader() {
           className={cn(
             'px-2 md:px-3 text-md md:text-xl font-semibold mr-1',
             activeTab === 'collection'
-              ? 'text-card-foreground'
+              ? 'text-card-foreground underline'
               : 'text-muted-foreground'
           )}
         >
