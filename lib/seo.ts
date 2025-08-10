@@ -2,7 +2,7 @@ import { Metadata } from 'next'
 
 // Base SEO configuration
 export const siteConfig = {
-  name: 'AI Color Palette Generator',
+  name: 'Color Palette Generator',
   description:
     'Generate stunning color palettes from images or text descriptions using AI. Create, customize, and export professional color schemes for your design projects.',
   url: process.env.NEXT_PUBLIC_APP_URL || 'https://arrecifes-colors.vercel.app',

@@ -65,9 +65,9 @@ const structuredData = generateStructuredData({
     operatingSystem: 'Web Browser',
     browserRequirements: 'Requires JavaScript. Modern browser recommended.',
     featureList: [
-      'AI-powered color extraction from images',
-      'Text-to-color palette generation',
       'Color palette editing and customization',
+      'Text-to-color palette generation',
+      'AI-powered color extraction from images',
       'Export in multiple formats',
       'Accessibility-focused design',
     ],
