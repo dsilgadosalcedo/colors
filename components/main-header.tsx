@@ -5,7 +5,8 @@ import { Palette } from 'lucide-react'
 import { ThemeToggle } from '@/components/ui/theme-toggle'
 
 export function MainHeader() {
-  const { activeTab, setActiveTab } = useColorPaletteStore()
+  const activeTab = useColorPaletteStore(state => state.activeTab)
+  const setActiveTab = useColorPaletteStore(state => state.setActiveTab)
 
   return (
     <header className="flex justify-between h-16 md:h-22 px-4 md:px-6">

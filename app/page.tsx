@@ -18,21 +18,23 @@ import { cn } from '@/lib/utils'
 export default function ColorPaletteGenerator() {
   const dragCounter = useRef(0)
 
-  // Zustand store
-  const {
-    colorPalette,
-    selectedImage,
-    colorCount,
-    activeTab,
-    pageDragActive,
-    isEditingMode,
-    setColorPalette,
-    setIsLoading,
-    setActiveTab,
-    setPageDragActive,
-    handleImageUpload,
-    initializeApp,
-  } = useColorPaletteStore()
+  // Zustand store selectors
+  const colorPalette = useColorPaletteStore(state => state.colorPalette)
+  const selectedImage = useColorPaletteStore(state => state.selectedImage)
+  const colorCount = useColorPaletteStore(state => state.colorCount)
+  const activeTab = useColorPaletteStore(state => state.activeTab)
+  const pageDragActive = useColorPaletteStore(state => state.pageDragActive)
+  const isEditingMode = useColorPaletteStore(state => state.isEditingMode)
+  const setColorPalette = useColorPaletteStore(state => state.setColorPalette)
+  const setIsLoading = useColorPaletteStore(state => state.setIsLoading)
+  const setActiveTab = useColorPaletteStore(state => state.setActiveTab)
+  const setPageDragActive = useColorPaletteStore(
+    state => state.setPageDragActive
+  )
+  const handleImageUpload = useColorPaletteStore(
+    state => state.handleImageUpload
+  )
+  const initializeApp = useColorPaletteStore(state => state.initializeApp)
 
   // Initialize app with default image for first-time users
   useEffect(() => {

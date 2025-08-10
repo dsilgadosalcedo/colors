@@ -12,19 +12,19 @@ import { ColorCard } from './color-card'
 import { useColorPaletteStore } from '@/lib/store'
 
 export function ColorPaletteDisplay({ state }: { state: 'show' | 'hide' }) {
-  const {
-    colorPalette,
-    copiedColor,
-    isCurrentPaletteSaved,
-    canUndo,
-    canRedo,
-    copyToClipboard,
-    savePalette,
-    downloadPalette,
-    sharePalette,
-    undoPalette,
-    redoPalette,
-  } = useColorPaletteStore()
+  const colorPalette = useColorPaletteStore(state => state.colorPalette)
+  const copiedColor = useColorPaletteStore(state => state.copiedColor)
+  const isCurrentPaletteSaved = useColorPaletteStore(
+    state => state.isCurrentPaletteSaved
+  )
+  const canUndo = useColorPaletteStore(state => state.canUndo)
+  const canRedo = useColorPaletteStore(state => state.canRedo)
+  const copyToClipboard = useColorPaletteStore(state => state.copyToClipboard)
+  const savePalette = useColorPaletteStore(state => state.savePalette)
+  const downloadPalette = useColorPaletteStore(state => state.downloadPalette)
+  const sharePalette = useColorPaletteStore(state => state.sharePalette)
+  const undoPalette = useColorPaletteStore(state => state.undoPalette)
+  const redoPalette = useColorPaletteStore(state => state.redoPalette)
 
   return (
     <ColorPaletteBox state={state}>

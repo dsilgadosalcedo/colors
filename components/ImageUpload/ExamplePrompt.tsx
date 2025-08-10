@@ -14,7 +14,7 @@ interface ExamplePromptProps {
   onExampleClick: (example: string) => void
 }
 
-export function ExamplePrompt({
+export const ExamplePrompt = React.memo(function ExamplePrompt({
   userPrompt,
   isLoading,
   onExampleClick,
@@ -24,7 +24,8 @@ export function ExamplePrompt({
   const [isAnimatingExample, setIsAnimatingExample] = useState(false)
   const [isInitialized, setIsInitialized] = useState(false)
 
-  const { selectedImage, isEditingMode } = useColorPaletteStore()
+  const selectedImage = useColorPaletteStore(state => state.selectedImage)
+  const isEditingMode = useColorPaletteStore(state => state.isEditingMode)
 
   const getInitialExample = (): string => {
     if (isEditingMode) {
@@ -212,4 +213,4 @@ export function ExamplePrompt({
       </Button>
     </div>
   )
-}
+})

@@ -9,7 +9,7 @@ interface ImageBackgroundProps {
   onRemoveImage: () => void
 }
 
-export function ImageBackground({
+export const ImageBackground = React.memo(function ImageBackground({
   selectedImage,
   isLoading,
   onRemoveImage,
@@ -60,4 +60,4 @@ export function ImageBackground({
       )}
     </>
   )
-}
+})

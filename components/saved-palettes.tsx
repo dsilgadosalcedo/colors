@@ -5,14 +5,16 @@ import { cn } from '@/lib/utils'
 import { ColorPalette } from '@/lib/types'
 
 export function SavedPalettes() {
-  const {
-    savedPalettes,
-    setActiveTab,
-    loadSavedPalette,
-    deleteSavedPalette,
-    toggleFavorite,
-    getFavoritePalettes,
-  } = useColorPaletteStore()
+  const savedPalettes = useColorPaletteStore(state => state.savedPalettes)
+  const setActiveTab = useColorPaletteStore(state => state.setActiveTab)
+  const loadSavedPalette = useColorPaletteStore(state => state.loadSavedPalette)
+  const deleteSavedPalette = useColorPaletteStore(
+    state => state.deleteSavedPalette
+  )
+  const toggleFavorite = useColorPaletteStore(state => state.toggleFavorite)
+  const getFavoritePalettes = useColorPaletteStore(
+    state => state.getFavoritePalettes
+  )
 
   const handleLoadPalette = (palette: ColorPalette) => {
     loadSavedPalette(palette)

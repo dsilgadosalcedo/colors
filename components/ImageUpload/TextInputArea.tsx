@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useMemo, useRef, useCallback, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
@@ -15,10 +15,9 @@ import { Card } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 import { gsap } from 'gsap'
 import { useIsMobile } from '@/hooks/use-mobile'
+import { ExamplePrompt } from './ExamplePrompt'
 
 interface TextInputAreaProps {
-  userPrompt: string
-  setUserPrompt: (prompt: string) => void
   loadingText: string
   colorTextPreview: string
   isColorTextPreviewMode: boolean
@@ -29,16 +28,12 @@ interface TextInputAreaProps {
   setColorCount: (count: number) => void
   onUploadClick: () => void
   onCameraClick?: () => void
-  onGenerate: () => void
-  onKeyDown: (e: React.KeyboardEvent) => void
   onExitEditingMode: () => void
   onImageUpload: (file: File) => void
-  textareaRef: React.RefObject<HTMLTextAreaElement | null>
+  onGeneratePalette: (userPrompt?: string) => void
 }
 
-export function TextInputArea({
-  userPrompt,
-  setUserPrompt,
+export const TextInputArea = React.memo(function TextInputArea({
   loadingText,
   colorTextPreview,
   isColorTextPreviewMode,
@@ -49,49 +44,77 @@ export function TextInputArea({
   setColorCount,
   onUploadClick,
   onCameraClick,
-  onGenerate,
-  onKeyDown,
   onExitEditingMode,
   onImageUpload,
-  textareaRef,
+  onGeneratePalette,
 }: TextInputAreaProps) {
   const timelineRef = useRef<gsap.core.Timeline | null>(null)
   const cardRef = useRef<HTMLDivElement>(null)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
   const isMobile = useIsMobile()
+  const [userPrompt, setUserPrompt] = useState('')
 
-  const handlePaste = (e: React.ClipboardEvent) => {
-    // Don't interfere if we're in loading state or color text preview mode
-    if (isLoading || isColorTextPreviewMode) {
-      return
-    }
+  const handleGenerate = useCallback(() => {
+    onGeneratePalette(userPrompt.trim() || undefined)
+  }, [onGeneratePalette, userPrompt])
 
-    const items = e.clipboardData?.items
-    if (!items) return
-
-    // Look for image files in clipboard
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i]
-
-      if (item.type.startsWith('image/')) {
-        e.preventDefault() // Prevent default paste behavior
-
-        const file = item.getAsFile()
-        if (file) {
-          onImageUpload(file)
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter') {
+        if (e.shiftKey) {
+          return
+        } else {
+          e.preventDefault()
+          handleGenerate()
         }
-        return
       }
+    },
+    [handleGenerate]
+  )
+
+  const handleAddColorText = useCallback(
+    (colorName: string) => {
+      const colorText = `the color ${colorName.toLowerCase()}`
+      const currentText = userPrompt.trim()
+      const newText = currentText ? `${currentText} ${colorText}` : colorText
+      setUserPrompt(newText)
+
+      if (textareaRef.current) {
+        textareaRef.current.focus()
+        const length = newText.length
+        setTimeout(() => {
+          if (textareaRef.current) {
+            textareaRef.current.setSelectionRange(length, length)
+          }
+        }, 0)
+      }
+    },
+    [userPrompt]
+  )
+
+  // Handle color text events from ColorCard components
+  useEffect(() => {
+    const handleAddColorTextEvent = (event: CustomEvent) => {
+      handleAddColorText(event.detail.colorName)
     }
 
-    // If no image found, allow normal text pasting
-  }
+    window.addEventListener(
+      'addColorText',
+      handleAddColorTextEvent as EventListener
+    )
+    return () => {
+      window.removeEventListener(
+        'addColorText',
+        handleAddColorTextEvent as EventListener
+      )
+    }
+  }, [handleAddColorText])
 
   // Simple and elegant GSAP loading animation
   useEffect(() => {
     if (!cardRef.current) return
 
     if (isLoading) {
-      // Create smooth glow animation on the card
       const tl = gsap.timeline({ repeat: -1 })
 
       tl.to(cardRef.current, {
@@ -106,7 +129,6 @@ export function TextInputArea({
 
       timelineRef.current = tl
     } else {
-      // Clean up animation
       if (timelineRef.current) {
         timelineRef.current.kill()
         timelineRef.current = null
@@ -127,140 +149,175 @@ export function TextInputArea({
     }
   }, [isLoading])
 
-  return (
-    <Card
-      ref={cardRef}
-      className="backdrop-blur-sm p-3 relative md:w-140 border-none"
-    >
-      <Textarea
-        ref={textareaRef}
-        value={
-          isLoading
-            ? loadingText
-            : isColorTextPreviewMode
-              ? `${userPrompt}${userPrompt.trim() ? ' ' : ''}${colorTextPreview}`
-              : userPrompt
-        }
-        onChange={e =>
-          !isLoading && !isColorTextPreviewMode && setUserPrompt(e.target.value)
-        }
-        onKeyDown={onKeyDown}
-        onPaste={handlePaste}
-        placeholder={
-          isEditingMode
-            ? 'Edit your palette'
-            : selectedImage
-              ? 'Add specifications'
-              : 'Describe your palette'
-        }
-        className={cn(
-          'resize-none focus-visible:ring-0 focus-visible:ring-offset-0 px-0 min-h-[28px] text-sm md:text-lg font-medium border-none rounded-none relative',
-          isColorTextPreviewMode && 'text-muted-foreground',
-          isLoading && 'text-muted-foreground/80'
-        )}
-        disabled={isLoading}
-        readOnly={isLoading || isColorTextPreviewMode}
-      />
+  const textareaValue = useMemo(() => {
+    if (isLoading) return loadingText
+    if (isColorTextPreviewMode) {
+      return `${userPrompt}${userPrompt.trim() ? ' ' : ''}${colorTextPreview}`
+    }
+    return userPrompt
+  }, [
+    isLoading,
+    loadingText,
+    isColorTextPreviewMode,
+    userPrompt,
+    colorTextPreview,
+  ])
 
-      <div className="flex items-center justify-between gap-4 mt-2">
-        <div className="flex items-center justify-center gap-2">
-          {/* Upload button - hide on mobile when editing */}
-          <Button
-            type="button"
-            variant="outline"
-            size="icon"
-            onClick={onUploadClick}
-            disabled={isLoading || isEditingMode}
-            className={cn(
-              'bg-transparent text-muted-foreground hover:bg-ring hover:text-secondary-foreground border-ring hover:border-ring disabled:border-secondary disabled:cursor-not-allowed disabled:opacity-100',
-              isMobile && isEditingMode && 'hidden'
-            )}
-          >
-            <Paperclip />
-          </Button>
-          {/* Camera button - hide on mobile when editing */}
-          {onCameraClick && (
+  return (
+    <>
+      <ExamplePrompt
+        userPrompt={userPrompt}
+        isLoading={isLoading}
+        onExampleClick={(example: string) => {
+          setUserPrompt(example)
+          if (textareaRef.current) textareaRef.current.focus()
+        }}
+      />
+      <Card
+        ref={cardRef}
+        className="backdrop-blur-sm p-3 relative md:w-140 border-none"
+      >
+        <Textarea
+          ref={textareaRef}
+          value={textareaValue}
+          onChange={e =>
+            !isLoading &&
+            !isColorTextPreviewMode &&
+            setUserPrompt(e.target.value)
+          }
+          onKeyDown={handleKeyDown}
+          onPaste={e => {
+            if (isLoading || isColorTextPreviewMode) return
+            const items = e.clipboardData?.items
+            if (!items) return
+            for (let i = 0; i < items.length; i++) {
+              const item = items[i]
+              if (item.type.startsWith('image/')) {
+                e.preventDefault()
+                const file = item.getAsFile()
+                if (file) {
+                  onImageUpload(file)
+                }
+                return
+              }
+            }
+          }}
+          placeholder={
+            isEditingMode
+              ? 'Edit your palette'
+              : selectedImage
+                ? 'Add specifications'
+                : 'Describe your palette'
+          }
+          className={cn(
+            'resize-none focus-visible:ring-0 focus-visible:ring-offset-0 px-0 min-h-[28px] text-sm md:text-lg font-medium border-none rounded-none relative',
+            isColorTextPreviewMode && 'text-muted-foreground',
+            isLoading && 'text-muted-foreground/80'
+          )}
+          disabled={isLoading}
+          readOnly={isLoading || isColorTextPreviewMode}
+        />
+
+        <div className="flex items-center justify-between gap-4 mt-2">
+          <div className="flex items-center justify-center gap-2">
+            {/* Upload button - hide on mobile when editing */}
             <Button
               type="button"
               variant="outline"
               size="icon"
-              onClick={onCameraClick}
+              onClick={onUploadClick}
               disabled={isLoading || isEditingMode}
               className={cn(
                 'bg-transparent text-muted-foreground hover:bg-ring hover:text-secondary-foreground border-ring hover:border-ring disabled:border-secondary disabled:cursor-not-allowed disabled:opacity-100',
                 isMobile && isEditingMode && 'hidden'
               )}
             >
-              <Camera />
+              <Paperclip />
             </Button>
-          )}
-          {/* Editing switch and label - hide on mobile when not editing */}
-          <div
-            className={cn(
-              'flex items-center gap-2',
-              isMobile && !isEditingMode && 'hidden md:flex'
-            )}
-          >
-            <Switch
-              id="editing"
-              checked={isEditingMode}
-              onCheckedChange={checked => {
-                if (!checked && isEditingMode) {
-                  onExitEditingMode()
-                }
-              }}
-              disabled={!isEditingMode}
-              className="data-[state=checked]:bg-ring data-[state=unchecked]:bg-transparent border border-ring w-14 disabled:border-secondary disabled:cursor-not-allowed disabled:opacity-100 rounded-md"
-            />
-            <Label htmlFor="editing" className="text-card-foreground">
-              Editing
-            </Label>
-          </div>
-        </div>
-
-        <div className="flex items-center justify-center gap-2">
-          {/* Color Count Selector */}
-          <div className="flex items-center justify-between gap-2">
-            <Label
-              htmlFor="color-count"
-              className="text-sm font-medium text-card-foreground"
-            >
-              <span className="hidden md:block">Number of colors</span>
-              <span className="block md:hidden">Colors</span>
-            </Label>
-            <Select
-              value={colorCount.toString()}
-              onValueChange={value => setColorCount(Number.parseInt(value))}
-              disabled={isLoading || isEditingMode}
-            >
-              <SelectTrigger
-                id="color-count"
-                className="w-12 md:w-20 h-10 text-xs p-2 rounded-md"
+            {/* Camera button - hide on mobile when editing */}
+            {onCameraClick && (
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={onCameraClick}
+                disabled={isLoading || isEditingMode}
+                className={cn(
+                  'bg-transparent text-muted-foreground hover:bg-ring hover:text-secondary-foreground border-ring hover:border-ring disabled:border-secondary disabled:cursor-not-allowed disabled:opacity-100',
+                  isMobile && isEditingMode && 'hidden'
+                )}
               >
-                <SelectValue placeholder={colorCount.toString()} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="3">3</SelectItem>
-                <SelectItem value="4">4</SelectItem>
-                <SelectItem value="5">5</SelectItem>
-                <SelectItem value="6">6</SelectItem>
-                <SelectItem value="8">8</SelectItem>
-                <SelectItem value="10">10</SelectItem>
-              </SelectContent>
-            </Select>
+                <Camera />
+              </Button>
+            )}
+            {/* Editing switch and label - hide on mobile when not editing */}
+            <div
+              className={cn(
+                'flex items-center gap-2',
+                isMobile && !isEditingMode && 'hidden md:flex'
+              )}
+            >
+              <Switch
+                id="editing"
+                checked={isEditingMode}
+                onCheckedChange={checked => {
+                  if (!checked && isEditingMode) {
+                    onExitEditingMode()
+                  }
+                }}
+                disabled={!isEditingMode}
+                className="data-[state=checked]:bg-ring data-[state=unchecked]:bg-transparent border border-ring w-14 disabled:border-secondary disabled:cursor-not-allowed disabled:opacity-100 rounded-md"
+              />
+              <Label htmlFor="editing" className="text-card-foreground">
+                Editing
+              </Label>
+            </div>
           </div>
 
-          <Button
-            type="button"
-            variant="accent"
-            size="icon"
-            onClick={onGenerate}
-            disabled={isLoading || (!selectedImage && !userPrompt.trim())}
-          >
-            <Send />
-          </Button>
+          <div className="flex items-center justify-center gap-2">
+            {/* Color Count Selector */}
+            <div className="flex items-center justify-between gap-2">
+              <Label
+                htmlFor="color-count"
+                className="text-sm font-medium text-card-foreground"
+              >
+                <span className="hidden md:block">Number of colors</span>
+                <span className="block md:hidden">Colors</span>
+              </Label>
+              <Select
+                value={colorCount.toString()}
+                onValueChange={value => setColorCount(Number.parseInt(value))}
+                disabled={isLoading || isEditingMode}
+              >
+                <SelectTrigger
+                  id="color-count"
+                  className="w-12 md:w-20 h-10 text-xs p-2 rounded-md"
+                >
+                  <SelectValue placeholder={colorCount.toString()} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="3">3</SelectItem>
+                  <SelectItem value="4">4</SelectItem>
+                  <SelectItem value="5">5</SelectItem>
+                  <SelectItem value="6">6</SelectItem>
+                  <SelectItem value="8">8</SelectItem>
+                  <SelectItem value="10">10</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <Button
+              type="button"
+              variant="accent"
+              size="icon"
+              onClick={handleGenerate}
+              disabled={isLoading || (!selectedImage && !userPrompt.trim())}
+            >
+              <Send />
+            </Button>
+          </div>
         </div>
-      </div>
-    </Card>
+      </Card>
+    </>
   )
-}
+})

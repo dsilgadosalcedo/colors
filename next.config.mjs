@@ -15,7 +15,7 @@ const nextConfig = {
   experimental: {
     optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
   },
-  webpack: (config) => {
+  webpack: config => {
     return config
   },
   compress: true,

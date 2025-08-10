@@ -5,7 +5,6 @@ import { cn } from '@/lib/utils'
 import { useColorPaletteStore } from '@/lib/store'
 import { toast } from '@/components/ui/use-toast'
 import { useIsMobile } from '@/hooks/use-mobile'
-import { ExamplePrompt } from './ExamplePrompt'
 import { ImageBackground } from './ImageBackground'
 import { TextInputArea } from './TextInputArea'
 
@@ -16,35 +15,38 @@ interface ImageUploadProps {
 export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const cameraInputRef = useRef<HTMLInputElement>(null)
-  const textareaRef = useRef<HTMLTextAreaElement>(null)
-  const [userPrompt, setUserPrompt] = useState('')
   const [loadingText, setLoadingText] = useState('')
   const [wasGenerating, setWasGenerating] = useState(false)
   const isMobile = useIsMobile()
+  const lastAutoSavedTimestampRef = useRef<number | null>(null)
 
-  const {
-    selectedImage,
-    colorCount,
-    isLoading,
-    isEditingMode,
-    colorTextPreview,
-    isColorTextPreviewMode,
-    colorPalette,
-    setColorPalette,
-    setDragActive,
-    setColorCount,
-    handleImageUpload,
-    resetImageState,
-    exitEditingMode,
-    autoSavePalette,
-  } = useColorPaletteStore()
+  const selectedImage = useColorPaletteStore(state => state.selectedImage)
+  const colorCount = useColorPaletteStore(state => state.colorCount)
+  const isLoading = useColorPaletteStore(state => state.isLoading)
+  const isEditingMode = useColorPaletteStore(state => state.isEditingMode)
+  const colorTextPreview = useColorPaletteStore(state => state.colorTextPreview)
+  const isColorTextPreviewMode = useColorPaletteStore(
+    state => state.isColorTextPreviewMode
+  )
+  const colorPalette = useColorPaletteStore(state => state.colorPalette)
+  const isCurrentPaletteSaved = useColorPaletteStore(
+    state => state.isCurrentPaletteSaved
+  )
+  const setColorPalette = useColorPaletteStore(state => state.setColorPalette)
+  const setDragActive = useColorPaletteStore(state => state.setDragActive)
+  const setColorCount = useColorPaletteStore(state => state.setColorCount)
+  const handleImageUpload = useColorPaletteStore(
+    state => state.handleImageUpload
+  )
+  const resetImageState = useColorPaletteStore(state => state.resetImageState)
+  const exitEditingMode = useColorPaletteStore(state => state.exitEditingMode)
+  const autoSavePalette = useColorPaletteStore(state => state.autoSavePalette)
 
   // Loading text animation effect
   useEffect(() => {
     if (isLoading && !wasGenerating) {
       setWasGenerating(true)
 
-      // Different messages based on whether there's an image or not
       const messages = selectedImage
         ? [
             'Analyzing image colors...',
@@ -74,117 +76,68 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
     }
   }, [isLoading, wasGenerating, selectedImage])
 
-  // Auto-save palette when generated
+  // Auto-save palette when generated (only once per palette)
   useEffect(() => {
-    if (colorPalette && !isEditingMode) {
+    if (
+      colorPalette &&
+      !isEditingMode &&
+      !isCurrentPaletteSaved &&
+      colorPalette.timestamp !== lastAutoSavedTimestampRef.current
+    ) {
       autoSavePalette(colorPalette)
+      lastAutoSavedTimestampRef.current = colorPalette.timestamp ?? Date.now()
     }
-  }, [colorPalette, isEditingMode, autoSavePalette])
+  }, [colorPalette, isEditingMode, isCurrentPaletteSaved, autoSavePalette])
 
-  const handleAddColorText = useCallback(
-    (colorName: string) => {
-      const colorText = `the color ${colorName.toLowerCase()}`
-      const currentText = userPrompt.trim()
-      const newText = currentText ? `${currentText} ${colorText}` : colorText
-      setUserPrompt(newText)
-
-      // Focus textarea after adding text
-      if (textareaRef.current) {
-        textareaRef.current.focus()
-        // Move cursor to end
-        const length = newText.length
-        setTimeout(() => {
-          if (textareaRef.current) {
-            textareaRef.current.setSelectionRange(length, length)
-          }
-        }, 0)
+  // Drag and file handlers
+  const handleDrag = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault()
+      e.stopPropagation()
+      if (e.type === 'dragenter' || e.type === 'dragover') {
+        setDragActive(true)
+      } else if (e.type === 'dragleave') {
+        setDragActive(false)
       }
     },
-    [userPrompt, setUserPrompt]
+    [setDragActive]
   )
 
-  // Handle color text events from ColorCard components
-  useEffect(() => {
-    const handleAddColorTextEvent = (event: CustomEvent) => {
-      handleAddColorText(event.detail.colorName)
-    }
-
-    window.addEventListener(
-      'addColorText',
-      handleAddColorTextEvent as EventListener
-    )
-    return () => {
-      window.removeEventListener(
-        'addColorText',
-        handleAddColorTextEvent as EventListener
-      )
-    }
-  }, [handleAddColorText])
-
-  const handleDrag = (e: React.DragEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    if (e.type === 'dragenter' || e.type === 'dragover') {
-      setDragActive(true)
-    } else if (e.type === 'dragleave') {
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault()
+      e.stopPropagation()
       setDragActive(false)
-    }
-  }
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setDragActive(false)
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      const file = e.dataTransfer.files[0]
-      if (file.type.startsWith('image/')) {
-        handleImageUpload(file)
+      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+        const file = e.dataTransfer.files[0]
+        if (file.type.startsWith('image/')) {
+          handleImageUpload(file)
+        }
       }
-    }
-  }
+    },
+    [handleImageUpload, setDragActive]
+  )
 
-  const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      handleImageUpload(e.target.files[0])
-    }
-  }
+  const handleFileInput = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (e.target.files && e.target.files[0]) {
+        handleImageUpload(e.target.files[0])
+      }
+    },
+    [handleImageUpload]
+  )
 
-  const handleUploadClick = () => {
+  const handleUploadClick = useCallback(() => {
     fileInputRef.current?.click()
-  }
+  }, [])
 
-  const handleCameraClick = () => {
+  const handleCameraClick = useCallback(() => {
     cameraInputRef.current?.click()
-  }
+  }, [])
 
-  const handleGenerate = () => {
-    onGeneratePalette(userPrompt.trim() || undefined)
-  }
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      if (e.shiftKey) {
-        // Allow new line with Shift+Enter
-        return
-      } else {
-        // Submit with Enter
-        e.preventDefault()
-        handleGenerate()
-      }
-    }
-  }
-
-  const handleExampleClick = (example: string) => {
-    setUserPrompt(example)
-    if (textareaRef.current) {
-      textareaRef.current.focus()
-    }
-  }
-
-  const handleRemoveImage = async () => {
+  const handleRemoveImage = useCallback(async () => {
     try {
       resetImageState()
-      setUserPrompt('')
       if (colorPalette && isEditingMode) {
         exitEditingMode()
       }
@@ -197,7 +150,15 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
         variant: 'destructive',
       })
     }
-  }
+  }, [
+    resetImageState,
+    colorPalette,
+    isEditingMode,
+    exitEditingMode,
+    setColorPalette,
+  ])
+
+  const onCamera = isMobile ? handleCameraClick : undefined
 
   return (
     <div
@@ -267,17 +228,7 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
 
       {/* Main Content Area */}
       <section className="-bottom-14 md:bottom-8 relative md:absolute md:left-1/2 md:-translate-x-1/2 md:px-6 w-[calc(100%-32px)] md:w-auto">
-        {/* Example Prompt Component */}
-        <ExamplePrompt
-          userPrompt={userPrompt}
-          isLoading={isLoading}
-          onExampleClick={handleExampleClick}
-        />
-
-        {/* Text Input Area Component */}
         <TextInputArea
-          userPrompt={userPrompt}
-          setUserPrompt={setUserPrompt}
           loadingText={loadingText}
           colorTextPreview={colorTextPreview}
           isColorTextPreviewMode={isColorTextPreviewMode}
@@ -287,12 +238,10 @@ export function ImageUpload({ onGeneratePalette }: ImageUploadProps) {
           colorCount={colorCount}
           setColorCount={setColorCount}
           onUploadClick={handleUploadClick}
-          onCameraClick={isMobile ? handleCameraClick : undefined}
-          onGenerate={handleGenerate}
-          onKeyDown={handleKeyDown}
+          onCameraClick={onCamera}
           onExitEditingMode={exitEditingMode}
           onImageUpload={handleImageUpload}
-          textareaRef={textareaRef}
+          onGeneratePalette={onGeneratePalette}
         />
       </section>
     </div>

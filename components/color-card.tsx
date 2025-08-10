@@ -18,7 +18,12 @@ export function ColorCard({
   onCopyColor,
   isPrimary = false,
 }: ColorCardProps) {
-  const { setColorTextPreview, clearColorTextPreview } = useColorPaletteStore()
+  const setColorTextPreview = useColorPaletteStore(
+    state => state.setColorTextPreview
+  )
+  const clearColorTextPreview = useColorPaletteStore(
+    state => state.clearColorTextPreview
+  )
 
   const handleEditMouseEnter = () => {
     setColorTextPreview(color.name)
