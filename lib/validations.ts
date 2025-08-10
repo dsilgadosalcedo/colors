@@ -116,7 +116,6 @@ export const envSchema = z.object({
     .enum(['development', 'production', 'test'])
     .default('development'),
   NEXT_PUBLIC_VERCEL_URL: z.string().optional(),
-  NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA: z.string().optional(),
 })
 
 // User input sanitization

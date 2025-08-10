@@ -14,4 +14,4 @@ yarn.lock
 
 # Ignore generated files
 .env.local
-.env.production 
+.env.production
