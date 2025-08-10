@@ -15,41 +15,11 @@ const nextConfig = {
   experimental: {
     optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
   },
-  webpack: (config, { dev, isServer }) => {
-    if (!dev && !isServer) {
-      config.optimization.sideEffects = false
-    }
-
-    // Optimize bundle for production
-    if (!dev && !isServer) {
-      config.optimization.sideEffects = false
-    }
-
+  webpack: (config) => {
     return config
   },
   compress: true,
   poweredByHeader: false,
-  async headers() {
-    return [
-      {
-        source: '/(.*)',
-        headers: [
-          {
-            key: 'X-Frame-Options',
-            value: 'DENY',
-          },
-          {
-            key: 'X-Content-Type-Options',
-            value: 'nosniff',
-          },
-          {
-            key: 'Referrer-Policy',
-            value: 'origin-when-cross-origin',
-          },
-        ],
-      },
-    ]
-  },
   async rewrites() {
     return [
       {

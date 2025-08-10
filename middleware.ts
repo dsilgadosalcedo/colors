@@ -67,7 +67,8 @@ export function middleware(request: NextRequest) {
         .find(([route]) => request.nextUrl.pathname.startsWith(route))?.[1]
 
       if (rateLimiter) {
-        const rateLimitResult = rateLimiter.check(request)
+        // Peek without incrementing; actual increment happens in the route handler
+        const rateLimitResult = rateLimiter.peek(request)
 
         // Add rate limit headers
         addRateLimitHeaders(response.headers, rateLimitResult)
@@ -126,11 +127,14 @@ export function middleware(request: NextRequest) {
 
   // CORS headers for API routes
   if (request.nextUrl.pathname.startsWith('/api/')) {
+    const allowedOrigin =
+      process.env.NEXT_PUBLIC_APP_URL ||
+      process.env.NEXT_PUBLIC_VERCEL_URL ||
+      '*'
+
     response.headers.set(
       'Access-Control-Allow-Origin',
-      process.env.NODE_ENV === 'production'
-        ? 'https://your-domain.com' // Replace with your actual domain
-        : '*'
+      process.env.NODE_ENV === 'production' ? allowedOrigin : '*'
     )
     response.headers.set(
       'Access-Control-Allow-Methods',

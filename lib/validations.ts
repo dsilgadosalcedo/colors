@@ -112,6 +112,8 @@ export const envSchema = z.object({
     .string()
     .url()
     .min(1, 'PostHog host URL is required'),
+  POSTHOG_API_KEY: z.string().optional(),
+  NEXT_PUBLIC_APP_URL: z.string().url().optional(),
   NODE_ENV: z
     .enum(['development', 'production', 'test'])
     .default('development'),
